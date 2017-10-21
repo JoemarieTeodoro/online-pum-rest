@@ -2,6 +2,8 @@ package com.ph.ibm.resources;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -14,11 +16,13 @@ public class ConnectionPool {
 
 	Logger logger = Logger.getLogger(ConnectionPool.class);
 
-	private static ConnectionPool connectionPool = new ConnectionPool();
+	private String dbUrl = "jdbc:mysql://localhost:3306/opum";
+	private String userName = "root";
+	private String password = "root";
 
-	private ConnectionPool() {
+	private static ConnectionPool connectionPool;
 
-	}
+	private ConnectionPool() {}
 
 	static {
 		try {
@@ -29,17 +33,26 @@ public class ConnectionPool {
 	}
 
 	public static ConnectionPool getInstance() {
+		if (connectionPool == null) {
+			connectionPool = new ConnectionPool();
+		}
 		return connectionPool;
 	}
 
 	public Connection getConnection() {
 		Connection connection = null;
+		Properties connectionProps = new Properties();
+	    connectionProps.put("user", this.userName);
+	    connectionProps.put("password", this.password);
+		
 		try {
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/opum", "root", "root");
-		} catch (Exception e) {
+			connection = DriverManager.getConnection(dbUrl, connectionProps);
+		} catch (SQLException e) {
 			logger.error(OpumConstants.UNABLE_TO_ESTABLISH_CONNECTION);
 			e.printStackTrace();
 		}
 		return connection;
 	}
+	
+	
 }
