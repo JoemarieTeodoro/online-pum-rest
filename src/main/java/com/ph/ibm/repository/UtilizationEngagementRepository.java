@@ -45,12 +45,12 @@ public interface UtilizationEngagementRepository {
 	/**
 	 * 
 	 * 
-	 * @param employeeId
+	 * @param employeeSerial
 	 * @param year
 	 * @return Utilization object
 	 * @throws SQLException
 	 */
-	public Utilization getComputation(int employeeId, int year) throws SQLException;
+	public Utilization getComputation(String employeeSerial, int year) throws SQLException;
 
 
 }
