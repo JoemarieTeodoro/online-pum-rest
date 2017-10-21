@@ -1,4 +1,4 @@
-package com.ph.ibm.util;
+package com.ph.ibm.validation.impl;
 
 /**
  * This class contains regular expression patterns that validates format of
