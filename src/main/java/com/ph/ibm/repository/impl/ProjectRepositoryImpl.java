@@ -14,12 +14,6 @@ import com.ph.ibm.resources.ConnectionPool;
 public class ProjectRepositoryImpl implements ProjectRepository {
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
-
-	private void closeConnection(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
-		try { if (resultSet != null) resultSet.close();} catch (Exception e) {}
-		try { if (preparedStatement != null) preparedStatement.close();} catch (Exception e) {}
-		try { if (connection != null)connection.close();} catch (Exception e) {}
-	}
 	
 	@Override
 	public List<Project> retrieveData() throws SQLException {
@@ -32,7 +26,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 			preparedStatement = connection.prepareStatement(query);
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
-				int projectId = resultSet.getInt(1);
+				Long projectId = resultSet.getLong(1);
 				String projectName = resultSet.getString(2);
 				String createDate = resultSet.getString(3);
 				String createdBy = resultSet.getString(4);
@@ -43,7 +37,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return projects;
 	}

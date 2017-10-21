@@ -15,9 +15,6 @@ import com.ph.ibm.util.OpumConstants;
 
 public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 
-	public HolidayRepositoryImpl() {
-	}
-
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
 	@Override
@@ -39,9 +36,8 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			try {preparedStatement.close();} catch (Exception e) {}
-			try {connection.close();} catch (Exception e) {}
-			}
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
 		return false;
 	}
 
@@ -63,9 +59,8 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			try {preparedStatement.close();} catch (Exception e) {}
-			try {connection.close();} catch (Exception e) {}
-			}
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
 		return false;
 	}
 	
@@ -86,9 +81,8 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally {
-			try {preparedStatement.close();} catch (Exception e) {}
-			try {connection.close();} catch (Exception e) {}
-			}
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
 		return false;
 	}
 
@@ -116,9 +110,7 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try {resultSet.close();} catch (Exception e) {}
-			try {preparedStatement.close();} catch (Exception e) {}
-			try {connection.close();} catch (Exception e) {}
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return holidays;
 	}
@@ -146,9 +138,7 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			e.printStackTrace();
 			return null;
 		} finally {
-			try {resultSet.close();} catch (Exception e) {}
-			try {preparedStatement.close();} catch (Exception e) {}
-			try {connection.close();} catch (Exception e) {}
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 	}
 

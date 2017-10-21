@@ -16,12 +16,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 	
-	private void closeConnection(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
-		try { if (resultSet != null) resultSet.close();} catch (Exception e) {}
-		try { if (preparedStatement != null) preparedStatement.close();} catch (Exception e) {}
-		try { if (connection != null)connection.close();} catch (Exception e) {}
-	}
-
 	@Override
 	public boolean addData(Employee employee) throws SQLException, BatchUpdateException {
 		Connection connection = connectionPool.getConnection();
@@ -94,7 +88,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return employeeId;
 	}
@@ -121,7 +115,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return employee;
 	}
@@ -151,7 +145,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			e.printStackTrace();
 			return null;
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 	}
 
@@ -175,7 +169,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			e.printStackTrace();
 			return false;
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 	}
 
@@ -211,7 +205,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				e.printStackTrace();
 				return null;
 			} finally {
-				closeConnection(connection, preparedStatement, resultSet);
+				connectionPool.closeConnection(connection, preparedStatement, resultSet);
 			}
 		}
 
@@ -248,8 +242,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try { if(preparedStatement != null) preparedStatement.close();} catch(Exception e) { }
-			try { if(connection != null) connection.close(); } catch(Exception e) { }
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;
 	}

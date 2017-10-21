@@ -18,12 +18,6 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 	
-	private void closeConnection(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
-		try { if (resultSet != null) resultSet.close();} catch (Exception e) {}
-		try { if (preparedStatement != null) preparedStatement.close();} catch (Exception e) {}
-		try { if (connection != null)connection.close();} catch (Exception e) {}
-	}
-
 	@Override
 	public boolean addProjectEngagement(ProjectEngagement projectEngagement) throws SQLException {
 		Connection connection = connectionPool.getConnection();
@@ -55,8 +49,7 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try { if(preparedStatement != null) preparedStatement.close();} catch(Exception e) { }
-			try { if(connection != null) connection.close(); } catch(Exception e) { }
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;
 	}
@@ -94,8 +87,7 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 			e.printStackTrace();
 
 		} finally {
-			try { if(preparedStatement != null) preparedStatement.close();} catch(Exception e) { }
-			try { if(connection != null) connection.close(); } catch(Exception e) { }
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;
 	}
@@ -118,7 +110,7 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return projectEngagementId;
 	}
@@ -144,7 +136,7 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 			e.printStackTrace();
 			return false;
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 	}
 	
@@ -174,7 +166,7 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return dates;
 	}

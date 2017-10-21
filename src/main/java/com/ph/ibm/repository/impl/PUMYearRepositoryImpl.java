@@ -23,24 +23,6 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
-	private void closeConnection(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
-		try {
-			if (resultSet != null)
-				resultSet.close();
-		} catch (Exception e) {
-		}
-		try {
-			if (preparedStatement != null)
-				preparedStatement.close();
-		} catch (Exception e) {
-		}
-		try {
-			if (connection != null)
-				connection.close();
-		} catch (Exception e) {
-		}
-	}
-
 	@Override
 	public boolean saveYear(PUMYear pumYear) throws SQLException, ParseException {
 		Connection connection = connectionPool.getConnection();
@@ -66,16 +48,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 			e.printStackTrace();
 
 		} finally {
-			try {
-				if (preparedStatement != null)
-					preparedStatement.close();
-			} catch (Exception e) {
-			}
-			try {
-				if (connection != null)
-					connection.close();
-			} catch (Exception e) {
-			}
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;
 	}
@@ -102,18 +75,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		} catch (SQLException e){
 			e.printStackTrace();
 		} finally{
-			try{
-				if (preparedStatement != null)
-					preparedStatement.close();
-			} catch (Exception e){
-				
-			}
-			try{
-				if (connection != null)
-					connection.close();
-			} catch (Exception e){
-				
-			}
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;	
 	}
@@ -141,16 +103,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		} catch (SQLException e){
 			e.printStackTrace();
 		} finally {
-			try {
-				if (preparedStatement != null)
-					preparedStatement.close();
-			} catch (Exception e) {
-			}
-			try {
-				if (connection != null)
-					connection.close();
-			} catch (Exception e) {
-			}
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;		
 	}
@@ -182,7 +135,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return pumYearList;
 	}
@@ -213,7 +166,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			closeConnection(connection, preparedStatement, resultSet);
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return pumYear;
 	}
@@ -239,16 +192,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 			e.printStackTrace();
 
 		} finally {
-			try {
-				if (preparedStatement != null)
-					preparedStatement.close();
-			} catch (Exception e) {
-			}
-			try {
-				if (connection != null)
-					connection.close();
-			} catch (Exception e) {
-			}
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		
 		return false;
