@@ -25,6 +25,8 @@
 		<jersey.version>2.26-b08</jersey.version>
 		<jackson.version>1.9.13</jackson.version>
 		<junit.version>4.11</junit.version>
+		<mockito.version>1.10.19</mockito.version>
+		<hamcrest.version>1.3</hamcrest.version>
 		<servlet.version>3.1.0</servlet.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -47,7 +49,21 @@
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 		</dependency>
-	
+		
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-all</artifactId>
+		    <version>${mockito.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.hamcrest</groupId>
+		    <artifactId>hamcrest-all</artifactId>
+		    <version>${hamcrest.version}</version>
+		    <scope>test</scope>
+		</dependency>
+				
 		<dependency>
 			<groupId>net.wasdev.maven.tools.targets</groupId>
 			<artifactId>liberty-target</artifactId>
@@ -127,6 +143,18 @@
 				<version>2.1.1</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<webResources>
+						<resource>
+					    	<!-- this is relative to the pom.xml directory -->
+					  		<directory>src/main/resources</directory>
+					  		<includes>
+				                <include>log4j.properties</include>
+				            </includes>
+				            <excludes>
+			                	<exclude>**/sql</exclude>
+			                </excludes>
+						</resource>
+					</webResources>
 				</configuration>
 			</plugin>
 			<plugin>

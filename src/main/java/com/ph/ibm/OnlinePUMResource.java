@@ -3,6 +3,7 @@ package com.ph.ibm;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -16,13 +17,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 import com.ph.ibm.bo.EmployeeBO;
 import com.ph.ibm.bo.HolidayBO;
@@ -102,8 +101,9 @@ public class OnlinePUMResource {
 	 */
 	public OnlinePUMResource() {
 		super();
-		PropertyConfigurator.configure(
-				getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "log4j.properties");
+		ResourceBundle resource = ResourceBundle.getBundle("log4j");
+//		PropertyConfigurator.configure(
+//				getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "log4j.properties");
 	}
 
 	/**
