@@ -37,8 +37,8 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 			String query = "INSERT INTO PROJECT_ENGAGEMENT (" + "PROJECT_ID, EMPLOYEE_ID, START, END) " + "VALUES (?,?,?,?); ";
 
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setInt(1, projectEngagement.getProjectId());
-			preparedStatement.setInt(2, projectEngagement.getEmployeeId());
+			preparedStatement.setLong(1, projectEngagement.getProjectId());
+			preparedStatement.setString(2, projectEngagement.getEmployeeId());
 			preparedStatement.setDate(3, projectEngagement.getStartDate());
 			preparedStatement.setDate(4, projectEngagement.getEndDate());
 			preparedStatement.addBatch();
@@ -76,9 +76,9 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 			preparedStatement.setDate(1, projectEngagement.getStartDate());
 			preparedStatement.setDate(2, projectEngagement.getEndDate());
 			preparedStatement.setString(3, OpumConstants.ADMIN);
-			preparedStatement.setInt(4, projectEngagement.getProjectEngagementId());
-			preparedStatement.setInt(5, projectEngagement.getProjectId());
-			preparedStatement.setInt(6, projectEngagement.getEmployeeId());
+			preparedStatement.setLong(4, projectEngagement.getProjectEngagementId());
+			preparedStatement.setLong(5, projectEngagement.getProjectId());
+			preparedStatement.setString(6, projectEngagement.getEmployeeId());
 			preparedStatement.executeUpdate();
 			connection.commit();
 			System.out.println(OpumConstants.UPDATED_SUCCESS);
@@ -93,19 +93,19 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 	}
 
 	@Override
-	public int getProjectEngagementId(int projectId, int employeeId) throws SQLException {
+	public Long getProjectEngagementId(Long projectId, String employeeId) throws SQLException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		int projectEngagementId = -1;
+		Long projectEngagementId = -1L;
 		try {
 			String query = "SELECT PROJECT_ENGAGEMENT_ID FROM PROJECT_ENGAGEMENT WHERE PROJECT_ID = ? AND EMPLOYEE_ID = ?";
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setInt(1, projectId);
-			preparedStatement.setInt(2, employeeId);
+			preparedStatement.setLong(1, projectId);
+			preparedStatement.setString(2, employeeId);
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
-				projectEngagementId = resultSet.getInt(1);
+				projectEngagementId = resultSet.getLong(1);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -116,17 +116,17 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 	}
 
 	@Override
-	public boolean checkDates(int projectEngagementId) throws SQLException {
+	public boolean checkDates(Long projectEngagementId) throws SQLException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		try {
 			String query = "SELECT START FROM PROJECT_ENGAGEMENT WHERE PROJECT_ENGAGEMENT_ID = ?";
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setInt(1, projectEngagementId);
+			preparedStatement.setLong(1, projectEngagementId);
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
-				projectEngagementId = resultSet.getInt(1);
+				projectEngagementId = resultSet.getLong(1);
 				return false;
 			} else {
 				return true;
@@ -150,9 +150,9 @@ public class ProjectEngagementRepositoryImpl implements ProjectEngagementReposit
 			preparedStatement = connection.prepareStatement(query);
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
-				int projectEngagementId = resultSet.getInt(1);
-				int projectId = resultSet.getInt(2);
-				int employeeId = resultSet.getInt(3);
+				Long projectEngagementId = resultSet.getLong(1);
+				Long projectId = resultSet.getLong(2);
+				String employeeId = resultSet.getString(3);
 				Date start = resultSet.getDate(4);
 				Date end = resultSet.getDate(5);
 				String createDate = resultSet.getString(6);

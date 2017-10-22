@@ -33,10 +33,10 @@ public interface ProjectEngagementRepository {
 	 * 
 	 * @param projectId
 	 * @param employeeId
-	 * @return int
+	 * @return Long
 	 * @throws SQLException
 	 */
-	public int getProjectEngagementId(int projectId, int employeeId) throws SQLException;
+	public Long getProjectEngagementId(Long projectId, String employeeId) throws SQLException;
 
 	/**
 	 * This method is used to select field from project_engagement table
@@ -45,7 +45,7 @@ public interface ProjectEngagementRepository {
 	 * @return boolean
 	 * @throws SQLException
 	 */
-	public boolean checkDates(int projectEngagementId) throws SQLException;
+	public boolean checkDates(Long projectEngagementId) throws SQLException;
 	
 	/**
 	 * This method is used to select start and end dates from project_engagement table

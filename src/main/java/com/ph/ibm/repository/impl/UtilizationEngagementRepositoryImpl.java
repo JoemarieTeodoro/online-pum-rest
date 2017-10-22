@@ -26,7 +26,7 @@ public class UtilizationEngagementRepositoryImpl implements UtilizationEngagemen
 		PreparedStatement preparedStatement = null;
 		try {
 			connection.setAutoCommit(false);
-			Utilization util = downloadUtilization(utilization.getYear(), Integer.parseInt(utilization.getEmployeeSerial()));
+			Utilization util = downloadUtilization(utilization.getYear(), utilization.getEmployeeSerial());
 			if(util == null)
 			{
 				String query = 
@@ -92,7 +92,7 @@ public class UtilizationEngagementRepositoryImpl implements UtilizationEngagemen
 	}
 
 	@Override
-	public Utilization downloadUtilization(String year, int employeeId) throws SQLException{
+	public Utilization downloadUtilization(String year, String employeeId) throws SQLException{
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
@@ -104,7 +104,7 @@ public class UtilizationEngagementRepositoryImpl implements UtilizationEngagemen
 					+ "WHERE UTILIZATION.YEAR = ? AND UTILIZATION.EMPLOYEE_ID =?";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, year);
-			preparedStatement.setInt(2, employeeId);
+			preparedStatement.setString(2, employeeId);
 			
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {

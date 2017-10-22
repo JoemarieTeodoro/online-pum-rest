@@ -25,8 +25,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			String query = "INSERT INTO EMPLOYEE (" + "EMPLOYEE_ID_NUMBER,EMAIL,FULLNAME,CREATEDATE,CREATEDBY) "
 					+ "VALUES (?,?,?,?,?); ";
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, employee.getEmployeeIdNumber());
-			preparedStatement.setString(2, employee.getEmail());
+			preparedStatement.setString(1, employee.getEmployeeSerial());
+			preparedStatement.setString(2, employee.getIntranetId());
 			preparedStatement.setString(3, employee.getFullName());
 			preparedStatement.setString(4, employee.getCreateDate());
 			preparedStatement.setString(5, OpumConstants.ADMIN);
@@ -53,9 +53,9 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			String query = "UPDATE EMPLOYEE SET PASSWORD = ?, UPDATEDBY = ? WHERE EMPLOYEE_ID_NUMBER = ? AND EMAIL = ?;";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employee.getPassword());
-			preparedStatement.setString(2, employee.getEmail());
-			preparedStatement.setString(3, employee.getEmployeeIdNumber());
-			preparedStatement.setString(4, employee.getEmail());
+			preparedStatement.setString(2, employee.getIntranetId());
+			preparedStatement.setString(3, employee.getEmployeeSerial());
+			preparedStatement.setString(4, employee.getEmployeeSerial());
 			preparedStatement.executeUpdate();
 			connection.commit();
 			System.out.println(OpumConstants.UPDATED_SUCCESS);
@@ -63,8 +63,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try { if(preparedStatement != null) preparedStatement.close();} catch(Exception e) { }
-			try { if(connection != null) connection.close(); } catch(Exception e) { }
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;
 	}
@@ -107,10 +106,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
 				employee = new Employee();
-				employee.setEmployeeId(resultSet.getInt(1));
-				employee.setEmployeeIdNumber(resultSet.getString(2));
-				employee.setEmail(resultSet.getString(3));
-				employee.setAdmin(resultSet.getBoolean(4));
+				employee.setEmployeeSerial(resultSet.getString(1));
+				employee.setEmployeeSerial(resultSet.getString(2));
+				employee.setIntranetId(resultSet.getString(3));
+				employee.setIsAdmin(resultSet.getBoolean(4));
 			} 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -134,10 +133,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
 				employee = new Employee();
-				employee.setEmployeeId(resultSet.getInt(1));
-				employee.setEmployeeIdNumber(resultSet.getString(2));
-				employee.setEmail(resultSet.getString(3));
-				employee.setAdmin(resultSet.getBoolean(4));
+				employee.setEmployeeSerial(resultSet.getString(1));
+				employee.setEmployeeSerial(resultSet.getString(2));
+				employee.setIntranetId(resultSet.getString(3));
+				employee.setIsAdmin(resultSet.getBoolean(4));
 				employee.setFullName(resultSet.getString(5));
 			} 
 			return employee;

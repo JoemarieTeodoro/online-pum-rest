@@ -39,7 +39,7 @@ public interface UtilizationEngagementRepository {
 	 * @throws SQLException
 	 *
 	 */
-	public Utilization downloadUtilization(String year, int employeeId) throws SQLException;
+	public Utilization downloadUtilization(String year, String employeeSerial) throws SQLException;
 
 
 	/**
