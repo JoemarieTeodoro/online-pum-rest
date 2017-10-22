@@ -10,6 +10,13 @@ public class Utilization extends BaseAuditBean{
 	public Utilization() {
 		super();
 	}
+	
+	public Utilization(String employeeSerial, String year, String utilizationJson) {
+		super();
+		this.employeeSerial = employeeSerial;
+		this.year = year;
+		this.utilizationJson = utilizationJson;
+	}
 
 	public Utilization(Long utilizationId, String employeeSerial, String year, String utilizationJson) {
 		super();

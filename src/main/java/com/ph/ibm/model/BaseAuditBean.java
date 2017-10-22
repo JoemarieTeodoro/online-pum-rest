@@ -1,38 +1,45 @@
 package com.ph.ibm.model;
 
-import java.util.Date;
-
 public class BaseAuditBean {
-	private Date createDate;
-	private Date updateDate;
+	private String createDate;
+	private String updateDate;
 	private String createdBy;
 	private String updatedBy;
 	
-	public Date getCreateDate() {
+	public BaseAuditBean(){}
+	
+	public String getCreateDate() {
 		return createDate;
 	}
-	public void setCreateDate(Date createDate) {
+
+	public void setCreateDate(String createDate) {
 		this.createDate = createDate;
 	}
-	public Date getUpdateDate() {
+
+	public String getUpdateDate() {
 		return updateDate;
 	}
-	public void setUpdateDate(Date updateDate) {
+
+	public void setUpdateDate(String updateDate) {
 		this.updateDate = updateDate;
 	}
+
 	public String getCreatedBy() {
 		return createdBy;
 	}
+
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
+
 	public String getUpdatedBy() {
 		return updatedBy;
 	}
+
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

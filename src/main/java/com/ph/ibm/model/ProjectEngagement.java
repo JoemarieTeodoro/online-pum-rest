@@ -4,17 +4,13 @@ import java.sql.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class ProjectEngagement {
+public class ProjectEngagement extends BaseAuditBean{
 
-	private int projectEngagementId;
-	private int projectId;
-	private int employeeId;
+	private Long projectEngagementId;
+	private Long projectId;
+	private String employeeSerial;
 	private Date startDate;
 	private Date endDate;
-	private String createDate;
-	private String createdBy;
-	private String updateDate;
-	private String updatedBy;
 
 	public ProjectEngagement() {
 
@@ -27,42 +23,42 @@ public class ProjectEngagement {
 
 	}
 
-	public ProjectEngagement(int projectEngagementId, int projectId, int employeeId, Date startDate, Date endDate,
+	public ProjectEngagement(Long projectEngagementId, Long projectId, String employeeSerial, Date startDate, Date endDate,
 			String createDate, String updateDate, String createdBy, String updatedBy) {
 		super();
 		this.projectEngagementId = projectEngagementId;
 		this.projectId = projectId;
-		this.employeeId = employeeId;
+		this.employeeSerial = employeeSerial;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		this.createDate = createDate;
-		this.updateDate = updateDate;
-		this.createdBy = createdBy;
-		this.updatedBy = updatedBy;
+		this.setCreateDate(createDate);
+		this.setUpdateDate(updateDate);
+		this.setCreatedBy(createdBy);
+		this.setUpdatedBy(updatedBy);
 	}
 
-	public int getProjectEngagementId() {
+	public Long getProjectEngagementId() {
 		return projectEngagementId;
 	}
 
-	public void setProjectEngagementId(int projectEngagementId) {
+	public void setProjectEngagementId(Long projectEngagementId) {
 		this.projectEngagementId = projectEngagementId;
 	}
 
-	public int getProjectId() {
+	public Long getProjectId() {
 		return projectId;
 	}
 
-	public void setProjectId(int projectId) {
+	public void setProjectId(Long projectId) {
 		this.projectId = projectId;
 	}
 
-	public int getEmployeeId() {
-		return employeeId;
+	public String getEmployeeId() {
+		return employeeSerial;
 	}
 
-	public void setEmployeeId(int employeeId) {
-		this.employeeId = employeeId;
+	public void setEmployeeId(String employeeId) {
+		this.employeeSerial = employeeId;
 	}
 
 	public Date getStartDate() {
@@ -80,37 +76,4 @@ public class ProjectEngagement {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-
-	public String getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreated(String createDate) {
-		this.createDate = createDate;
-	}
-
-	public String getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdated(String updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public String getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
-
-	public String getUpdatedBy() {
-		return updatedBy;
-	}
-
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
-	}
-
 }

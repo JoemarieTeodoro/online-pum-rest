@@ -14,8 +14,10 @@ public class Employee extends BaseAuditBean{
 	private Long teamId;
 	private List<Role> assignedRoles;
 	private List<Project> assignedProjects;
+	private String primaryProject;
 	private String password;
-	private boolean isActive;
+	private Boolean isActive;
+	private Boolean isAdmin;
 	private Utilization utilization;
 
 	public Employee() {
@@ -23,7 +25,7 @@ public class Employee extends BaseAuditBean{
 	}
 
 	public Employee(String employeeSerial, String managerSerial, String intranetId, String fullName, Long teamId,
-			List<Role> assignedRoles, List<Project> assignedProjects, String password, boolean isActive,
+			List<Role> assignedRoles, List<Project> assignedProjects, String password, Boolean isActive,
 			Utilization utilization) {
 		super();
 		this.employeeSerial = employeeSerial;
@@ -36,6 +38,13 @@ public class Employee extends BaseAuditBean{
 		this.password = password;
 		this.isActive = isActive;
 		this.utilization = utilization;
+	}
+
+	public Employee(String employeeSerial, String intranetId, String primaryProject, String password) {
+		this.employeeSerial = employeeSerial;
+		this.intranetId = intranetId;
+		this.primaryProject = primaryProject;
+		this.password = password;
 	}
 
 	public String getEmployeeSerial() {
@@ -102,14 +111,6 @@ public class Employee extends BaseAuditBean{
 		this.password = password;
 	}
 
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
-	}
-
 	public Utilization getUtilization() {
 		return utilization;
 	}
@@ -117,5 +118,30 @@ public class Employee extends BaseAuditBean{
 	public void setUtilization(Utilization utilization) {
 		this.utilization = utilization;
 	}
+
+	public String getPrimaryProject() {
+		return primaryProject;
+	}
+
+	public void setPrimaryProject(String primaryProject) {
+		this.primaryProject = primaryProject;
+	}
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+	
 
 }

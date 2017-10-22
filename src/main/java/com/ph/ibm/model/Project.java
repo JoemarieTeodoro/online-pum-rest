@@ -16,6 +16,14 @@ public class Project extends BaseAuditBean{
 		super();
 	}
 
+	public Project(Long projectId, String projectName, String createDate, String createdBy) {
+		super();
+		this.projectId = projectId;
+		this.projectName = projectName;
+		this.setCreateDate(createDate);
+		this.setCreatedBy(createdBy);
+	}
+	
 	public Project(Long projectId, String projectName, Long accountId, List<Team> teams) {
 		super();
 		this.projectId = projectId;
