@@ -837,7 +837,7 @@ public class OnlinePUMResource {
 	@GET
 	@Path("/getComputation/{employeeId}/{year}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getComputation(@PathParam("employeeId") int employeeId, @PathParam("year") int year, @Context HttpHeaders header) throws Exception {
+	public Response getComputation(@PathParam("employeeId") String employeeId, @PathParam("year") int year, @Context HttpHeaders header) throws Exception {
 		/*MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
 		String email = headerParams.getFirst("username");
 		String password = headerParams.getFirst("password");
@@ -880,7 +880,7 @@ public class OnlinePUMResource {
 	@GET
 	@Path("/getYTDComputation/{employeeId}/{year}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getYTDComputation(@PathParam("employeeId") int employeeId, @PathParam("year") int year, @Context HttpHeaders header) throws Exception {
+	public Response getYTDComputation(@PathParam("employeeId") String employeeId, @PathParam("year") int year, @Context HttpHeaders header) throws Exception {
 		/*MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
 		String email = headerParams.getFirst("username");
 		String password = headerParams.getFirst("password");

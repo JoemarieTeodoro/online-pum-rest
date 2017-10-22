@@ -124,7 +124,7 @@ public class UtilityBO {
 				
 				cell1.setCellValue("USAA");
 				cell1.setCellStyle(dataStyle);
-				cell2.setCellValue(excelRow.getEmployeeIdNumber());
+				cell2.setCellValue(excelRow.getEmployeeSerial());
 				cell2.setCellStyle(dataStyle);
 				cell3.setCellValue(excelRow.getYear());
 				cell3.setCellStyle(dataStyle);
@@ -512,14 +512,14 @@ public class UtilityBO {
 	/**
 	 * 
 	 * 
-	 * @param employeeId
+	 * @param 
 	 * @param year
 	 * @return Response
 	 * @throws SQLException
 	 * @throws ParseException
 	 */
-	public Year getYTDComputation(int employeeId, int year) throws SQLException, ParseException {
-		Utilization utilization = utilizationEngagementRepository.getComputation(employeeId, year);
+	public Year getYTDComputation(String employeeSerial, int year) throws SQLException, ParseException {
+		Utilization utilization = utilizationEngagementRepository.getComputation(employeeSerial, year);
 		UtilizationYear utilization_Year = JsonToJavaUtil.JsonToJava(utilization.getUtilizationJson(),
 				UtilizationYear.class);
 		Year ytdComputation = new Year();

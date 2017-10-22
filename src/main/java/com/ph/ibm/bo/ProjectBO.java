@@ -16,7 +16,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Employee;
@@ -34,6 +33,7 @@ import com.ph.ibm.model.UtilizationJson;
 import com.ph.ibm.model.UtilizationYear;
 import com.ph.ibm.model.Week;
 import com.ph.ibm.model.Year;
+import com.ph.ibm.opum.exception.InvalidEmployeeException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.repository.PUMYearRepository;
@@ -46,9 +46,10 @@ import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
-import com.ph.ibm.util.FormatValidation;
 import com.ph.ibm.util.JsonToJavaUtil;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.validation.Validator;
+import com.ph.ibm.validation.impl.EmployeeValidator;
 
 public class ProjectBO {
 
@@ -83,7 +84,7 @@ public class ProjectBO {
 	 * Validation contain methods to validate field such as employee name,
 	 * employee id, project name, email address
 	 */
-	private FormatValidation validation = new FormatValidation();
+	private Validator<Employee> validator = new EmployeeValidator();
 
 	/**
 	 * Logger is used to document the execution of the system and logs the
@@ -183,18 +184,18 @@ public class ProjectBO {
 	 */
 	public String saveDate(EmployeeUtil employeeUtil) throws SQLException, ParseException {
 		String employeeId = employeeRepository.viewEmployee(employeeUtil.getEmployeeIdNumber());
-		int projectEngagementId = -1;
+		Long projectEngagementId = -1L;
 		List<Project> projectList = new ArrayList<Project>();
 		projectList = projectRepository.retrieveData();
 		ProjectEngagement projectEngagement = new ProjectEngagement();
 		boolean valid = false;
 		for (Project project : projectList) {
-			if (project.getName().equals(employeeUtil.getProjectName())) {
+			if (project.getProjectName().equals(employeeUtil.getProjectName())) {
 				valid = true;
 				projectEngagement.setProjectId(project.getProjectId());
 			}
 		}
-		projectEngagement.setEmployeeId(Integer.parseInt(employeeId));
+		projectEngagement.setEmployeeId(employeeId);
 
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		projectEngagement.setStartDate(new java.sql.Date(df.parse(employeeUtil.getStartDate()).getTime()));
@@ -218,23 +219,16 @@ public class ProjectBO {
 	 * @param rawData
 	 * @param uriInfo
 	 * @return Response
-	 * @throws SQLException
+	 * @throws Exception 
 	 */
-	public Response uploadEmployeeList(String rawData, @Context UriInfo uriInfo) throws SQLException {
-		int invalidCounter = 0;
-		String invalidCsv = "";
+	public Response uploadEmployeeList(String rawData, @Context UriInfo uriInfo) throws Exception {
 
-		Employee employee = new Employee();
 		ProjectEngagement projectEngagement = new ProjectEngagement();
-
-		List<Project> projectdata = new ArrayList<Project>();
-		projectdata = projectRepository.retrieveData(); // PROJECT BO
 
 		List<List<String>> employeeProjectEngagements = new ArrayList<List<String>>();
 		List<String> row = new ArrayList<String>();
 
 		String delimiter = ",";
-		String errorMessage = "";
 
 		Scanner sc = new Scanner(rawData);
 		while (sc.hasNextLine()) {
@@ -258,94 +252,71 @@ public class ProjectBO {
 
 		for (List<String> employeeProjectEngagement : employeeProjectEngagements) {
 			System.out.println("Row Data: " + employeeProjectEngagement);
-			boolean valid = true;
-			errorMessage = "";
-
-			if (validation.isValidEmployeeId(employeeProjectEngagement.get(0))) {
-				employee.setEmployeeIdNumber(employeeProjectEngagement.get(0));
-			} else {
-				valid = false;
-				invalidCounter++;
-				errorMessage = errorMessage + OpumConstants.INVALID_COMPANY_ID;
-			}
-			if (validation.isValidEmployeeName(employeeProjectEngagement.get(1))) {
-				employee.setFullName(employeeProjectEngagement.get(1));
-			} else {
-				valid = false;
-				invalidCounter++;
-				errorMessage = errorMessage + OpumConstants.INVALID_NAME;
-			}
-			if (validation.isValidEmailAddress(employeeProjectEngagement.get(2))) {
-				employee.setEmail(employeeProjectEngagement.get(2));
-			} else {
-				valid = false;
-				invalidCounter++;
-				errorMessage = errorMessage + OpumConstants.INVALID_EMAIL_ADDRESS;
-			}
-
-			if (valid) {
-				try {
-					boolean answer = employeeRepository.addData(employee);
-					if (answer) {
-						valid = false;
-
-						for (Project project : projectdata) {
-							if (project.getName().equals(employeeProjectEngagement.get(3))) {
-								valid = true;
-								projectEngagement.setProjectId(project.getProjectId());
-							}
-						}
-
-						if (valid) {
-							projectEngagement.setEmployeeId(
-									Integer.parseInt(employeeRepository.viewEmployee(employee.getEmployeeIdNumber())));
-							projectEngagementRepository.addProjectEngagement(projectEngagement);
-						} else {
-							invalidCounter++;
-							errorMessage = errorMessage + OpumConstants.INVALID_PROJECT_NAME;
-							invalidCsv += employeeProjectEngagement.get(0) + "," + employeeProjectEngagement.get(1)
-									+ "," + employeeProjectEngagement.get(2) + "," + employeeProjectEngagement.get(3)
-									+ "," + errorMessage + "\n";
-						}
-					}
-				} catch (BatchUpdateException e) {
-					logger.error("BatchUpdateException due to " + e.getMessage());
-					invalidCounter++;
-					System.out.println(e.getErrorCode());
-					if (e.getErrorCode() == OpumConstants.MYSQL_DUPLICATE_PK_ERROR_CODE) {
-						invalidCounter++;
-						errorMessage = errorMessage + OpumConstants.DUPLICATE_ENTRY;
-						invalidCsv += employeeProjectEngagement.get(0) + "," + employeeProjectEngagement.get(1) + ","
-								+ employeeProjectEngagement.get(2) + "," + employeeProjectEngagement.get(3) + ","
-								+ errorMessage + "\n";
-					}
-				} catch (SQLException e) {
-					invalidCounter++;
-					logger.error("SQL Exception due to " + e.getMessage());
-					e.printStackTrace();
-				}
-
-			} else {
-				invalidCounter++;
+			
+			Employee validateEmployee = new Employee();
+			validateEmployee.setEmployeeSerial(employeeProjectEngagement.get(0));
+			validateEmployee.setFullName(employeeProjectEngagement.get(1));
+			validateEmployee.setIntranetId(employeeProjectEngagement.get(2));
+			
+			try {
+				validator.validate(validateEmployee);
+			} catch (InvalidEmployeeException e) {
 				logger.error(OpumConstants.INVALID_CSV);
-				invalidCsv += employeeProjectEngagement.get(0) + "," + employeeProjectEngagement.get(1) + ","
-						+ employeeProjectEngagement.get(2) + "," + employeeProjectEngagement.get(3) + "," + errorMessage
-						+ "\n";
+				invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement, e.getMessage());
+			} catch (SQLException e) {
+				logger.error("SQL Exception due to " + e.getMessage());
+				e.printStackTrace();
+			}
+			
+			try {
+				boolean successfullyAdded = employeeRepository.addData(validateEmployee);
+				if (successfullyAdded) {
+					List<Project> projectdata = projectRepository.retrieveData();
+					for (Project project : projectdata) {
+						if (!project.getProjectName().equals(employeeProjectEngagement.get(3))) {
+							return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement, OpumConstants.INVALID_PROJECT_NAME);
+						}
+						
+						projectEngagement.setProjectId(project.getProjectId());
+					}
+
+					projectEngagement.setEmployeeId(employeeRepository.viewEmployee(validateEmployee.getEmployeeSerial()));
+					projectEngagementRepository.addProjectEngagement(projectEngagement);
+				}
+			} catch (BatchUpdateException e) {
+				logger.error("BatchUpdateException due to " + e.getMessage());
+				System.out.println(e.getErrorCode());
+				if (e.getErrorCode() == OpumConstants.MYSQL_DUPLICATE_PK_ERROR_CODE) {
+					return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement, OpumConstants.DUPLICATE_ENTRY);
+				}
+			} catch (SQLException e) {
+				logger.error("SQL Exception due to " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 
-		if (invalidCounter == 0) {
-			logger.info(OpumConstants.SUCCESSFULLY_UPLOADED_FILE);
-			return Response.status(Status.OK).header("Location", uriInfo.getBaseUri() + "employee/")
-					.entity("uploaded successfully").build();
-		} else {
-			logger.warn("There are some format errors in the file due to " + errorMessage);
-			return Response.status(206).header("Location", uriInfo.getBaseUri() + "employee/").entity(invalidCsv)
-					.build();
-		}
+		logger.info(OpumConstants.SUCCESSFULLY_UPLOADED_FILE);
+		return Response.status(Status.OK)
+				.header("Location", uriInfo.getBaseUri() + "employee/")
+				.entity("uploaded successfully")
+				.build();
 	}
 
-	public Year getComputation(int employeeId, int year) throws SQLException, ParseException {
+	private Response invalidCsvResponseBuilder(UriInfo uriInfo, List<String> employeeProjectEngagement, String errorMessage) {
+		String invalidCsv;
+		invalidCsv = String.format("%s, %s, %s, %s, %s \n", 
+				employeeProjectEngagement.get(0),
+				employeeProjectEngagement.get(1),
+				employeeProjectEngagement.get(2),
+				employeeProjectEngagement.get(3),
+				uriInfo);
+		return Response.status(206)
+				.header("Location", uriInfo.getBaseUri() + "employee/")
+				.entity(invalidCsv)
+				.build();
+	}
+
+	public Year getComputation(String employeeId, int year) throws SQLException, ParseException {
 		Utilization utilization = utilizationEngagementRepository.getComputation(employeeId, year);
 		UtilizationYear utilization_Year = JsonToJavaUtil.JsonToJava(utilization.getUtilizationJson(),UtilizationYear.class);
 		DecimalFormat formatter = new DecimalFormat("#0.00");
@@ -558,14 +529,14 @@ public class ProjectBO {
 	/**
 	 * 
 	 * 
-	 * @param employeeId
+	 * @param employeeSerial
 	 * @param year
 	 * @return Response
 	 * @throws SQLException
 	 * @throws ParseException
 	 */
-	public Response getYTDComputation(int employeeId, int year) throws SQLException, ParseException {
-		Utilization utilization = utilizationEngagementRepository.getComputation(employeeId, year);
+	public Response getYTDComputation(String employeeSerial, int year) throws SQLException, ParseException {
+		Utilization utilization = utilizationEngagementRepository.getComputation(employeeSerial, year);
 		UtilizationYear utilization_Year = JsonToJavaUtil.JsonToJava(utilization.getUtilizationJson(),
 				UtilizationYear.class);
 		

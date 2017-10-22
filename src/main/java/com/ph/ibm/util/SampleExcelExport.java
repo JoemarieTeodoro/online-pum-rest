@@ -157,7 +157,7 @@ public class SampleExcelExport {
 				
 				cell1.setCellValue("USAA");
 				cell1.setCellStyle(dataStyle);
-				cell2.setCellValue(excelRow.getEmployeeIdNumber());
+				cell2.setCellValue(excelRow.getEmployeeSerial());
 				cell2.setCellStyle(dataStyle);
 				cell3.setCellValue(excelRow.getYear());
 				cell3.setCellStyle(dataStyle);

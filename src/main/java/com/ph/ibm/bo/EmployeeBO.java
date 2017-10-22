@@ -14,6 +14,7 @@ import com.ph.ibm.model.EmployeeProject;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.Project;
 import com.ph.ibm.model.ProjectEngagement;
+import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.InvalidEmployeeException;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
@@ -22,9 +23,10 @@ import com.ph.ibm.repository.ProjectRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
-import com.ph.ibm.util.FormatValidation;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.validation.Validator;
+import com.ph.ibm.validation.impl.EmployeeValidator;
 
 public class EmployeeBO {
 
@@ -38,10 +40,9 @@ public class EmployeeBO {
 	private ProjectEngagementRepository projectEngagementRepository = new ProjectEngagementRepositoryImpl();
 	
 	/** Validation contain methods to validate field such as employee name, employee id, project name, email address */
-	private FormatValidation validation = new FormatValidation();
+	private Validator<Employee> validator = new EmployeeValidator();
 	
-	/** Logger is used to document the execution of the system and logs the corresponding log level such as INFO, WARN, ERROR */
-	private Logger logger = Logger.getLogger(EmployeeBO.class);
+	private static Logger logger = Logger.getLogger(EmployeeBO.class);
 	
 	/**
 	 * This method is used to register user
@@ -54,29 +55,8 @@ public class EmployeeBO {
 	 * @throws Exception 
 	 */
 	public String registerEmployee(String employeeIdNumber, String projectName, String email, String password) throws Exception {
-		// validate company id using regular expression pattern matching
-		if (!(validation.isValidEmployeeId(employeeIdNumber))) {
-			logger.info("CAUSE OF ERROR: " + OpumConstants.INVALID_COMPANY_ID);
-			throw new InvalidEmployeeException(OpumConstants.INVALID_COMPANY_ID);
-		}
-		
-		// validate email address using regular expression pattern matching
-		if (!(validation.isValidEmailAddress(email))) {
-			logger.error("CAUSE OF ERROR: " + OpumConstants.INVALID_EMAIL_ID);
-			throw new InvalidEmployeeException(OpumConstants.INVALID_EMAIL_ID);
-		}
-		
-		// validate project name using regular expression pattern matching
-		if (!(validation.isValidProjectName(projectName))) {
-			logger.error("CAUSE OF ERROR: " + OpumConstants.INVALID_PROJECT_NAME);
-			throw new InvalidEmployeeException(OpumConstants.INVALID_PROJECT_NAME);
-		}
-		
-		// validate if employee id number and email exist in database
-		if (!employeeRepository.doesEmployeeExist(employeeIdNumber, email)) {
-			logger.info("CAUSE OF ERROR: " + OpumConstants.EMPLOYEE_ID_EMAIL_NOT_FOUND);
-			throw new InvalidEmployeeException(OpumConstants.EMPLOYEE_ID_EMAIL_NOT_FOUND);
-		}
+		Employee validateEmployee = new Employee(employeeIdNumber, email, projectName, password);
+		validator.validate(validateEmployee);
 		
 		String hashed = MD5HashEncrypter.computeMD5Digest(password);
 		EmployeeProject employeeProject = new EmployeeProject(employeeIdNumber, email, hashed, projectName);
@@ -86,21 +66,21 @@ public class EmployeeBO {
 		
 		// check if USAA Project exists
 		for (Project project : projects) {
-			if (!project.getName().equals(employeeProject.getProjectName())) {
+			if (!project.getProjectName().equals(employeeProject.getProjectName())) {
 				continue;
 			}
 			projectEngagement.setProjectId(project.getProjectId());
 		}
 		Employee employee = new Employee();
-		employee.setEmployeeIdNumber(employeeProject.getEmployeeIdNumber());
-		employee.setEmail(employeeProject.getEmail());
+		employee.setEmployeeSerial(employeeProject.getEmployeeIdNumber());
+		employee.setIntranetId(employeeProject.getEmail());
 		employee.setPassword(employeeProject.getPassword());
 		//Employee employee = new Employee(employeeProject.getEmployeeIdNumber(), employeeProject.getEmail(), employeeProject.getPassword());
 		if (!employeeRepository.registerEmployee(employee)) {
 			logger.info(format("Unsuccessful Registration for employee %s %s", employeeProject.getEmployeeIdNumber(), employeeProject.getEmail()));
 			throw new InvalidEmployeeException(OpumConstants.INVALID_COMPANY_ID);
 		}
-		projectEngagement.setEmployeeId(Integer.parseInt(employeeRepository.viewEmployee(employeeProject.getEmployeeIdNumber())));
+		projectEngagement.setEmployeeId(employeeRepository.viewEmployee(employeeProject.getEmployeeIdNumber()));
 		projectEngagementRepository.addProjectEngagement(projectEngagement);
 
 		logger.info(OpumConstants.SUCCESSFULLY_REGISTERED);
@@ -121,7 +101,7 @@ public class EmployeeBO {
 		Employee employee = null;
 		try {
 			employee = employeeRepository.loginAdmin(username, hashed);
-			if (employee != null && employee.isAdmin() == true) {
+			if (employee != null && employee.getAssignedRoles().contains(Role.ADMIN)) {
 				try {
 					/*logger.info(OpumConstants.ENTERING_ADMIN_PAGE);
 					System.out.println(OpumConstants.ENTERING_ADMIN_PAGE);
