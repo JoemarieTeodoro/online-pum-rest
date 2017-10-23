@@ -38,7 +38,6 @@ public class SampleExcelExport {
 		UtilizationEngagementRepositoryImpl util = new UtilizationEngagementRepositoryImpl();
 		ProjectEngagementRepositoryImpl projectEngagementImplementation = new ProjectEngagementRepositoryImpl();
 		ProjectRepositoryImpl projectImplementation = new ProjectRepositoryImpl();
-		JSONToJava jsontojava = new JSONToJava();
 		LocalDateTime now = LocalDateTime.now();
 		
 		try {
@@ -170,7 +169,7 @@ public class SampleExcelExport {
 				sheet.autoSizeColumn(4);
 				
 
-				UtilizationYear utilizationYear = jsontojava.jsonToJava(excelRow.getUtilizationJson());
+				UtilizationYear utilizationYear = ObjectMapperAdapter.unmarshal(excelRow.getUtilizationJson(), UtilizationYear.class);
 				
 				int utilColumn = 5;
 				int colHeader = 5;
