@@ -46,6 +46,7 @@ public class ConnectionPool {
 		Properties connectionProps = new Properties();
 	    connectionProps.put("user", this.userName);
 	    connectionProps.put("password", this.password);
+	    connectionProps.put("useSSL", false);
 		
 		try {
 			connection = DriverManager.getConnection(dbUrl, connectionProps);
