@@ -21,7 +21,7 @@ public class JSONToJava {
 		int currentYear = now.getYear();
 		int currentMonth = now.getMonthValue();
 		int currentDay = now.getDayOfMonth();
-		UtilizationYear utilizationYear = JsonToJavaUtil.JsonToJava(jsonEmp, UtilizationYear.class);
+		UtilizationYear utilizationYear = ObjectMapperAdapter.unmarshal(jsonEmp, UtilizationYear.class);
 		int counter = 0;
 
 		for (UtilizationJson json : utilizationYear.getUtilizationJSON()) {

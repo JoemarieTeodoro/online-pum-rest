@@ -46,7 +46,7 @@ import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
-import com.ph.ibm.util.JsonToJavaUtil;
+import com.ph.ibm.util.ObjectMapperAdapter;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
@@ -269,8 +269,8 @@ public class ProjectBO {
 			}
 			
 			try {
-				boolean successfullyAdded = employeeRepository.addData(validateEmployee);
-				if (successfullyAdded) {
+				Employee savedEmployee = employeeRepository.saveOrUpdate(validateEmployee);
+				if (savedEmployee != null) {
 					List<Project> projectdata = projectRepository.retrieveData();
 					for (Project project : projectdata) {
 						if (!project.getProjectName().equals(employeeProjectEngagement.get(3))) {
@@ -318,7 +318,7 @@ public class ProjectBO {
 
 	public Year getComputation(String employeeId, int year) throws SQLException, ParseException {
 		Utilization utilization = utilizationEngagementRepository.getComputation(employeeId, year);
-		UtilizationYear utilization_Year = JsonToJavaUtil.JsonToJava(utilization.getUtilizationJson(),UtilizationYear.class);
+		UtilizationYear utilization_Year = ObjectMapperAdapter.unmarshal(utilization.getUtilizationJson(),UtilizationYear.class);
 		DecimalFormat formatter = new DecimalFormat("#0.00");
 		double hours = 0;
 		double weekHours = 0;
@@ -537,7 +537,7 @@ public class ProjectBO {
 	 */
 	public Response getYTDComputation(String employeeSerial, int year) throws SQLException, ParseException {
 		Utilization utilization = utilizationEngagementRepository.getComputation(employeeSerial, year);
-		UtilizationYear utilization_Year = JsonToJavaUtil.JsonToJava(utilization.getUtilizationJson(),
+		UtilizationYear utilization_Year = ObjectMapperAdapter.unmarshal(utilization.getUtilizationJson(),
 				UtilizationYear.class);
 		
 		double hours = 0;

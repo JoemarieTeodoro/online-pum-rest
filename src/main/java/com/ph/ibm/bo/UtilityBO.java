@@ -38,8 +38,7 @@ import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
 import com.ph.ibm.util.JSONToJava;
-import com.ph.ibm.util.JavaToJsonUtil;
-import com.ph.ibm.util.JsonToJavaUtil;
+import com.ph.ibm.util.ObjectMapperAdapter;
 
 public class UtilityBO {
 
@@ -467,7 +466,7 @@ public class UtilityBO {
 		List<Utilization> utilizations = new ArrayList<Utilization>();
 		utilizations = utilizationEngagementRepository.retrieveUtilizations(employeeIdNumber, year);
 		if(utilizations.size() > 0){
-			UtilizationYear utilizationYear = JsonToJavaUtil.JsonToJava(utilizations.get(0).getUtilizationJson(), UtilizationYear.class);
+			UtilizationYear utilizationYear = ObjectMapperAdapter.unmarshal(utilizations.get(0).getUtilizationJson(), UtilizationYear.class);
 	
 			LocalDateTime now = LocalDateTime.now();
 			int currentYear = now.getYear();
@@ -500,7 +499,7 @@ public class UtilityBO {
 					counter++;
 				}
 			}
-			String finalJson = JavaToJsonUtil.JavaToJson(utilizationYear);
+			String finalJson = ObjectMapperAdapter.marshal(utilizationYear);
 			System.out.println(finalJson);
 			return finalJson;
 		}
@@ -520,7 +519,7 @@ public class UtilityBO {
 	 */
 	public Year getYTDComputation(String employeeSerial, int year) throws SQLException, ParseException {
 		Utilization utilization = utilizationEngagementRepository.getComputation(employeeSerial, year);
-		UtilizationYear utilization_Year = JsonToJavaUtil.JsonToJava(utilization.getUtilizationJson(),
+		UtilizationYear utilization_Year = ObjectMapperAdapter.unmarshal(utilization.getUtilizationJson(),
 				UtilizationYear.class);
 		Year ytdComputation = new Year();
 		double hours = 0; //TODO: change to big decimal
