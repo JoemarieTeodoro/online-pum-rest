@@ -1,5 +1,6 @@
 package com.ph.ibm.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -88,6 +89,9 @@ public class Employee extends BaseAuditBean{
 	}
 
 	public List<Role> getAssignedRoles() {
+		if (assignedRoles == null) {
+			return new ArrayList<Role>();
+		}
 		return assignedRoles;
 	}
 

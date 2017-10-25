@@ -269,7 +269,10 @@ public class ProjectBO {
 			}
 
 			try {
-				Employee savedEmployee = employeeRepository.saveOrUpdate(validateEmployee);
+				// Temporary fix =====================================================//
+				Employee savedEmployee = null;
+				//Employee savedEmployee = employeeRepository.saveOrUpdate(validateEmployee);
+				//====================================================================//				
 				if (savedEmployee != null) {
 					List<Project> projectdata = projectRepository.retrieveData();
 					for (Project project : projectdata) {
