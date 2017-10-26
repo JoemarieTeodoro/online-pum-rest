@@ -2,6 +2,7 @@ package com.ph.ibm.bo;
 
 import static java.lang.String.format;
 
+import java.net.URI;
 import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ import com.ph.ibm.model.EmployeeProject;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.Project;
 import com.ph.ibm.model.ProjectEngagement;
-import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.InvalidEmployeeException;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
@@ -101,13 +101,20 @@ public class EmployeeBO {
 		Employee employee = null;
 		try {
 			employee = employeeRepository.loginAdmin(username, hashed);
-			if (employee != null && employee.getAssignedRoles().contains(Role.ADMIN)) {
+			//	Eventually to add check if Role is SYS_ADMIN
+			if (employee != null && employee.getIsAdmin()) {
+				logger.info(OpumConstants.ENTERING_ADMIN_PAGE);
+				System.out.println(OpumConstants.ENTERING_ADMIN_PAGE);
+				URI uri = new URI("http://localhost:8080/online-pum-ui/admin/adminHomeLink");
+				java.awt.Desktop.getDesktop().browse(uri);
+				System.out.println(OpumConstants.OPENING_BROWSER);
+			} else if (employee != null && employee.getAssignedRoles().contains(Role.ADMIN)) {
 				try {
-					/*logger.info(OpumConstants.ENTERING_ADMIN_PAGE);
+					logger.info(OpumConstants.ENTERING_ADMIN_PAGE);
 					System.out.println(OpumConstants.ENTERING_ADMIN_PAGE);
-					URI uri = new URI("http://localhost:8080/onlinePUM-UI/admin/adminHomeLink");
+					URI uri = new URI("http://localhost:8080/online-pum-ui/admin/adminHomeLink");
 					java.awt.Desktop.getDesktop().browse(uri);
-					System.out.println(OpumConstants.OPENING_BROWSER);*/
+					System.out.println(OpumConstants.OPENING_BROWSER);
 				} catch (Exception e) {
 					logger.error(e);
 					throw new OpumException(e.getMessage(), e);

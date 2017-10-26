@@ -61,28 +61,28 @@ public class ProjectBO {
 	private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
 	/**
-	 * ProjectRepository is a Data Access Object which contain method to
-	 * retrieve fields stored in project table - opum database
+	 * ProjectRepository is a Data Access Object which contain method to retrieve
+	 * fields stored in project table - opum database
 	 */
 	private ProjectRepository projectRepository = new ProjectRepositoryImpl();
 
 	/**
-	 * ProjectEngagementRepository is a Data Access Object which contain method
-	 * to add, save, get, check field/s stored in project_engagement table -
-	 * opum database
+	 * ProjectEngagementRepository is a Data Access Object which contain method to
+	 * add, save, get, check field/s stored in project_engagement table - opum
+	 * database
 	 */
 	private ProjectEngagementRepository projectEngagementRepository = new ProjectEngagementRepositoryImpl();
 
 	/**
-	 * UtilizationEngagementRepository is a Data Access Object which contains
-	 * method to retrieve data from Utilization_JSON
+	 * UtilizationEngagementRepository is a Data Access Object which contains method
+	 * to retrieve data from Utilization_JSON
 	 */
 
 	private UtilizationEngagementRepository utilizationEngagementRepository = new UtilizationEngagementRepositoryImpl();
 
 	/**
-	 * Validation contain methods to validate field such as employee name,
-	 * employee id, project name, email address
+	 * Validation contain methods to validate field such as employee name, employee
+	 * id, project name, email address
 	 */
 	private Validator<Employee> validator = new EmployeeValidator();
 
@@ -153,7 +153,7 @@ public class ProjectBO {
 		}
 
 	}
-	
+
 	public String updateHoliday(Holiday holiday) throws SQLException, ParseException {
 		boolean value = false;
 		if (holiday.getName() != null) {
@@ -219,7 +219,7 @@ public class ProjectBO {
 	 * @param rawData
 	 * @param uriInfo
 	 * @return Response
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public Response uploadEmployeeList(String rawData, @Context UriInfo uriInfo) throws Exception {
 
@@ -252,12 +252,12 @@ public class ProjectBO {
 
 		for (List<String> employeeProjectEngagement : employeeProjectEngagements) {
 			System.out.println("Row Data: " + employeeProjectEngagement);
-			
+
 			Employee validateEmployee = new Employee();
-			validateEmployee.setEmployeeSerial(employeeProjectEngagement.get(0));
-			validateEmployee.setFullName(employeeProjectEngagement.get(1));
+			validateEmployee.setEmployeeSerial(employeeProjectEngagement.get(1));
+			validateEmployee.setFullName(employeeProjectEngagement.get(8));
 			validateEmployee.setIntranetId(employeeProjectEngagement.get(2));
-			
+
 			try {
 				validator.validate(validateEmployee);
 			} catch (InvalidEmployeeException e) {
@@ -267,20 +267,22 @@ public class ProjectBO {
 				logger.error("SQL Exception due to " + e.getMessage());
 				e.printStackTrace();
 			}
-			
+
 			try {
 				Employee savedEmployee = employeeRepository.saveOrUpdate(validateEmployee);
 				if (savedEmployee != null) {
 					List<Project> projectdata = projectRepository.retrieveData();
 					for (Project project : projectdata) {
 						if (!project.getProjectName().equals(employeeProjectEngagement.get(3))) {
-							return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement, OpumConstants.INVALID_PROJECT_NAME);
+							// TODO return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
+							// OpumConstants.INVALID_PROJECT_NAME);
 						}
-						
+
 						projectEngagement.setProjectId(project.getProjectId());
 					}
 
-					projectEngagement.setEmployeeId(employeeRepository.viewEmployee(validateEmployee.getEmployeeSerial()));
+					projectEngagement
+							.setEmployeeId(employeeRepository.viewEmployee(validateEmployee.getEmployeeSerial()));
 					projectEngagementRepository.addProjectEngagement(projectEngagement);
 				}
 			} catch (BatchUpdateException e) {
@@ -296,29 +298,23 @@ public class ProjectBO {
 		}
 
 		logger.info(OpumConstants.SUCCESSFULLY_UPLOADED_FILE);
-		return Response.status(Status.OK)
-				.header("Location", uriInfo.getBaseUri() + "employee/")
-				.entity("uploaded successfully")
-				.build();
+		return Response.status(Status.OK).header("Location", uriInfo.getBaseUri() + "employee/")
+				.entity("uploaded successfully").build();
 	}
 
-	private Response invalidCsvResponseBuilder(UriInfo uriInfo, List<String> employeeProjectEngagement, String errorMessage) {
+	private Response invalidCsvResponseBuilder(UriInfo uriInfo, List<String> employeeProjectEngagement,
+			String errorMessage) {
 		String invalidCsv;
-		invalidCsv = String.format("%s, %s, %s, %s, %s \n", 
-				employeeProjectEngagement.get(0),
-				employeeProjectEngagement.get(1),
-				employeeProjectEngagement.get(2),
-				employeeProjectEngagement.get(3),
+		invalidCsv = String.format("%s, %s, %s, %s, %s \n", employeeProjectEngagement.get(0),
+				employeeProjectEngagement.get(1), employeeProjectEngagement.get(2), employeeProjectEngagement.get(3),
 				uriInfo);
-		return Response.status(206)
-				.header("Location", uriInfo.getBaseUri() + "employee/")
-				.entity(invalidCsv)
-				.build();
+		return Response.status(206).header("Location", uriInfo.getBaseUri() + "employee/").entity(invalidCsv).build();
 	}
 
 	public Year getComputation(String employeeId, int year) throws SQLException, ParseException {
 		Utilization utilization = utilizationEngagementRepository.getComputation(employeeId, year);
-		UtilizationYear utilization_Year = ObjectMapperAdapter.unmarshal(utilization.getUtilizationJson(),UtilizationYear.class);
+		UtilizationYear utilization_Year = ObjectMapperAdapter.unmarshal(utilization.getUtilizationJson(),
+				UtilizationYear.class);
 		DecimalFormat formatter = new DecimalFormat("#0.00");
 		double hours = 0;
 		double weekHours = 0;
@@ -334,16 +330,14 @@ public class ProjectBO {
 		Year yearCalculation = new Year();
 		yearCalculation.setQuarters(new ArrayList<Quarter>());
 		yearCalculation.getQuarters().add(new Quarter());
-		
+
 		final Quarter quarterOfYear = yearCalculation.getQuarters().get(quarterCounter);
 		quarterOfYear.setMonths(new ArrayList<Month>());
 		quarterOfYear.getMonths().add(new Month());
-		
+
 		Month monthOfQuarter = quarterOfYear.getMonths().get(monthCounter);
 		monthOfQuarter.setWeeks(new ArrayList<Week>());
 
-		
-		
 		for (UtilizationJson json : utilization_Year.getUtilizationJSON()) {
 			//
 			final String utilizationCellValue = json.getUtilizationHours();
@@ -375,8 +369,7 @@ public class ProjectBO {
 				System.out.println("  TOTAL HOURS PER WEEK: " + weekHours);
 				weeksOfMonth.add(new Week());
 				weeksOfMonth.get(weekCounter).setTotalHours(weekHours);
-				weeksOfMonth.get(weekCounter)
-						.setWeekEndingDate(json.getMonth() + "/" + json.getDayOfMonth());
+				weeksOfMonth.get(weekCounter).setWeekEndingDate(json.getMonth() + "/" + json.getDayOfMonth());
 				monthHours = monthHours + weekHours;
 				weekHours = 0;
 				weekCounter++;
@@ -389,7 +382,7 @@ public class ProjectBO {
 			final boolean isQ4 = json.getMonth() == 12 && json.getDayOfMonth() == 31;
 			boolean isValidCalendarQuarter = isQ1 || isQ2 || isQ3 || isQ4;
 			if (weekCounter == 5 && isValidCalendarQuarter) {
-				//Process a five-week month
+				// Process a five-week month
 				final int FIVE_WEEK_TOTAL_HOURS = 200;
 				double MTD5 = ((monthHours / FIVE_WEEK_TOTAL_HOURS) * 100);
 				monthOfQuarter.setTotalHours(monthHours);
@@ -401,9 +394,9 @@ public class ProjectBO {
 
 				// Months
 				monthDigitToString(monthOfQuarter, json);
-				
+
 				getComputationSysouts(monthHours, monthVLCount, monthSLCount, monthOLCount, MTD5);
-				
+
 				quarterHours = quarterHours + monthHours;
 				monthHours = 0;
 				monthVLCount = 0;
@@ -416,7 +409,7 @@ public class ProjectBO {
 				weekCounter = 0;
 
 			} else if (weekCounter == 4) {
-				//Process a four-week month
+				// Process a four-week month
 				final int FOUR_WEEK_TOTAL_HOURS = 160;
 				double MTD4 = ((monthHours / FOUR_WEEK_TOTAL_HOURS) * 100);
 				monthOfQuarter.setTotalHours(monthHours);
@@ -429,7 +422,7 @@ public class ProjectBO {
 				monthDigitToString(monthOfQuarter, json);
 
 				getComputationSysouts(monthHours, monthVLCount, monthSLCount, monthOLCount, MTD4);
-				
+
 				quarterHours = quarterHours + monthHours;
 				monthHours = 0;
 				monthVLCount = 0;
@@ -442,11 +435,9 @@ public class ProjectBO {
 				weekCounter = 0;
 			}
 
-			
-			
 			// Compute all data per quarter
-			//TODO: validation
-			//?
+			// TODO: validation
+			// ?
 			if (isValidCalendarQuarter) {
 				double QTD = ((quarterHours / 560) * 100);
 				quarterOfYear.setTotalHours(quarterHours);
@@ -539,7 +530,7 @@ public class ProjectBO {
 		Utilization utilization = utilizationEngagementRepository.getComputation(employeeSerial, year);
 		UtilizationYear utilization_Year = ObjectMapperAdapter.unmarshal(utilization.getUtilizationJson(),
 				UtilizationYear.class);
-		
+
 		double hours = 0;
 		double VLcount = 0;
 		double SLcount = 0;
@@ -584,14 +575,14 @@ public class ProjectBO {
 		}
 		return null;
 	}
-	
-	public String saveQuarter(PUMQuarter pumQuarter) throws SQLException, ParseException{
+
+	public String saveQuarter(PUMQuarter pumQuarter) throws SQLException, ParseException {
 		SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
 		boolean value = false;
-		if (pumQuarter.getStart() != null){
-			if (pumQuarter.getEnd() != null){
+		if (pumQuarter.getStart() != null) {
+			if (pumQuarter.getEnd() != null) {
 				value = pumYearRepository.saveQuarter(pumQuarter);
-				if (value){
+				if (value) {
 					logger.info("END saveQuarter");
 					return OpumConstants.SUCCESSFULLY_SAVED;
 				} else {
@@ -605,20 +596,20 @@ public class ProjectBO {
 			return OpumConstants.ERROR;
 		}
 	}
-	
-	public String saveMonth(PUMMonth pumMonth) throws SQLException, ParseException{
+
+	public String saveMonth(PUMMonth pumMonth) throws SQLException, ParseException {
 		SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
 		boolean value = false;
-		if (pumMonth.getStart() != null){
-			if (pumMonth.getEnd() != null){
+		if (pumMonth.getStart() != null) {
+			if (pumMonth.getEnd() != null) {
 				value = pumYearRepository.saveMonth(pumMonth);
-				if (value){
+				if (value) {
 					logger.info("END saveMonth");
 					return OpumConstants.SUCCESSFULLY_SAVED;
 				} else {
 					logger.info("END saveMonth");
 					return OpumConstants.ERROR_WHEN_SAVING;
-				} 
+				}
 			} else {
 				return OpumConstants.ERROR_END_DATE;
 			}

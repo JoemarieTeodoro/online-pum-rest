@@ -15,7 +15,7 @@ import com.ph.ibm.util.OpumConstants;
 public class EmployeeRepositoryImpl implements EmployeeRepository {
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
-	
+
 	@Override
 	public boolean addData(Employee employee) throws SQLException, BatchUpdateException {
 		Connection connection = connectionPool.getConnection();
@@ -38,8 +38,16 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try { if(preparedStatement != null) preparedStatement.close();} catch(Exception e) { }
-			try { if(connection != null) connection.close(); } catch(Exception e) { }
+			try {
+				if (preparedStatement != null)
+					preparedStatement.close();
+			} catch (Exception e) {
+			}
+			try {
+				if (connection != null)
+					connection.close();
+			} catch (Exception e) {
+			}
 		}
 		return true;
 	}
@@ -97,7 +105,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		Employee employee=null;
+		Employee employee = null;
 		try {
 			String query = "SELECT EMPLOYEE_ID, EMPLOYEE_ID_NUMBER, EMAIL, ISADMIN FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ? AND ISADMIN = 1";
 			preparedStatement = connection.prepareStatement(query);
@@ -110,7 +118,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				employee.setEmployeeSerial(resultSet.getString(2));
 				employee.setIntranetId(resultSet.getString(3));
 				employee.setIsAdmin(resultSet.getBoolean(4));
-			} 
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -122,7 +130,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 	@Override
 	public Employee loginUser(String username, String hashed) throws SQLException {
 		Connection connection = connectionPool.getConnection();
-		Employee employee=null;
+		Employee employee = null;
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		try {
@@ -138,7 +146,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				employee.setIntranetId(resultSet.getString(3));
 				employee.setIsAdmin(resultSet.getBoolean(4));
 				employee.setFullName(resultSet.getString(5));
-			} 
+			}
 			return employee;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -173,23 +181,23 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 	}
 
 	@Override
-	public EmployeeUpdate searchEmployee(String employeeIdNumber) throws SQLException{
+	public EmployeeUpdate searchEmployee(String employeeIdNumber) throws SQLException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		EmployeeUpdate employee = null;
 		try {
-			String query ="SELECT EMPLOYEE.FULLNAME, EMPLOYEE.EMAIL, PROJECT.NAME, PROJECT_ENGAGEMENT.START, PROJECT_ENGAGEMENT.END, EMPLOYEE.ISACTIVE "
+			String query = "SELECT EMPLOYEE.FULLNAME, EMPLOYEE.EMAIL, PROJECT.NAME, PROJECT_ENGAGEMENT.START, PROJECT_ENGAGEMENT.END, EMPLOYEE.ISACTIVE "
 					+ "FROM EMPLOYEE "
 					+ "JOIN PROJECT_ENGAGEMENT ON EMPLOYEE.EMPLOYEE_ID=PROJECT_ENGAGEMENT.EMPLOYEE_ID "
 					+ "JOIN PROJECT ON PROJECT_ENGAGEMENT.PROJECT_ID=PROJECT.PROJECT_ID "
 					+ "WHERE EMPLOYEE.EMPLOYEE_ID_NUMBER = ?";
-			
+
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employeeIdNumber);
 			resultSet = preparedStatement.executeQuery();
-			
-			if (resultSet.next()){
+
+			if (resultSet.next()) {
 				employee = new EmployeeUpdate();
 				employee.setEmployeeIdNumber(employeeIdNumber);
 				employee.setFullName(resultSet.getString(1));
@@ -200,13 +208,13 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				employee.setActive(resultSet.getBoolean(6));
 			}
 			return employee;
-			} catch (SQLException e){
-				e.printStackTrace();
-				return null;
-			} finally {
-				connectionPool.closeConnection(connection, preparedStatement, resultSet);
-			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
+	}
 
 	@Override
 	public boolean updateEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException {
@@ -217,14 +225,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			String query = "UPDATE EMPLOYEE "
 					+ "JOIN PROJECT_ENGAGEMENT ON EMPLOYEE.EMPLOYEE_ID = PROJECT_ENGAGEMENT.EMPLOYEE_ID "
 					+ "JOIN PROJECT ON PROJECT_ENGAGEMENT.PROJECT_ID = PROJECT.PROJECT_ID "
-					+ "SET EMPLOYEE.FULLNAME = ?,"
-					+ "EMPLOYEE.EMAIL = ?,"
-					+ "PROJECT.NAME = ?, "
-					+ "PROJECT_ENGAGEMENT.START = ?,"
-					+ "PROJECT_ENGAGEMENT.END = ?,"
-					+ "EMPLOYEE.ISACTIVE = ?"
+					+ "SET EMPLOYEE.FULLNAME = ?," + "EMPLOYEE.EMAIL = ?," + "PROJECT.NAME = ?, "
+					+ "PROJECT_ENGAGEMENT.START = ?," + "PROJECT_ENGAGEMENT.END = ?," + "EMPLOYEE.ISACTIVE = ?"
 					+ " WHERE EMPLOYEE.EMPLOYEE_ID_NUMBER = ?";
-			
+
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employeeUpdate.getFullName());
 			preparedStatement.setString(2, employeeUpdate.getEmail());
@@ -244,6 +248,53 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;
+	}
+
+	@Override
+	public Employee saveOrUpdate(Employee validateEmployee) {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		try {
+			connection.setAutoCommit(false);
+			String query = "INSERT INTO EMPLOYEE ("
+					+ "Employee_ID_Number,Email,Project_Engagement_ID,FirstName,LastName,MiddleName,IsAdmin,FullName,Password,isActive,CreateDate,CreatedBy,UpdateDate,UpdatedBy) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, validateEmployee.getEmployeeSerial());
+			preparedStatement.setString(2, validateEmployee.getIntranetId());
+			preparedStatement.setString(3, null);
+			preparedStatement.setString(4, null);
+			preparedStatement.setString(5, null);
+			preparedStatement.setString(6, null);
+			preparedStatement.setBoolean(7, true);
+			preparedStatement.setString(8, validateEmployee.getFullName());
+			preparedStatement.setString(9, validateEmployee.getPassword());
+			preparedStatement.setBoolean(10, true);
+			preparedStatement.setString(11, validateEmployee.getCreateDate());
+			preparedStatement.setString(12, validateEmployee.getCreatedBy());
+			preparedStatement.setString(13, validateEmployee.getUpdateDate());
+			preparedStatement.setString(14, validateEmployee.getUpdatedBy());
+			preparedStatement.addBatch();
+			preparedStatement.executeBatch();
+			connection.commit();
+
+			System.out.println(OpumConstants.SUCCESSFULLY_SAVED_DATA);
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (preparedStatement != null)
+					preparedStatement.close();
+			} catch (Exception e) {
+			}
+			try {
+				if (connection != null)
+					connection.close();
+			} catch (Exception e) {
+			}
+		}
+		return validateEmployee;
 	}
 
 }

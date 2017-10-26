@@ -20,7 +20,7 @@ public class ConnectionPool {
 
 	private String dbUrl = "jdbc:mysql://localhost:3306/opum";
 	private String userName = "root";
-	private String password = "root";
+	private String password = "admin";
 
 	private static ConnectionPool connectionPool;
 
@@ -46,8 +46,8 @@ public class ConnectionPool {
 		Properties connectionProps = new Properties();
 	    connectionProps.put("user", this.userName);
 	    connectionProps.put("password", this.password);
-	    connectionProps.put("useSSL", false);
-		
+	    connectionProps.put("useSSL", "false");
+
 		try {
 			connection = DriverManager.getConnection(dbUrl, connectionProps);
 		} catch (SQLException e) {
@@ -62,7 +62,7 @@ public class ConnectionPool {
 			if (resultSet != null) { resultSet.close(); }
 			closeConnection(connection, preparedStatement);
 		} catch (SQLException e) {
-			
+
 		}
 	}
 
@@ -71,9 +71,9 @@ public class ConnectionPool {
 			if (preparedStatement != null) { preparedStatement.close(); }
 			if (connection != null) { connection.close(); }
 		} catch (SQLException e) {
-			
+
 		}
 	}
-	
-	
+
+
 }

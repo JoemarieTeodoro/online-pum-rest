@@ -87,5 +87,13 @@ public interface EmployeeRepository {
 	 * @throws BatchUpdateException
 	 */
 	public boolean updateEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException;
-	
+
+	/**
+	 * This method is used save validated employee data to employee table
+	 * @param employeeUpdate
+	 * @return boolean
+	 * @throws SQLException
+	 * @throws BatchUpdateException
+	 */
+	public Employee saveOrUpdate(Employee validateEmployee);
 }

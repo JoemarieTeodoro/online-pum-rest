@@ -52,6 +52,8 @@ CREATE TABLE `employee` (
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
 INSERT INTO `employee` VALUES (1,'123456','admin@ph.ibm.com',NULL,NULL,NULL,NULL,1,'Admin','47b82bd4ffff817f1ce3ffffa55bffffd52bffffb44cffffbc446c9348b77e81fffffa06ffff986848b71de237c8',0,'2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN'),(26,'121212','magdanc@ph.ibm.com',NULL,NULL,NULL,NULL,0,'Claude Magdangal',NULL,0,'2017-08-16 08:42:23','ADMIN','2017-08-16 08:42:23',NULL),(27,'131313','aumana@ph.ibm.com',NULL,NULL,NULL,NULL,0,'Aldaina Auman','1fe02bd4ffffb947619effffac5458a7075aa5ffff966a4ab50714eb2cd322dd4ab56f90',0,'2017-08-16 08:42:23','ADMIN','2017-08-16 13:36:15','aumana@ph.ibm.com');
+-- usr/pw as admin/admin credentials
+-- (1001, '1001', 'admin', NULL, NULL, NULL, NULL, 1, 'System Administrator', '20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d', 0, '2017-10-25 18:19:52', 'ADMIN', now(), 'ADMIN');
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
 

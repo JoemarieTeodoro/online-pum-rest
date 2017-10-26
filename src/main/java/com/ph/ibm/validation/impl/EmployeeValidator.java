@@ -26,9 +26,9 @@ public class EmployeeValidator implements Validator<Employee>{
 	public boolean validate(Employee employee) throws InvalidEmployeeException, SQLException {
 		boolean isValid = isValidEmployeeName(employee.getFullName())
 				&& isValidEmailAddress(employee.getIntranetId())
-				&& isValidEmployeeId(employee.getEmployeeSerial())
-				&& isValidPrimaryProject(employee.getPrimaryProject())
-				&& doesEmployeeExist(employee.getEmployeeSerial(), employee.getIntranetId());
+				&& isValidEmployeeId(employee.getEmployeeSerial());
+			//	&& isValidPrimaryProject(employee.getPrimaryProject());
+			//	&& doesEmployeeExist(employee.getEmployeeSerial(), employee.getIntranetId());
 		return isValid;
 	}
 	
