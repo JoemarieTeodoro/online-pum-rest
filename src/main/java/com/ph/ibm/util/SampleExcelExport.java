@@ -2,294 +2,300 @@ package com.ph.ibm.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFCreationHelper;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import com.ph.ibm.model.Project;
 import com.ph.ibm.model.ProjectEngagement;
 import com.ph.ibm.model.Utilization;
 import com.ph.ibm.model.UtilizationJson;
 import com.ph.ibm.model.UtilizationYear;
-import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
-import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
-import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
+import com.ph.ibm.opum.exception.OpumException;
+import com.ph.ibm.repository.ProjectEngagementRepository;
+import com.ph.ibm.repository.ProjectRepository;
+import com.ph.ibm.repository.UtilizationEngagementRepository;
 
 public class SampleExcelExport {
 
+	private static final String SHEET_NAME = "PUM 2017";
+	private static final String UTIL_YEAR = "2017";
+	private static final String ROLL_OFF_DATE_HEADER = "Roll Off Date";
+	private static final String ROLL_IN_DATE_HEADER = "Roll In Date";
+	private static final String YEAR_HEADER = "Year";
+	private static final String EMP_SERIAL_HEADER = "Employee Serial No.";
+	private static final String PROJECT_HEADER = "Project";
+
+	private static final String FILENAME = "USAA_PUM_as of %s.xls";
+	private static final String PATH = "src/test/resources";
+
+	private String[] constantsArray = { PROJECT_HEADER, EMP_SERIAL_HEADER, YEAR_HEADER, ROLL_IN_DATE_HEADER, ROLL_OFF_DATE_HEADER };
+
+	private int employeeDataRowIndex = 5;
 	
+	private HSSFWorkbook workbook;
+	private HSSFSheet sheet;
 	
-	public void workbook() throws IOException {
-		UtilizationEngagementRepositoryImpl util = new UtilizationEngagementRepositoryImpl();
-		ProjectEngagementRepositoryImpl projectEngagementImplementation = new ProjectEngagementRepositoryImpl();
-		ProjectRepositoryImpl projectImplementation = new ProjectRepositoryImpl();
-		LocalDateTime now = LocalDateTime.now();
+	private HSSFRow monthRowHeader;
+	private HSSFRow dayOfMonthRowHeader;
+	private HSSFRow dataRowHeader;
+	
+	private Font dataFont;
+	private Font dataHeaderFont;
+	private Font monthHeaderFont;
+
+	private HSSFCellStyle dataStyle;
+	private HSSFCellStyle headerStyle;
+	private HSSFCellStyle monthHeaderStyle;
+
+	private UtilizationEngagementRepository utilEngagementImpl;
+	private ProjectEngagementRepository projEngagementImpl;
+	private ProjectRepository projImpl;
+
+	private List<ProjectEngagement> projectEngagements;
+
+	private Logger logger = Logger.getLogger(SampleExcelExport.class);
+	
+	public SampleExcelExport() {}
+	
+	public SampleExcelExport(UtilizationEngagementRepository utilEngagement, ProjectEngagementRepository projEngagement, ProjectRepository proj) {
+		this.utilEngagementImpl = utilEngagement;
+		this.projEngagementImpl = projEngagement;
+		this.projImpl = proj;
+	}
+
+	public File exportToExcel() throws IOException, SQLException, OpumException {
+		sheet = workbook.createSheet(SHEET_NAME);
+
+		sheet.addMergedRegion(new CellRangeAddress(0, 3, 0, 4));
+
+		monthRowHeader = sheet.createRow(0);
+		dayOfMonthRowHeader = sheet.createRow(3);
+		dataRowHeader = sheet.createRow(4);
+
+		List<String> projectEngagementHeaderConstants = Arrays.asList(constantsArray);
+
+		// Populate initial project engagement headers
+		for (String dataHeaderValue : Arrays.asList(constantsArray)) {
+			int index = projectEngagementHeaderConstants.indexOf(dataHeaderValue);
+			populateCell(dataRowHeader.createCell(index), headerStyle, dataHeaderValue);
+			sheet.autoSizeColumn(index);
+		}
+
+		// Loop through each assigned project of a resource
+		projectEngagements = projEngagementImpl.getAllProjectEngagement();
+		for (ProjectEngagement projEngagement : projectEngagements) {
+			Utilization utilData = utilEngagementImpl.downloadUtilization(UTIL_YEAR, projEngagement.getEmployeeId());
+			
+			HSSFRow dataEntryRow = sheet.createRow(employeeDataRowIndex);
+
+			// Could be refactored to a parameter object - values could possibly be derived
+			String[] projEngagementData = { "USAA", utilData.getEmployeeSerial(), utilData.getYear(),
+					new SimpleDateFormat("MM-dd-yyyy").format(projEngagement.getStartDate()),
+					new SimpleDateFormat("MM-dd-yyyy").format(projEngagement.getEndDate()) };
+
+			// Populate data mapped to project engagement headers
+			for (int i = 0; i < projEngagementData.length; i++) {
+				populateCell(dataEntryRow.createCell(i), dataStyle, projEngagementData[i]);
+			}
+
+			UtilizationYear utilizationYear = ObjectMapperAdapter.unmarshal(utilData.getUtilizationJson(), UtilizationYear.class);
+
+			int utilizationDataColIndex = 5;
+			int dataEntryRowCount = 1;
+			int monthStartColIndex = 5;
+			int monthEndColIndex = 5;
+
+			// Iterate though each utilization of a resource for the given year
+			for (UtilizationJson utilJson : utilizationYear.getUtilizationJSON()) {
+				populateCell(dataEntryRow.createCell(utilizationDataColIndex), dataStyle, utilJson.getUtilizationHours());
+				populateCell(dayOfMonthRowHeader.createCell(utilizationDataColIndex), headerStyle, String.valueOf(utilJson.getDayOfMonth()));
+				
+				try {
+					populateCell(dataRowHeader.createCell(utilizationDataColIndex), headerStyle, setDayHeaders(utilJson));
+					populateCell(monthRowHeader.createCell(utilizationDataColIndex), monthHeaderStyle, setMonthHeaders(utilJson));
+				} catch (IllegalArgumentException e) {
+					logger.error(e.getMessage());
+					throw new OpumException(e.getMessage());
+				}
+
+				utilizationDataColIndex++;
+
+				int assignedProjectCount = projectEngagements.indexOf(projEngagement);
+				if (dataEntryRowCount < utilizationYear.getUtilizationJSON().size() && assignedProjectCount == 0) {
+					if (utilJson.getMonth() != utilizationYear.getUtilizationJSON().get(dataEntryRowCount).getMonth()) {
+						sheet.addMergedRegion(new CellRangeAddress(0, 0, monthStartColIndex, monthEndColIndex));
+						monthStartColIndex = monthEndColIndex + 1;
+					}
+				} else if (dataEntryRowCount == utilizationYear.getUtilizationJSON().size() && assignedProjectCount == 0) {
+					sheet.addMergedRegion(new CellRangeAddress(0, 0, monthStartColIndex, monthEndColIndex));
+				}
+				monthEndColIndex++;
+				dataEntryRowCount++;
+			}
+			
+			employeeDataRowIndex++;
+		}
 		
-		try {
-			Utilization utilization = null;
-			List<ProjectEngagement> projectEngagementList = projectEngagementImplementation.getAllProjectEngagement();
-			List<Project> projectList	= projectImplementation.retrieveData();
-			HSSFWorkbook workbook = new HSSFWorkbook();
-			HSSFSheet sheet = workbook.createSheet("PUM 2017");
-			sheet.addMergedRegion(new CellRangeAddress(0,3,0,4));
-			
-			
-			HSSFCreationHelper createHelper = workbook.getCreationHelper();
-			HSSFCellStyle dateStyle = workbook.createCellStyle();
-			dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("MM-dd-yyyy"));
-			Font dateFont = workbook.createFont();
-			dateFont.setFontHeightInPoints((short)(9));
-			dateFont.setFontName("Calibri");
-			dateFont.setColor(IndexedColors.BLACK.getIndex());
-			dateFont.setBold(false);
-			dateFont.setItalic(false);
-			dateStyle.setAlignment(HorizontalAlignment.CENTER);
-			dateStyle.setBorderLeft(BorderStyle.THIN);
-			dateStyle.setBorderBottom(BorderStyle.THIN);
-			dateStyle.setBorderRight(BorderStyle.THIN);
-			dateStyle.setBorderTop(BorderStyle.THIN);
-			dateStyle.setFont(dateFont);
-			
-			HSSFCellStyle hStyle = workbook.createCellStyle();
-			Font font = workbook.createFont();
-			font.setFontHeightInPoints((short)(9));
-			font.setFontName("Verdana");
-			font.setColor(IndexedColors.DARK_TEAL.getIndex());
-			font.setBold(true);
-			font.setItalic(false);
-			hStyle.setAlignment(HorizontalAlignment.CENTER);
-			hStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-			hStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-			hStyle.setBorderLeft(BorderStyle.THIN);
-			hStyle.setBorderBottom(BorderStyle.THIN);
-			hStyle.setBorderRight(BorderStyle.THIN);
-			hStyle.setBorderTop(BorderStyle.THIN);
-			hStyle.setFont(font);
-			
-			
-			HSSFCellStyle monthStyle = workbook.createCellStyle();			
-			Font monthFont = workbook.createFont();
-			monthFont.setFontHeightInPoints((short)(12));
-			monthFont.setFontName("Trebuchet MS");
-			monthFont.setColor(IndexedColors.WHITE.getIndex());
-			monthFont.setBold(true);
-			monthFont.setItalic(false);
-			monthStyle.setAlignment(HorizontalAlignment.CENTER);
-			monthStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-			monthStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-			monthStyle.setBorderLeft(BorderStyle.THIN);
-			monthStyle.setBorderBottom(BorderStyle.THIN);
-			monthStyle.setBorderRight(BorderStyle.THIN);
-			monthStyle.setBorderTop(BorderStyle.THIN);
-			monthStyle.setFont(monthFont);
-			
-			HSSFCellStyle dataStyle = workbook.createCellStyle();
-			Font dataFont = workbook.createFont();
-			dataFont.setFontHeightInPoints((short)(9));
-			dataFont.setFontName("Calibri");
-			dataFont.setColor(IndexedColors.BLACK.getIndex());
-			dataFont.setBold(false);
-			dataFont.setItalic(false);
-			dataStyle.setAlignment(HorizontalAlignment.CENTER);
-			dataStyle.setBorderLeft(BorderStyle.THIN);
-			dataStyle.setBorderBottom(BorderStyle.THIN);
-			dataStyle.setBorderRight(BorderStyle.THIN);
-			dataStyle.setBorderTop(BorderStyle.THIN);
-			dataStyle.setFont(dataFont);
+		return createExcelWorkbook(PATH, String.format(FILENAME, LocalDateTime.now().toLocalDate()));
+	}
 	
-			int rowNum = 5;
-			HSSFRow daysHeader = sheet.createRow(3);
-			HSSFRow monthHeader = sheet.createRow(0);
-			HSSFRow header = sheet.createRow(4);
-
-			HSSFCell header1 = header.createCell(0);
-			HSSFCell header2 = header.createCell(1);
-			HSSFCell header3 = header.createCell(2);
-			HSSFCell header4 = header.createCell(3);
-			HSSFCell header5 = header.createCell(4);
-
-			header1.setCellValue("Project");
-			header1.setCellStyle(hStyle);
-			sheet.autoSizeColumn(0);
-		    header2.setCellValue("Employee Serial No.");
-		    header2.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(1);
-		    
-		    header3.setCellValue("Year");
-		    header3.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(2);
-		    header4.setCellValue("Roll In Date");
-		    header4.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(3);
-		    header5.setCellValue("Roll Off Date");
-		    header5.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(4);
-		    
-		    
-		  
-			for (int i = 0; i<projectEngagementList.size(); i++) {
-				
-				Utilization excelRow = util.downloadUtilization("2017", projectEngagementList.get(i).getEmployeeId());
-				HSSFRow row = sheet.createRow(rowNum);
-
-				HSSFCell cell1 = row.createCell(0);
-				HSSFCell cell2 = row.createCell(1);
-				HSSFCell cell3 = row.createCell(2);
-				HSSFCell cell4 = row.createCell(3);
-				HSSFCell cell5 = row.createCell(4);
-
-				
-				cell1.setCellValue("USAA");
-				cell1.setCellStyle(dataStyle);
-				cell2.setCellValue(excelRow.getEmployeeSerial());
-				cell2.setCellStyle(dataStyle);
-				cell3.setCellValue(excelRow.getYear());
-				cell3.setCellStyle(dataStyle);
-
-				cell4.setCellValue(projectEngagementList.get(i).getStartDate());
-				cell4.setCellStyle(dateStyle);
-				sheet.autoSizeColumn(3);
-				cell5.setCellValue(projectEngagementList.get(i).getEndDate());
-				cell5.setCellStyle(dateStyle);
-				sheet.autoSizeColumn(4);
-				
-
-				UtilizationYear utilizationYear = ObjectMapperAdapter.unmarshal(excelRow.getUtilizationJson(), UtilizationYear.class);
-				
-				int utilColumn = 5;
-				int colHeader = 5;
-				int monthHeaderCtr = 5;
-				int daysUtil = 5;
-				int ctr = 1;
-				int monthStartCtr = 5;
-				int monthEndCtr = 5;
-				for(UtilizationJson utilJson: utilizationYear.getUtilizationJSON())
-				{       
-					HSSFCell cellHours = row.createCell(utilColumn++);
-					cellHours.setCellValue(utilJson.getUtilizationHours());
-					cellHours.setCellStyle(dataStyle);
-					
-					HSSFCell dayOfMonth = daysHeader.createCell(daysUtil++);
-					dayOfMonth.setCellValue(utilJson.getDayOfMonth());
-					dayOfMonth.setCellStyle(hStyle);
-					
-					HSSFCell dayHeader = header.createCell(colHeader++);
-					if(utilJson.getDay() == 1){
-						dayHeader.setCellValue("S");
-						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 2){
-						dayHeader.setCellValue("M");
-						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 3){
-						dayHeader.setCellValue("T");
-						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 4){
-						dayHeader.setCellValue("W");
-						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 5){
-						dayHeader.setCellValue("T");
-						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 6){
-						dayHeader.setCellValue("F");
-						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 7){
-						dayHeader.setCellValue("S");
-						dayHeader.setCellStyle(hStyle);
-					}else{
-					dayHeader.setCellValue(utilJson.getDay());
-					}
-					
-					HSSFCell month = monthHeader.createCell(monthHeaderCtr++);
-					if(utilJson.getMonth()==1){
-						month.setCellValue("JAN");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==2){
-						month.setCellValue("FEB");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==3){
-						month.setCellValue("MAR");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==4){
-						month.setCellValue("APR");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==5){
-						month.setCellValue("MAY");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==6){
-						month.setCellValue("JUN");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==7){
-						month.setCellValue("JUL");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==8){
-						month.setCellValue("AUG");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==9){
-						month.setCellValue("SEP");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==10){
-						month.setCellValue("OCT");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==11){
-						month.setCellValue("NOV");
-						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==12){
-						month.setCellValue("DEC");
-						month.setCellStyle(monthStyle);
-					}else{
-					month.setCellValue(utilJson.getMonth());
-					}
-					
-					if(ctr < utilizationYear.getUtilizationJSON().size() && i==0){
-					if(utilJson.getMonth() != utilizationYear.getUtilizationJSON().get(ctr).getMonth()){
-						
-						sheet.addMergedRegion(new CellRangeAddress(0,0,monthStartCtr,monthEndCtr));
-						monthStartCtr = monthEndCtr + 1;
-						}
-					}else if(ctr == utilizationYear.getUtilizationJSON().size() && i==0){
-						sheet.addMergedRegion(new CellRangeAddress(0,0,monthStartCtr,monthEndCtr));
-					}
-					monthEndCtr++;
-					ctr++;
-					}
-				
-				rowNum++;
-			}
-			
-			System.out.println("Test 2");
-			try  {
-				File file = new File("C:\\Users\\IBM_ADMIN\\Desktop\\"+"USAA_"+ "PUM" + "_as of "+ now.now().toLocalDate() +".xls");
-				workbook.write(file);
-				workbook.close();
-				
-				ResponseBuilder response = Response.ok((workbook));
-				
-			} finally {
-				
-			}
-			System.out.println("Test 3");
-		} catch (Exception e) {
-			e.printStackTrace();
+	HSSFCell populateCell(HSSFCell cell, HSSFCellStyle cellStyle, String cellValue){
+		cell.setCellValue(cellValue);
+		cell.setCellStyle(cellStyle);
+		return cell;
+	}
+	
+	void createDirectoryPath(String directoryPath) {
+		File directory = new File(directoryPath);
+		if (!directory.exists()) {
+			directory.mkdirs();
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		new SampleExcelExport().workbook();
+	File createExcelWorkbook(String directoryPath, String fileName) throws IOException {
+		createDirectoryPath(directoryPath);
+		File file = new File(directoryPath, fileName);
+		workbook.write(file);
+		workbook.close();
+		return file;
 	}
 
+	String setMonthHeaders(UtilizationJson utilJson) throws IllegalArgumentException {
+		int monthIndex = utilJson.getMonth();
+		if (!isValidMonthIndex(monthIndex)) {
+			throw new IllegalArgumentException("Invalid month value from JSON");
+		}
+		Month month = Month.of(monthIndex);
+		return month.getDisplayName(TextStyle.SHORT, Locale.getDefault()).toUpperCase();
+	}
+
+	/**
+	 * Previous code referenced indexes were Sun - Sat, Java 8 enum starts from
+	 * Mon-Sun
+	 * 
+	 * @param cellStyle
+	 * @param utilJson
+	 * @param dayHeader
+	 * @throws OpumException
+	 */
+	String setDayHeaders(UtilizationJson utilJson) throws IllegalArgumentException {
+		int dayIndex = utilJson.getDay();
+		if (!isValidDayIndex(dayIndex)) {
+			throw new IllegalArgumentException("Invalid day value from JSON");
+		}
+		DayOfWeek day = DayOfWeek.of(dayIndex);
+		return day.getDisplayName(TextStyle.NARROW, Locale.getDefault());
+	}
+
+	private boolean isValidDayIndex(int dayIndex) {
+		return 1 <= dayIndex && dayIndex <= 7;
+	}
+
+	private boolean isValidMonthIndex(int monthIndex) {
+		return 1 <= monthIndex && monthIndex <= 12;
+	}
+
+	public UtilizationEngagementRepository getUtilEngagementImpl() {
+		return utilEngagementImpl;
+	}
+
+	public void setUtilEngagementImpl(UtilizationEngagementRepository utilEngagementImpl) {
+		this.utilEngagementImpl = utilEngagementImpl;
+	}
+
+	public ProjectEngagementRepository getProjEngagementImpl() {
+		return projEngagementImpl;
+	}
+
+	public void setProjEngagementImpl(ProjectEngagementRepository projEngagementImpl) {
+		this.projEngagementImpl = projEngagementImpl;
+	}
+
+	public ProjectRepository getProjImpl() {
+		return projImpl;
+	}
+
+	public void setProjImpl(ProjectRepository projImpl) {
+		this.projImpl = projImpl;
+	}
+
+	public Font getDataFont() {
+		return dataFont;
+	}
+
+	public void setDataFont(Font dataFont) {
+		this.dataFont = dataFont;
+	}
+
+	public Font getDataHeaderFont() {
+		return dataHeaderFont;
+	}
+
+	public void setDataHeaderFont(Font dataHeaderFont) {
+		this.dataHeaderFont = dataHeaderFont;
+	}
+
+	public Font getMonthHeaderFont() {
+		return monthHeaderFont;
+	}
+
+	public void setMonthHeaderFont(Font monthHeaderFont) {
+		this.monthHeaderFont = monthHeaderFont;
+	}
+
+	public HSSFCellStyle getDataStyle() {
+		return dataStyle;
+	}
+
+	public void setDataStyle(HSSFCellStyle dataStyle) {
+		this.dataStyle = dataStyle;
+	}
+
+	public HSSFWorkbook getWorkbook() {
+		return workbook;
+	}
+
+	public void setWorkbook(HSSFWorkbook workbook) {
+		this.workbook = workbook;
+	}
+
+	public HSSFCellStyle getDataHeaderStyle() {
+		return headerStyle;
+	}
+
+	public void setDataHeaderStyle(HSSFCellStyle dataHeaderStyle) {
+		this.headerStyle = dataHeaderStyle;
+	}
+
+	public HSSFCellStyle getMonthHeaderStyle() {
+		return monthHeaderStyle;
+	}
+
+	public void setMonthHeaderStyle(HSSFCellStyle monthHeaderStyle) {
+		this.monthHeaderStyle = monthHeaderStyle;
+	}
+	
+	public HSSFSheet getSheet() {
+		return sheet;
+	}
+
+	public void setSheet(HSSFSheet sheet) {
+		this.sheet = sheet;
+	}
+	
 }
