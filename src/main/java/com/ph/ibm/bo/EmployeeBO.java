@@ -103,13 +103,17 @@ public class EmployeeBO {
 		try {
 			logger.info("It passed through here");
 			employee = employeeRepository.loginAdmin(username, hashed);
-			//	Eventually to add check if Role is SYS_ADMIN
-			if (employee != null && employee.getIsAdmin()) {
-				logger.info(OpumConstants.ENTERING_ADMIN_PAGE);
-				System.out.println(OpumConstants.ENTERING_ADMIN_PAGE);
-				URI uri = new URI("http://localhost:8080/online-pum-ui/admin/adminHomeLink");
-				java.awt.Desktop.getDesktop().browse(uri);
-				System.out.println(OpumConstants.OPENING_BROWSER);
+			if (employee != null && employee.getAssignedRoles().contains(Role.SYS_ADMIN)) {
+				try {
+					logger.info(OpumConstants.ENTERING_SYS_ADMIN_PAGE);
+					System.out.println(OpumConstants.ENTERING_SYS_ADMIN_PAGE);
+					URI uri = new URI("http://localhost:8080/online-pum-ui/admin/adminHomeLink");
+					java.awt.Desktop.getDesktop().browse(uri);
+					System.out.println(OpumConstants.OPENING_BROWSER);
+				} catch (Exception e) {
+					logger.error(e);
+					throw new OpumException(e.getMessage(), e);
+				}
 			} else if (employee != null && employee.getAssignedRoles() != null && employee.getAssignedRoles().contains(Role.ADMIN)) {
 				try {
 					logger.info(OpumConstants.ENTERING_ADMIN_PAGE);

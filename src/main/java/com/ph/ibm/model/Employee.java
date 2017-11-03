@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Employee extends BaseAuditBean{
 
 	private String employeeSerial;
+	private String employeeId;
 	private String managerSerial;
 	private String intranetId;
 	private String fullName;
@@ -145,6 +146,14 @@ public class Employee extends BaseAuditBean{
 
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
+	}
+	
+	public String getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(String employeeId) {
+		this.employeeId = employeeId;
 	}
 	
 

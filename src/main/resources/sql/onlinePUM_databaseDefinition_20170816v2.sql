@@ -19,7 +19,9 @@
 -- Table structure for table `employee`
 --
 
+SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `employee`;
+SET FOREIGN_KEY_CHECKS=1;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `employee` (
@@ -51,11 +53,33 @@ CREATE TABLE `employee` (
 
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
-INSERT INTO `employee` VALUES (1,'123456','admin@ph.ibm.com',NULL,NULL,NULL,NULL,1,'Admin','47b82bd4ffff817f1ce3ffffa55bffffd52bffffb44cffffbc446c9348b77e81fffffa06ffff986848b71de237c8',0,'2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN'),(26,'121212','magdanc@ph.ibm.com',NULL,NULL,NULL,NULL,0,'Claude Magdangal',NULL,0,'2017-08-16 08:42:23','ADMIN','2017-08-16 08:42:23',NULL),(27,'131313','aumana@ph.ibm.com',NULL,NULL,NULL,NULL,0,'Aldaina Auman','1fe02bd4ffffb947619effffac5458a7075aa5ffff966a4ab50714eb2cd322dd4ab56f90',0,'2017-08-16 08:42:23','ADMIN','2017-08-16 13:36:15','aumana@ph.ibm.com');
+INSERT INTO `employee` VALUES (1,'123456','admin@ph.ibm.com',NULL,NULL,NULL,NULL,1,'Admin','47b82bd4ffff817f1ce3ffffa55bffffd52bffffb44cffffbc446c9348b77e81fffffa06ffff986848b71de237c8',0,'2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN'),(26,'121212','magdanc@ph.ibm.com',NULL,NULL,NULL,NULL,0,'Claude Magdangal',NULL,0,'2017-08-16 08:42:23','ADMIN','2017-08-16 08:42:23',NULL),(27,'131313','aumana@ph.ibm.com',NULL,NULL,NULL,NULL,0,'Aldaina Auman','1fe02bd4ffffb947619effffac5458a7075aa5ffff966a4ab50714eb2cd322dd4ab56f90',0,'2017-08-16 08:42:23','ADMIN','2017-08-16 13:36:15','aumana@ph.ibm.com'),(12, 141414, 'admin',NULL,NULL,NULL,NULL,1,'admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-10-25 03:23:16','ADMIN','2017-10-25 03:23:16','ADMIN');
 -- usr/pw as admin/admin credentials
 -- (1001, '1001', 'admin', NULL, NULL, NULL, NULL, 1, 'System Administrator', '20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d', 0, '2017-10-25 18:19:52', 'ADMIN', now(), 'ADMIN');
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
+
+
+DROP TABLE IF EXISTS `employee_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `employee_role` (
+  `Employee_ID` int(11) NOT NULL,
+  `Role` varchar(20) NOT NULL,
+  INDEX rol(`Role`),
+  FOREIGN KEY (`Employee_ID`)
+	REFERENCES employee(`Employee_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+LOCK TABLES `employee_role` WRITE;
+/*!40000 ALTER TABLE `employee_role` DISABLE KEYS */;
+INSERT INTO `employee_role` VALUES (12, 'System Administrator'),(1,'Administrator'),(26, 'User'),(27,'User');
+-- usr/pw as admin/admin credentials
+-- (1001, '1001', 'admin', NULL, NULL, NULL, NULL, 1, 'System Administrator', '20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d', 0, '2017-10-25 18:19:52', 'ADMIN', now(), 'ADMIN');
+/*!40000 ALTER TABLE `employee_role` ENABLE KEYS */;
+UNLOCK TABLES;
+
 
 --
 -- Table structure for table `holiday`

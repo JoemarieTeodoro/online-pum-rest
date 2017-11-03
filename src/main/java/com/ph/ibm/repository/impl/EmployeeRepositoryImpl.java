@@ -5,9 +5,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUpdate;
+import com.ph.ibm.model.Role;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
@@ -106,6 +109,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		Employee employee = null;
+		List<Role> assignedRoles = new ArrayList<Role>();
 		try {
 			String query = "SELECT EMPLOYEE_ID, EMPLOYEE_ID_NUMBER, EMAIL, ISADMIN FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ? AND ISADMIN = 1";
 			preparedStatement = connection.prepareStatement(query);
@@ -114,10 +118,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
 				employee = new Employee();
-				employee.setEmployeeSerial(resultSet.getString(1));
+				employee.setEmployeeId(resultSet.getString(1));
 				employee.setEmployeeSerial(resultSet.getString(2));
 				employee.setIntranetId(resultSet.getString(3));
 				employee.setIsAdmin(resultSet.getBoolean(4));
+				employee.setAssignedRoles(getRolesFromEmployeeRole(connection, employee, assignedRoles));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -125,6 +130,26 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		return employee;
+	}
+
+	private List<Role> getRolesFromEmployeeRole(Connection connection, Employee employee, List<Role> assignedRoles) throws SQLException {
+		PreparedStatement preparedStatement;
+		ResultSet resultSet;
+		String query = "SELECT ROLE FROM EMPLOYEE_ROLE WHERE EMPLOYEE_ID = ?";
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setString(1, employee.getEmployeeId());
+		resultSet = preparedStatement.executeQuery();
+				
+		while(resultSet.next()) {
+			for (Role role : Role.values()) {
+				if (role.equals(resultSet.getString(1))) {
+					assignedRoles.add(role);
+					break;
+				}
+			}
+		}
+		
+		return assignedRoles;
 	}
 
 	@Override

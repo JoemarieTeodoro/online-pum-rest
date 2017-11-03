@@ -36,6 +36,7 @@ public class OpumConstants {
 	public static final String SUCCESSFULLY_UPLOADED_FILE = "SUCCESSFULLY UPLOADED FILE";
 	public static final String LOGGED_IN = "LOGGED IN";
 	public static final String ENTERING_USER_PAGE = "ENTERING USER PAGE";
+	public static final String ENTERING_SYS_ADMIN_PAGE = "ENTERING SYSTEM ADMIN PAGE";
 	public static final String ENTERING_ADMIN_PAGE = "ENTERING ADMIN PAGE";
 	public static final String OPENING_BROWSER = "OPENING BROWSER";
 	public static final String RETURNING_TO_LOGIN_PAGE = "RETURNING TO LOGIN PAGE";
