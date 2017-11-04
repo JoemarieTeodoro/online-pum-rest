@@ -103,7 +103,9 @@ public class EmployeeBO {
 		try {
 			logger.info("It passed through here");
 			employee = employeeRepository.loginAdmin(username, hashed);
-			if (employee != null && employee.getAssignedRoles().contains(Role.SYS_ADMIN)) {
+
+			//	Eventually to add check if Role is SYS_ADMIN
+			if (employee != null && (employee.getIsAdmin() || employee.getAssignedRoles().contains(Role.SYS_ADMIN))) {
 				try {
 					logger.info(OpumConstants.ENTERING_SYS_ADMIN_PAGE);
 					System.out.println(OpumConstants.ENTERING_SYS_ADMIN_PAGE);

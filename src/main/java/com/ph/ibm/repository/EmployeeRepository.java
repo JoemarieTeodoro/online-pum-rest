@@ -95,5 +95,6 @@ public interface EmployeeRepository {
 	 * @throws SQLException
 	 * @throws BatchUpdateException
 	 */
-	public Employee saveOrUpdate(Employee validateEmployee);
+	public Employee saveOrUpdate(Employee validateEmployee) throws BatchUpdateException, SQLException;
+
 }

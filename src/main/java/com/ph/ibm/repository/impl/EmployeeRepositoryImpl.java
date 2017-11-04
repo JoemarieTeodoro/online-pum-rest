@@ -302,7 +302,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			preparedStatement.addBatch();
 			preparedStatement.executeBatch();
 			connection.commit();
-
 			System.out.println(OpumConstants.SUCCESSFULLY_SAVED_DATA);
 			preparedStatement.close();
 		} catch (SQLException e) {

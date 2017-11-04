@@ -11,6 +11,7 @@ public class OpumConstants {
 	/** VALIDATION ERROR MESSAGE/s */
 	public static final String UNABLE_TO_ESTABLISH_CONNECTION = "UNABLE TO ESTABLISH CONNECTION";
 	public static final String DUPLICATE_ENTRY = "DUPLICATE ENTRY";
+	public static final String SQL_ERROR = "SQL EXCEPTION";
 	public static final String ERROR = "ERROR";
 	public static final String ERROR_WHEN_SAVING = "ERROR WHEN SAVING";
 	public static final String INVALID_CSV = "INVALID CSV";
@@ -21,7 +22,9 @@ public class OpumConstants {
 	public static final String INVALID_EMAIL_ADDRESS = "INVALID EMAIL ADDRESS";
 	public static final String INVALID_EMPLOYEE_ID = "INVALID EMPLOYEE ID";
 	public static final String INVALID_HOLIDAY = "INVALID HOLIDAY";
+    public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
 	public static final String EMPLOYEE_ID_EMAIL_NOT_FOUND = "EMPLOYEE ID / EMAIL NOT FOUND";
+	public static final String EMPLOYEE_ID_EMAIL_EXISTS = "EMPLOYEE ID / EMAIL ALREADY EXISTS";
 	public static final String PROJECT_ENGAGEMENT_NOT_FOUND = "PROJECT ENGAGEMENT NOT FOUND";
 	public static final String UNAUTHORIZED = "UNAUTHORIZED";
 	public static final String ERROR_START_DATE = "ERROR START DATE";
