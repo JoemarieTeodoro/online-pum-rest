@@ -8,14 +8,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.ph.ibm.bo.EmailBO;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUpdate;
-import com.ph.ibm.model.Role;
+import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
+
+	private Logger logger = Logger.getLogger(EmployeeRepositoryImpl.class);
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
@@ -121,7 +126,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				employee.setEmployeeId(resultSet.getString(1));
 				employee.setEmployeeSerial(resultSet.getString(2));
 				employee.setIntranetId(resultSet.getString(3));
-				employee.setIsAdmin(resultSet.getBoolean(4));
+				employee.setAdmin(resultSet.getBoolean(4));
 				employee.setAssignedRoles(getRolesFromEmployeeRole(connection, employee, assignedRoles));
 			}
 		} catch (SQLException e) {
@@ -169,7 +174,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				employee.setEmployeeSerial(resultSet.getString(1));
 				employee.setEmployeeSerial(resultSet.getString(2));
 				employee.setIntranetId(resultSet.getString(3));
-				employee.setIsAdmin(resultSet.getBoolean(4));
+				employee.setAdmin(resultSet.getBoolean(4));
 				employee.setFullName(resultSet.getString(5));
 			}
 			return employee;
@@ -319,6 +324,32 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			}
 		}
 		return validateEmployee;
+	}
+	
+	@Override
+	public String retrieveSalt(String email) throws SQLException, OpumException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		logger.info("email: " + email);
+		try {
+			String query ="SELECT PASSWORD FROM EMPLOYEE WHERE EMAIL = ?";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, email);
+			resultSet = preparedStatement.executeQuery();
+			
+			if (resultSet.next()){
+				return resultSet.getString(1);
+			} else {
+				throw new OpumException("Employee reset password cannot be processed.");
+			}
+			
+		} catch (SQLException e){
+			e.printStackTrace();
+			return null;
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
+		}
 	}
 
 }

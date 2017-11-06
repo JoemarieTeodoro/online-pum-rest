@@ -15,7 +15,7 @@ public class EmailBOTest {
 	EmailBO emailBO;
 
 	@Test
-	public void testFormatAndSendEmailPasswordReset() {
+	public void testFormatAndSendEmailPasswordReset() throws Exception {
 		emailBO = new EmailBO();
 		Email email = new Email();
 		List<String> recipientAddresses = new ArrayList<>();
@@ -24,8 +24,12 @@ public class EmailBOTest {
 		email.setRecipientType(RecipientType.TO.toString());
 		email.setSenderAddress("onlinepumsender@gmail.com");
 		email.setSubject("Testing");
-		email.setText("Dear User," + "\n\n For testing, please!");
+		email.setText("Dear User," + "\n\n For testing, please! \n\n reset password link: %s");
 		
-		emailBO.formatAndSendEmailPasswordReset(email);
+		// for generating hashed password
+//		String hashed = MD5HashEncrypter.computeMD5Digest("onlinepum");
+//		System.out.print("hashed " + hashed);
+		
+		emailBO.emailResetPasswordLink(email);
 	}
 }

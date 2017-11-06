@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUpdate;
+import com.ph.ibm.opum.exception.OpumException;
 
 /**
  * Data Access Object to employee table
@@ -97,4 +98,13 @@ public interface EmployeeRepository {
 	 */
 	public Employee saveOrUpdate(Employee validateEmployee) throws BatchUpdateException, SQLException;
 
+	/**
+	 * This method is used to retrieve the salt from employee table to be used for the reset password link token
+	 * @param employeeUpdate
+	 * @return boolean
+	 * @throws SQLException
+	 * @throws OpumException 
+	 */
+	public String retrieveSalt(String email) throws SQLException, OpumException;
+	
 }
