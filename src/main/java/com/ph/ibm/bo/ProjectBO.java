@@ -11,7 +11,9 @@ import java.text.SimpleDateFormat;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.ws.rs.core.Context;
@@ -53,7 +55,6 @@ import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
 import com.ph.ibm.util.CalendarUtils;
 import com.ph.ibm.util.ObjectMapperAdapter;
 import com.ph.ibm.util.OpumConstants;
-import com.ph.ibm.util.ValidationUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -575,49 +576,29 @@ public class ProjectBO {
         Utilization utilization = utilizationEngagementRepository.getComputation( employeeSerial, year );
         UtilizationYear utilization_Year =
             ObjectMapperAdapter.unmarshal( utilization.getUtilizationJson(), UtilizationYear.class );
-
+        
+        List<TimeAwayTokens> tokens = Arrays.asList(TimeAwayTokens.values());
+        Map<TimeAwayTokens, Double> tokenValueMap = new HashMap<>();
+        
+        double count = 0;
+        for (TimeAwayTokens timeAwayToken : tokens) {
+			tokenValueMap.put(timeAwayToken, count);
+		}
+        
         double hours = 0;
-        double VLcount = 0;
-        double SLcount = 0;
-        double ELcount = 0;
-        double OLcount = 0;
-        double HOcount = 0;
-        double TRcount = 0;
-        double CDOcount = 0;
         for( UtilizationJson json : utilization_Year.getUtilizationJSON() ){
-            if( json.getUtilizationHours().equals( "VL" ) || json.getUtilizationHours().equals( "SL" ) ||
-                json.getUtilizationHours().equals( "OL" ) || json.getUtilizationHours().equals( "EL" ) ||
-                json.getUtilizationHours().equals( "HO" ) || json.getUtilizationHours().equals( "TR" ) ||
-                json.getUtilizationHours().equals( "CDO" ) || json.getUtilizationHours().equals( "" ) ){
-
-                hours = 0;
+        	String utilizationHours = json.getUtilizationHours();
+        	if (tokens.contains(TimeAwayTokens.valueOf(utilizationHours)) || utilizationHours.equals("")) {
+        		hours = 0;
+        	} else if( utilizationHours != null ){
+                hours = Integer.parseInt( utilizationHours );
             }
-            else if( json.getUtilizationHours() != null ){
-                hours = Integer.parseInt( json.getUtilizationHours() );
-
-            }
-            if( json.getUtilizationHours().equals( "VL" ) ){
-                VLcount++;
-            }
-            if( json.getUtilizationHours().equals( "SL" ) ){
-                SLcount++;
-            }
-            if( json.getUtilizationHours().equals( "OL" ) ){
-                OLcount++;
-            }
-            if( json.getUtilizationHours().equals( "EL" ) ){
-                ELcount++;
-            }
-            if( json.getUtilizationHours().equals( "CDO" ) ){
-                CDOcount++;
-            }
-            if( json.getUtilizationHours().equals( "TR" ) ){
-                TRcount++;
-            }
-            if( json.getUtilizationHours().equals( "HO" ) ){
-                HOcount++;
-            }
-
+        	
+        	TimeAwayTokens timeAwayKey = TimeAwayTokens.valueOf(utilizationHours);
+        	if (tokenValueMap.get(timeAwayKey) != null) {
+        		double timeAwayCount = tokenValueMap.get(timeAwayKey);
+        		tokenValueMap.put(timeAwayKey, timeAwayCount + 1d);
+        	}
         }
         return null;
     }

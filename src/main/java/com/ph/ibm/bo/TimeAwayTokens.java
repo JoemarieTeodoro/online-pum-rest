@@ -2,16 +2,25 @@ package com.ph.ibm.bo;
 
 public enum TimeAwayTokens {
 
-	CDO("CDO");
+	CDO("CDO"),
+	VL("VL"),
+	SL("SL"),
+	EL("EL"),
+	OL("OL"),
+	HO("HO"),
+	TR("TR");
 	
-	String s;
+	String token;
 	
-	TimeAwayTokens(String s) {
-		this.s = s;
+	TimeAwayTokens(String token) {
+		this.token = token;
 	}
 
 	public String getS() {
-		return s;
+		return token;
 	}
 	
+	public boolean equals(String aToken) {
+		return this.token.equalsIgnoreCase(aToken);
+	}
 }
