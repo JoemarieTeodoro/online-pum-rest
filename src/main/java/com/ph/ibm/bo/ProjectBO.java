@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +48,7 @@ import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
+import com.ph.ibm.util.CalendarUtils;
 import com.ph.ibm.util.ObjectMapperAdapter;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.validation.Validator;
@@ -503,7 +505,7 @@ public class ProjectBO {
                 monthOfQuarter.setMonthToDateUtilization( Double.parseDouble( formatter.format( MTD5 ) ) );
 
                 // Months
-                monthDigitToString( monthOfQuarter, json );
+                monthOfQuarter.setName(CalendarUtils.getMonthString(json.getMonth(), TextStyle.FULL));
 
                 getComputationSysouts( monthHours, monthVLCount, monthSLCount, monthOLCount, MTD5 );
 
@@ -530,7 +532,7 @@ public class ProjectBO {
                 monthOfQuarter.setNumberOfAvailableHours( FOUR_WEEK_TOTAL_HOURS );
                 monthOfQuarter.setMonthToDateUtilization( Double.parseDouble( formatter.format( MTD4 ) ) );
 
-                monthDigitToString( monthOfQuarter, json );
+                monthOfQuarter.setName(CalendarUtils.getMonthString(json.getMonth(), TextStyle.FULL));
 
                 getComputationSysouts( monthHours, monthVLCount, monthSLCount, monthOLCount, MTD4 );
 
@@ -591,45 +593,6 @@ public class ProjectBO {
         System.out.println( "Total SLs per month: " + monthSLCount );
         System.out.println( "Total OLs per month: " + monthOLCount );
         System.out.println( "MTD: " + MTD5 + "%" );
-    }
-
-    private void monthDigitToString( Month monthUtilization, UtilizationJson json ) {
-        if( json.getMonth() == 1 ){
-            monthUtilization.setName( "January" );
-        }
-        else if( json.getMonth() == 2 ){
-            monthUtilization.setName( "February" );
-        }
-        else if( json.getMonth() == 3 ){
-            monthUtilization.setName( "March" );
-        }
-        else if( json.getMonth() == 4 ){
-            monthUtilization.setName( "April" );
-        }
-        else if( json.getMonth() == 5 ){
-            monthUtilization.setName( "May" );
-        }
-        else if( json.getMonth() == 6 ){
-            monthUtilization.setName( "June" );
-        }
-        else if( json.getMonth() == 7 ){
-            monthUtilization.setName( "July" );
-        }
-        else if( json.getMonth() == 8 ){
-            monthUtilization.setName( "August" );
-        }
-        else if( json.getMonth() == 9 ){
-            monthUtilization.setName( "September" );
-        }
-        else if( json.getMonth() == 10 ){
-            monthUtilization.setName( "October" );
-        }
-        else if( json.getMonth() == 11 ){
-            monthUtilization.setName( "November" );
-        }
-        else if( json.getMonth() == 12 ){
-            monthUtilization.setName( "December" );
-        }
     }
 
     /**

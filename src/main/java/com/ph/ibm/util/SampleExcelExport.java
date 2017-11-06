@@ -4,13 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -176,12 +173,7 @@ public class SampleExcelExport {
 	}
 
 	String setMonthHeaders(UtilizationJson utilJson) throws IllegalArgumentException {
-		int monthIndex = utilJson.getMonth();
-		if (!isValidMonthIndex(monthIndex)) {
-			throw new IllegalArgumentException("Invalid month value from JSON");
-		}
-		Month month = Month.of(monthIndex);
-		return month.getDisplayName(TextStyle.SHORT, Locale.getDefault()).toUpperCase();
+		return CalendarUtils.getMonthString(utilJson.getMonth(), TextStyle.SHORT);
 	}
 
 	/**
@@ -194,20 +186,7 @@ public class SampleExcelExport {
 	 * @throws OpumException
 	 */
 	String setDayHeaders(UtilizationJson utilJson) throws IllegalArgumentException {
-		int dayIndex = utilJson.getDay();
-		if (!isValidDayIndex(dayIndex)) {
-			throw new IllegalArgumentException("Invalid day value from JSON");
-		}
-		DayOfWeek day = DayOfWeek.of(dayIndex);
-		return day.getDisplayName(TextStyle.NARROW, Locale.getDefault());
-	}
-
-	private boolean isValidDayIndex(int dayIndex) {
-		return 1 <= dayIndex && dayIndex <= 7;
-	}
-
-	private boolean isValidMonthIndex(int monthIndex) {
-		return 1 <= monthIndex && monthIndex <= 12;
+		return CalendarUtils.getDayString(utilJson.getDay(), TextStyle.NARROW);
 	}
 
 	public UtilizationEngagementRepository getUtilEngagementImpl() {
