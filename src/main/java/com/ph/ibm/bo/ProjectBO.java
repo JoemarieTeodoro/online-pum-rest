@@ -1,5 +1,7 @@
 package com.ph.ibm.bo;
 
+import static com.ph.ibm.util.ValidationUtils.isValueEmpty;
+
 import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -51,6 +53,7 @@ import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
 import com.ph.ibm.util.CalendarUtils;
 import com.ph.ibm.util.ObjectMapperAdapter;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.ValidationUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -103,27 +106,13 @@ public class ProjectBO {
      * @throws ParseException
      */
     public String saveYear( PUMYear pumYear ) throws SQLException, ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat( "YYYY-MM-DD" );
-        boolean value = false;
-        if( pumYear.getStart() != null ){
-            if( pumYear.getEnd() != null ){
-                value = pumYearRepository.saveYear( pumYear );
-                if( value ){
-                    logger.info( "END saveYear" );
-                    return OpumConstants.SUCCESSFULLY_SAVED;
-                }
-                else{
-                    logger.info( "END saveYear" );
-                    return OpumConstants.ERROR_WHEN_SAVING;
-                }
-            }
-            else{
-                return OpumConstants.ERROR_END_DATE;
-            }
-        }
-        else{
-            return OpumConstants.YEAR_START_NOTFOUND;
-        }
+    	if (isValueEmpty(pumYear.getStart())) { return OpumConstants.YEAR_START_NOTFOUND; }
+        if (isValueEmpty(pumYear.getEnd())) { return OpumConstants.ERROR_END_DATE; }
+        
+        logger.info( "saveYear" );
+        return pumYearRepository.saveYear(pumYear) 
+        	? OpumConstants.SUCCESSFULLY_SAVED 
+        	: OpumConstants.ERROR_WHEN_SAVING;
     }
 
     /**
@@ -133,50 +122,23 @@ public class ProjectBO {
      * @throws ParseException
      */
     public String editYear( PUMYear pumYear ) throws SQLException, ParseException {
-        boolean value = false;
-        if( pumYear.getStart() != null ){
-            if( pumYear.getEnd() != null ){
-                value = pumYearRepository.editYear( pumYear );
-                if( value ){
-                    logger.info( "END editYear" );
-                    return OpumConstants.UPDATED_SUCCESS;
-                }
-                else{
-                    logger.info( "END editYear" );
-                    return OpumConstants.ERROR_WHEN_SAVING;
-                }
-            }
-            else{
-                return OpumConstants.ERROR_END_DATE;
-            }
-        }
-        else{
-            return OpumConstants.YEAR_START_NOTFOUND;
-        }
-
+    	if (isValueEmpty(pumYear.getStart())) { return OpumConstants.YEAR_START_NOTFOUND; }
+        if (isValueEmpty(pumYear.getEnd())) { return OpumConstants.ERROR_END_DATE; }
+        
+        logger.info( "editYear" );
+        return pumYearRepository.editYear(pumYear) 
+        	? OpumConstants.UPDATED_SUCCESS 
+        	: OpumConstants.ERROR_WHEN_SAVING;
     }
 
     public String updateHoliday( Holiday holiday ) throws SQLException, ParseException {
-        boolean value = false;
-        if( holiday.getName() != null ){
-            if( holiday.getDate() != null ){
-                value = holidayEngagementRepository.updateHolidayEngagement( holiday );
-                if( value ){
-                    logger.info( "END updateHoliday" );
-                    return OpumConstants.UPDATED_SUCCESS;
-                }
-                else{
-                    logger.info( "END updateHoliday" );
-                    return OpumConstants.ERROR_WHEN_SAVING;
-                }
-            }
-            else{
-                return OpumConstants.ERROR_END_DATE;
-            }
-        }
-        else{
-            return OpumConstants.YEAR_START_NOTFOUND;
-        }
+    	if (isValueEmpty(holiday.getName())) { return OpumConstants.YEAR_START_NOTFOUND; }
+        if (isValueEmpty(holiday.getDate())) { return OpumConstants.ERROR_END_DATE; }
+        
+        logger.info( "updateHoliday" );
+        return holidayEngagementRepository.updateHolidayEngagement(holiday) 
+        	? OpumConstants.UPDATED_SUCCESS 
+        	: OpumConstants.ERROR_WHEN_SAVING;
     }
 
     /**
@@ -226,7 +188,7 @@ public class ProjectBO {
      * @throws Exception
      */
     public Response uploadEmployeeList( String rawData, @Context UriInfo uriInfo ) throws Exception {
-
+    	String responseHeaderUri = uriInfo.getBaseUri() + "employee/";
         ProjectEngagement projectEngagement = new ProjectEngagement();
         List<List<String>> rows = populateEmployeeProjectEngagements( rawData );
         List<Employee> validatedEmployee = new ArrayList<Employee>();
@@ -260,34 +222,33 @@ public class ProjectBO {
             logger.error( "BatchUpdateException due to " + e.getMessage() );
             System.out.println( e.getErrorCode() );
             // if (e.getErrorCode() == OpumConstants.MYSQL_DUPLICATE_PK_ERROR_CODE) {
-            return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
-                OpumConstants.DUPLICATE_ENTRY ).build();
+            return responseBuilder(206, OpumConstants.DUPLICATE_ENTRY, responseHeaderUri);
             // return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
             // OpumConstants.DUPLICATE_ENTRY);
             // }
         }
         catch( InvalidEmployeeException e ){
             logger.error( OpumConstants.INVALID_CSV );
-            return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
-                OpumConstants.INVALID_CSV ).build();
+            return responseBuilder(206, OpumConstants.INVALID_CSV, responseHeaderUri);
             // invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
             // e.getMessage());
         }
         catch( SQLException e ){
             logger.error( "SQL Exception due to " + e.getMessage() );
             e.printStackTrace();
-            return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
-                OpumConstants.SQL_ERROR ).build();
+            return responseBuilder(206, OpumConstants.SQL_ERROR, responseHeaderUri);
             // OpumConstants.SQL_ERROR
         }
 
         logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
-        return Response.status( Status.OK ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
-            "uploaded successfully" ).build();
-
+        return responseBuilder(200, "Uploaded successfully", responseHeaderUri);
     }
 
-    /**
+    private Response responseBuilder(int statusCode, String message, String headerUri) {
+    	return Response.status(statusCode).header("Location", headerUri).entity(message).build();
+	}
+
+	/**
      * @param rawData
      * @param uriInfo
      * @return Response
@@ -662,50 +623,22 @@ public class ProjectBO {
     }
 
     public String saveQuarter( PUMQuarter pumQuarter ) throws SQLException, ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat( "YYYY-MM-DD" );
-        boolean value = false;
-        if( pumQuarter.getStart() != null ){
-            if( pumQuarter.getEnd() != null ){
-                value = pumYearRepository.saveQuarter( pumQuarter );
-                if( value ){
-                    logger.info( "END saveQuarter" );
-                    return OpumConstants.SUCCESSFULLY_SAVED;
-                }
-                else{
-                    logger.info( "END saveQuarter" );
-                    return OpumConstants.ERROR_WHEN_SAVING;
-                }
-            }
-            else{
-                return OpumConstants.ERROR_END_DATE;
-            }
-        }
-        else{
-            return OpumConstants.ERROR;
-        }
+    	if (isValueEmpty(pumQuarter.getStart())) { return OpumConstants.ERROR; }
+        if (isValueEmpty(pumQuarter.getEnd())) { return OpumConstants.ERROR_END_DATE; }
+        
+        logger.info( "saveQuarter" );
+        return pumYearRepository.saveQuarter(pumQuarter) 
+        	? OpumConstants.SUCCESSFULLY_SAVED 
+        	: OpumConstants.ERROR_WHEN_SAVING;
     }
 
     public String saveMonth( PUMMonth pumMonth ) throws SQLException, ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat( "YYYY-MM-DD" );
-        boolean value = false;
-        if( pumMonth.getStart() != null ){
-            if( pumMonth.getEnd() != null ){
-                value = pumYearRepository.saveMonth( pumMonth );
-                if( value ){
-                    logger.info( "END saveMonth" );
-                    return OpumConstants.SUCCESSFULLY_SAVED;
-                }
-                else{
-                    logger.info( "END saveMonth" );
-                    return OpumConstants.ERROR_WHEN_SAVING;
-                }
-            }
-            else{
-                return OpumConstants.ERROR_END_DATE;
-            }
-        }
-        else{
-            return OpumConstants.YEAR_START_NOTFOUND;
-        }
+    	if (isValueEmpty(pumMonth.getStart())) { return OpumConstants.YEAR_START_NOTFOUND; }
+        if (isValueEmpty(pumMonth.getEnd())) { return OpumConstants.ERROR_END_DATE; }
+        
+        logger.info( "saveMonth" );
+        return pumYearRepository.saveMonth(pumMonth) 
+        	? OpumConstants.SUCCESSFULLY_SAVED 
+        	: OpumConstants.ERROR_WHEN_SAVING;
     }
 }
