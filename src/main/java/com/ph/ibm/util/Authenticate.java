@@ -31,7 +31,7 @@ public class Authenticate {
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		try {
-			String query = "SELECT EMPLOYEE_ID_NUMBER FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ?";
+			String query = "SELECT EMPLOYEE_ID FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ?";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, email);
 			preparedStatement.setString(2, hashed);

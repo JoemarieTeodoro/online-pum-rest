@@ -99,7 +99,7 @@ public class UtilizationEngagementRepositoryImpl implements UtilizationEngagemen
 		Utilization utilization = null;
 		try{
 			String query =  
-					"SELECT UTILIZATION.YEAR, UTILIZATION.UTILIZATION_JSON, EMPLOYEE.EMPLOYEE_ID_NUMBER FROM UTILIZATION "
+					"SELECT UTILIZATION.YEAR, UTILIZATION.UTILIZATION_JSON, EMPLOYEE.EMPLOYEE_ID FROM UTILIZATION "
 					+ "JOIN EMPLOYEE ON UTILIZATION.EMPLOYEE_ID=EMPLOYEE.EMPLOYEE_ID "
 					+ "WHERE UTILIZATION.YEAR = ? AND UTILIZATION.EMPLOYEE_ID =?";
 			preparedStatement = connection.prepareStatement(query);

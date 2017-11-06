@@ -10,9 +10,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.ph.ibm.bo.EmailBO;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUpdate;
+import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.resources.ConnectionPool;
@@ -30,7 +30,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		try {
 			connection.setAutoCommit(false);
-			String query = "INSERT INTO EMPLOYEE (" + "EMPLOYEE_ID_NUMBER,EMAIL,FULLNAME,CREATEDATE,CREATEDBY) "
+			String query = "INSERT INTO EMPLOYEE (" + "EMPLOYEE_ID,EMAIL,FULLNAME,CREATEDATE,CREATEDBY) "
 					+ "VALUES (?,?,?,?,?); ";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employee.getEmployeeSerial());
@@ -66,7 +66,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		try {
 			connection.setAutoCommit(false);
-			String query = "UPDATE EMPLOYEE SET PASSWORD = ?, UPDATEDBY = ? WHERE EMPLOYEE_ID_NUMBER = ? AND EMAIL = ?;";
+			String query = "UPDATE EMPLOYEE SET PASSWORD = ?, UPDATEDBY = ? WHERE EMPLOYEE_ID = ? AND EMAIL = ?;";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employee.getPassword());
 			preparedStatement.setString(2, employee.getIntranetId());
@@ -91,7 +91,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		ResultSet resultSet = null;
 		String employeeId = null;
 		try {
-			String query = "SELECT EMPLOYEE_ID FROM EMPLOYEE WHERE EMPLOYEE_ID_NUMBER = ?";
+			String query = "SELECT EMPLOYEE_ID FROM EMPLOYEE WHERE EMPLOYEE_ID = ?";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employeeIdNumber);
 			resultSet = preparedStatement.executeQuery();
@@ -116,7 +116,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		Employee employee = null;
 		List<Role> assignedRoles = new ArrayList<Role>();
 		try {
-			String query = "SELECT EMPLOYEE_ID, EMPLOYEE_ID_NUMBER, EMAIL, ISADMIN FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ? AND ISADMIN = 1";
+			String query = "SELECT EMPLOYEE_ID, EMPLOYEE_ID, EMAIL, ISADMIN FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ? AND ISADMIN = 1";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, username);
 			preparedStatement.setString(2, hashed);
@@ -164,7 +164,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		try {
-			String query = "SELECT EMPLOYEE_ID, EMPLOYEE_ID_NUMBER, EMAIL, ISADMIN, FULLNAME FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ?";
+			String query = "SELECT EMPLOYEE_ID, EMPLOYEE_ID, EMAIL, ISADMIN, FULLNAME FROM EMPLOYEE WHERE EMAIL = ? AND PASSWORD = ?";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, username);
 			preparedStatement.setString(2, hashed);
@@ -192,7 +192,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		try {
-			String query = "SELECT EMPLOYEE_ID FROM EMPLOYEE WHERE EMPLOYEE_ID_NUMBER = ? AND EMAIL = ?";
+			String query = "SELECT EMPLOYEE_ID FROM EMPLOYEE WHERE EMPLOYEE_ID = ? AND EMAIL = ?";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employeeIdNumber);
 			preparedStatement.setString(2, email);
@@ -221,7 +221,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 					+ "FROM EMPLOYEE "
 					+ "JOIN PROJECT_ENGAGEMENT ON EMPLOYEE.EMPLOYEE_ID=PROJECT_ENGAGEMENT.EMPLOYEE_ID "
 					+ "JOIN PROJECT ON PROJECT_ENGAGEMENT.PROJECT_ID=PROJECT.PROJECT_ID "
-					+ "WHERE EMPLOYEE.EMPLOYEE_ID_NUMBER = ?";
+					+ "WHERE EMPLOYEE.EMPLOYEE_ID = ?";
 
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employeeIdNumber);
@@ -257,7 +257,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 					+ "JOIN PROJECT ON PROJECT_ENGAGEMENT.PROJECT_ID = PROJECT.PROJECT_ID "
 					+ "SET EMPLOYEE.FULLNAME = ?," + "EMPLOYEE.EMAIL = ?," + "PROJECT.NAME = ?, "
 					+ "PROJECT_ENGAGEMENT.START = ?," + "PROJECT_ENGAGEMENT.END = ?," + "EMPLOYEE.ISACTIVE = ?"
-					+ " WHERE EMPLOYEE.EMPLOYEE_ID_NUMBER = ?";
+					+ " WHERE EMPLOYEE.EMPLOYEE_ID = ?";
 
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, employeeUpdate.getFullName());
@@ -287,7 +287,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		try {
 			connection.setAutoCommit(false);
 			String query = "INSERT INTO EMPLOYEE ("
-					+ "Employee_ID_Number,Email,Project_Engagement_ID,FirstName,LastName,MiddleName,IsAdmin,FullName,Password,isActive,CreateDate,CreatedBy,UpdateDate,UpdatedBy) "
+					+ "EMPLOYEE_ID,Email,Project_Engagement_ID,FirstName,LastName,MiddleName,IsAdmin,FullName,Password,isActive,CreateDate,CreatedBy,UpdateDate,UpdatedBy) "
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, validateEmployee.getEmployeeSerial());
