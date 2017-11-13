@@ -2,6 +2,7 @@ package com.ph.ibm.bo;
 
 import static com.ph.ibm.util.ValidationUtils.isValueEmpty;
 
+import java.io.IOException;
 import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.mail.Message.RecipientType;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -23,6 +25,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
 
+import com.ph.ibm.model.Email;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUtil;
 import com.ph.ibm.model.Holiday;
@@ -273,6 +276,7 @@ public class ProjectBO {
         List<List<String>> rows = populateEmployeeProjectEngagements( rawData );
         List<Employee> validatedEmployee = new ArrayList<Employee>();
         Employee validateEmployee = new Employee();
+		List<String> lstRecipients = new ArrayList<String>();
         try{
             for( List<String> row : rows ){
                 validateEmployee = validateEmployee( uriInfo, row );
@@ -281,6 +285,7 @@ public class ProjectBO {
             }
             for( Employee employee : validatedEmployee ){
                 Employee savedEmployee = employeeRepository.saveOrUpdate( employee );
+				lstRecipients.add(savedEmployee.getIntranetId());
                 if( savedEmployee != null ){
                     List<Project> projectdata = projectRepository.retrieveData();
                     for( Project project : projectdata ){
@@ -315,9 +320,27 @@ public class ProjectBO {
         }
 
         logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
+
+		sendEmailsToListOfRecepientsToChangePasswords(lstRecipients);
+		logger.info(OpumConstants.SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS);
+
         return Response.status( Status.OK ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
             "uploaded successfully" ).build();
     }
+
+	/**
+	 * Method to email list of addresses from the list uploaded by sys_admin/admin
+	 */
+	public void sendEmailsToListOfRecepientsToChangePasswords(List<String> lstRecipients) throws IOException {
+		EmailBO emailBO = new EmailBO();
+		Email email = new Email();
+		email.setRecipientAddresses(lstRecipients);
+		email.setSenderAddress("onlinepumsender@gmail.com");
+		email.setRecipientType(RecipientType.TO.toString());
+		email.setSubject(OpumConstants.EMAIL_SUBJECT);
+		email.setText(OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s");
+		emailBO.emailResetPasswordLink(email);
+	}
 
     /**
      * This method is used to validate uploaded list of Users/Employees

@@ -8,6 +8,7 @@ import javax.mail.internet.MimeMessage.RecipientType;
 import org.junit.Test;
 
 import com.ph.ibm.bo.EmailBO;
+import com.ph.ibm.bo.ProjectBO;
 import com.ph.ibm.model.Email;
 
 public class EmailBOTest {
@@ -19,7 +20,6 @@ public class EmailBOTest {
 	//   onlinepumsender@gmail.com : onlinepum
 	//   onlinepumrecipient@gmail.com : onlinepum01
 	
-	@Test
 	public void testFormatAndSendEmailPasswordReset() throws Exception {
 		emailBO = new EmailBO();
 		Email email = new Email();
@@ -42,5 +42,20 @@ public class EmailBOTest {
 		System.out.print("hashed " + hashed);
 	}*/
 	
+	@Test
+	public void testEmailToListOfRecipients() throws Exception
+	{
+		emailBO = new EmailBO();
+		ProjectBO projectBO = new ProjectBO();
+		Email email = new Email();
+		List<String> recipientAddresses = new ArrayList<>();
+		recipientAddresses.add("onlinepumsender@gmail.com");
+		recipientAddresses.add("onlinepumuser1@gmail.com");
+
+		email.setRecipientAddresses(recipientAddresses);
+		email.setSenderAddress("onlinepumsender@gmail.com");
+		projectBO.sendEmailsToListOfRecepientsToChangePasswords(recipientAddresses);
+
+	}
 
 }

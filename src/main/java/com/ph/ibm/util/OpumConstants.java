@@ -39,6 +39,7 @@ public class OpumConstants {
 	public static final String SUCCESSFULLY_SAVED_DATA = "SUCCESSFULLY SAVED DATA";
 	public static final String SUCCESSFULLY_REGISTERED = "SUCCESSFULLY REGISTERED";
 	public static final String SUCCESSFULLY_UPLOADED_FILE = "SUCCESSFULLY UPLOADED FILE";
+	public static final String SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS = "SUCCESSFULLY EMAILED LIST OF EMAIL ADDRESS";
 	public static final String LOGGED_IN = "LOGGED IN";
 	public static final String ENTERING_USER_PAGE = "ENTERING USER PAGE";
 	public static final String ENTERING_SYS_ADMIN_PAGE = "ENTERING SYSTEM ADMIN PAGE";
@@ -50,4 +51,10 @@ public class OpumConstants {
 	public static final String DELETED_SUCCESS = "DELETED SUCCESS";
 	public static final String ADMIN = "ADMIN";
 
+	/** EMAIL MESSAGES */
+	public static final String EMAIL_SUBJECT = "ACTION REQUIRED: RESET PASSWORD";
+	public static final String EMAIL_GREETING = "DEAR IBMer,";
+	public static final String EMAIL_BODY = "You can reset your password by clicking the link below:";
+	public static final String EMAIL_CLOSING = "Thank you,";
+	public static final String EMAIL_SIGNATURE = "Online PUM Support";
 }

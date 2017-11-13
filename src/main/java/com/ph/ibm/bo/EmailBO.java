@@ -24,6 +24,7 @@ import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
+import com.ph.ibm.util.OpumConstants;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -63,10 +64,11 @@ public class EmailBO {
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(email.getSenderAddress()));
 			message.setSubject(email.getSubject());
-			for (String recipientAddress: email.getRecipientAddresses()) {
+			for (String recipientAddress : email.getRecipientAddresses()) {
 				message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipientAddress));
 				String emailResetPasswordLink = generateEmailResetPasswordLink(recipientAddress);
-				message.setText(String.format(email.getText(), emailResetPasswordLink));
+				message.setText(String.format(email.getText(), emailResetPasswordLink) + "\n\n"
+						+ OpumConstants.EMAIL_CLOSING + "\n" + OpumConstants.EMAIL_SIGNATURE);
 				Transport.send(message);
 			}
 			
