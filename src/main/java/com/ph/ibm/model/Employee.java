@@ -6,155 +6,198 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Employee extends BaseAuditBean{
+public class Employee extends BaseAuditBean {
 
-	private String employeeSerial;
-	private String employeeId;
-	private String managerSerial;
-	private String intranetId;
-	private String fullName;
-	private Long teamId;
-	private List<Role> assignedRoles;
-	private List<Project> assignedProjects;
-	private String primaryProject;
-	private String password;
-	private Boolean isActive;
-	private Boolean isAdmin;
-	private Utilization utilization;
+    private String employeeSerial;
 
-	public Employee() {
-		super();
-	}
+    private String employeeId;
 
-	public Employee(String employeeSerial, String managerSerial, String intranetId, String fullName, Long teamId,
-			List<Role> assignedRoles, List<Project> assignedProjects, String password, Boolean isActive,
-			Utilization utilization) {
-		super();
-		this.employeeSerial = employeeSerial;
-		this.managerSerial = managerSerial;
-		this.intranetId = intranetId;
-		this.fullName = fullName;
-		this.teamId = teamId;
-		this.assignedRoles = assignedRoles;
-		this.assignedProjects = assignedProjects;
-		this.password = password;
-		this.isActive = isActive;
-		this.utilization = utilization;
-	}
+    private String managerSerial;
 
-	public Employee(String employeeSerial, String intranetId, String primaryProject, String password) {
-		this.employeeSerial = employeeSerial;
-		this.intranetId = intranetId;
-		this.primaryProject = primaryProject;
-		this.password = password;
-	}
+    private String intranetId;
 
-	public String getEmployeeSerial() {
-		return employeeSerial;
-	}
+    private String fullName;
 
-	public void setEmployeeSerial(String employeeSerial) {
-		this.employeeSerial = employeeSerial;
-	}
+    private String rollInDate;
 
-	public String getManagerSerial() {
-		return managerSerial;
-	}
+    private String rollOffDate;
 
-	public void setManagerSerial(String managerSerial) {
-		this.managerSerial = managerSerial;
-	}
+    private Long teamId;
 
-	public String getIntranetId() {
-		return intranetId;
-	}
+    private List<Role> assignedRoles;
 
-	public void setIntranetId(String intranetId) {
-		this.intranetId = intranetId;
-	}
+    private List<Project> assignedProjects;
 
-	public String getFullName() {
-		return fullName;
-	}
+    private String primaryProject;
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
+    private String password;
 
-	public Long getTeamId() {
-		return teamId;
-	}
+    private Boolean isActive;
 
-	public void setTeamId(Long teamId) {
-		this.teamId = teamId;
-	}
+    private Boolean isAdmin;
 
-	public List<Role> getAssignedRoles() {
-		if (assignedRoles == null) {
-			return new ArrayList<Role>();
-		}
-		return assignedRoles;
-	}
+    private Utilization utilization;
 
-	public void setAssignedRoles(List<Role> assignedRoles) {
-		this.assignedRoles = assignedRoles;
-	}
+    public Employee() {
+        super();
+    }
 
-	public List<Project> getAssignedProjects() {
-		return assignedProjects;
-	}
+    public Employee( String employeeSerial, String managerSerial, String intranetId, String fullName, Long teamId,
+                     List<Role> assignedRoles, List<Project> assignedProjects, String password, Boolean isActive,
+                     Utilization utilization ) {
+        super();
+        this.employeeSerial = employeeSerial;
+        this.managerSerial = managerSerial;
+        this.intranetId = intranetId;
+        this.fullName = fullName;
+        this.teamId = teamId;
+        this.assignedRoles = assignedRoles;
+        this.assignedProjects = assignedProjects;
+        this.password = password;
+        this.isActive = isActive;
+        this.utilization = utilization;
+    }
 
-	public void setAssignedProjects(List<Project> assignedProjects) {
-		this.assignedProjects = assignedProjects;
-	}
+    public Employee( String employeeSerial, String intranetId, String primaryProject, String password ) {
+        this.employeeSerial = employeeSerial;
+        this.intranetId = intranetId;
+        this.primaryProject = primaryProject;
+        this.password = password;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getEmployeeSerial() {
+        return employeeSerial;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setEmployeeSerial( String employeeSerial ) {
+        this.employeeSerial = employeeSerial;
+    }
 
-	public Utilization getUtilization() {
-		return utilization;
-	}
+    public String getManagerSerial() {
+        return managerSerial;
+    }
 
-	public void setUtilization(Utilization utilization) {
-		this.utilization = utilization;
-	}
+    public void setManagerSerial( String managerSerial ) {
+        this.managerSerial = managerSerial;
+    }
 
-	public String getPrimaryProject() {
-		return primaryProject;
-	}
+    public String getIntranetId() {
+        return intranetId;
+    }
 
-	public void setPrimaryProject(String primaryProject) {
-		this.primaryProject = primaryProject;
-	}
+    public void setIntranetId( String intranetId ) {
+        this.intranetId = intranetId;
+    }
 
-	public boolean isAdmin() {
-		return isAdmin;
-	}
+    public String getFullName() {
+        return fullName;
+    }
 
-	public void setAdmin(boolean isAdmin) {
-		this.isAdmin = isAdmin;
-	}
-	
-	public Boolean getIsActive() {
-		return isActive;
-	}
+    public void setFullName( String fullName ) {
+        this.fullName = fullName;
+    }
 
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
-	}
-	
-	public String getEmployeeId() {
-		return employeeId;
-	}
+    public Long getTeamId() {
+        return teamId;
+    }
 
-	public void setEmployeeId(String employeeId) {
-		this.employeeId = employeeId;
-	}
-	
+    public void setTeamId( Long teamId ) {
+        this.teamId = teamId;
+    }
+
+    public List<Role> getAssignedRoles() {
+        if( assignedRoles == null ){
+            return new ArrayList<Role>();
+        }
+        return assignedRoles;
+    }
+
+    public void setAssignedRoles( List<Role> assignedRoles ) {
+        this.assignedRoles = assignedRoles;
+    }
+
+    public List<Project> getAssignedProjects() {
+        return assignedProjects;
+    }
+
+    public void setAssignedProjects( List<Project> assignedProjects ) {
+        this.assignedProjects = assignedProjects;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword( String password ) {
+        this.password = password;
+    }
+
+    public Utilization getUtilization() {
+        return utilization;
+    }
+
+    public void setUtilization( Utilization utilization ) {
+        this.utilization = utilization;
+    }
+
+    public String getPrimaryProject() {
+        return primaryProject;
+    }
+
+    public void setPrimaryProject( String primaryProject ) {
+        this.primaryProject = primaryProject;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin( boolean isAdmin ) {
+        this.isAdmin = isAdmin;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive( Boolean isActive ) {
+        this.isActive = isActive;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId( String employeeId ) {
+        this.employeeId = employeeId;
+    }
+
+    /**
+     * @return the rollInDate
+     */
+    public String getRollInDate() {
+        return rollInDate;
+    }
+
+    /**
+     * @param rollInDate the rollInDate to set
+     */
+    public void setRollInDate( String rollInDate ) {
+        this.rollInDate = rollInDate;
+    }
+
+    /**
+     * @return the rollOffDate
+     */
+    public String getRollOffDate() {
+        return rollOffDate;
+    }
+
+    /**
+     * @param rollOffDate the rollOffDate to set
+     */
+    public void setRollOffDate( String rollOffDate ) {
+        this.rollOffDate = rollOffDate;
+    }
 
 }

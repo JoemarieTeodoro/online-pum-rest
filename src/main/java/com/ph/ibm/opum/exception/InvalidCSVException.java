@@ -8,13 +8,20 @@ public class InvalidCSVException extends Exception {
 
     private Employee myEmployee;
 
-    public InvalidCSVException( Employee employee ) {
+    private String myError;
+
+    public InvalidCSVException( Employee employee, String error ) {
         super();
         myEmployee = employee;
+        myError = error;
     }
 
     public Employee getEmployee() {
         return myEmployee;
+    }
+
+    public String getError() {
+        return myError;
     }
 
 }

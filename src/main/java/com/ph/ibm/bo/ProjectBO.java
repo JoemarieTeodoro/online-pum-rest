@@ -107,13 +107,16 @@ public class ProjectBO {
      * @throws ParseException
      */
     public String saveYear( PUMYear pumYear ) throws SQLException, ParseException {
-    	if (isValueEmpty(pumYear.getStart())) { return OpumConstants.YEAR_START_NOTFOUND; }
-        if (isValueEmpty(pumYear.getEnd())) { return OpumConstants.ERROR_END_DATE; }
-        
+        if( isValueEmpty( pumYear.getStart() ) ){
+            return OpumConstants.YEAR_START_NOTFOUND;
+        }
+        if( isValueEmpty( pumYear.getEnd() ) ){
+            return OpumConstants.ERROR_END_DATE;
+        }
+
         logger.info( "saveYear" );
-        return pumYearRepository.saveYear(pumYear) 
-        	? OpumConstants.SUCCESSFULLY_SAVED 
-        	: OpumConstants.ERROR_WHEN_SAVING;
+        return pumYearRepository.saveYear( pumYear ) ? OpumConstants.SUCCESSFULLY_SAVED
+                        : OpumConstants.ERROR_WHEN_SAVING;
     }
 
     /**
@@ -123,23 +126,28 @@ public class ProjectBO {
      * @throws ParseException
      */
     public String editYear( PUMYear pumYear ) throws SQLException, ParseException {
-    	if (isValueEmpty(pumYear.getStart())) { return OpumConstants.YEAR_START_NOTFOUND; }
-        if (isValueEmpty(pumYear.getEnd())) { return OpumConstants.ERROR_END_DATE; }
-        
+        if( isValueEmpty( pumYear.getStart() ) ){
+            return OpumConstants.YEAR_START_NOTFOUND;
+        }
+        if( isValueEmpty( pumYear.getEnd() ) ){
+            return OpumConstants.ERROR_END_DATE;
+        }
+
         logger.info( "editYear" );
-        return pumYearRepository.editYear(pumYear) 
-        	? OpumConstants.UPDATED_SUCCESS 
-        	: OpumConstants.ERROR_WHEN_SAVING;
+        return pumYearRepository.editYear( pumYear ) ? OpumConstants.UPDATED_SUCCESS : OpumConstants.ERROR_WHEN_SAVING;
     }
 
     public String updateHoliday( Holiday holiday ) throws SQLException, ParseException {
-    	if (isValueEmpty(holiday.getName())) { return OpumConstants.YEAR_START_NOTFOUND; }
-        if (isValueEmpty(holiday.getDate())) { return OpumConstants.ERROR_END_DATE; }
-        
+        if( isValueEmpty( holiday.getName() ) ){
+            return OpumConstants.YEAR_START_NOTFOUND;
+        }
+        if( isValueEmpty( holiday.getDate() ) ){
+            return OpumConstants.ERROR_END_DATE;
+        }
+
         logger.info( "updateHoliday" );
-        return holidayEngagementRepository.updateHolidayEngagement(holiday) 
-        	? OpumConstants.UPDATED_SUCCESS 
-        	: OpumConstants.ERROR_WHEN_SAVING;
+        return holidayEngagementRepository.updateHolidayEngagement( holiday ) ? OpumConstants.UPDATED_SUCCESS
+                        : OpumConstants.ERROR_WHEN_SAVING;
     }
 
     /**
@@ -183,13 +191,15 @@ public class ProjectBO {
     }
 
     /**
+     * This method is used when Administrator upload the list of employees
+     * 
      * @param rawData
      * @param uriInfo
      * @return Response
      * @throws Exception
      */
     public Response uploadEmployeeList( String rawData, @Context UriInfo uriInfo ) throws Exception {
-    	String responseHeaderUri = uriInfo.getBaseUri() + "employee/";
+        String responseHeaderUri = uriInfo.getBaseUri() + "employee/";
         ProjectEngagement projectEngagement = new ProjectEngagement();
         List<List<String>> rows = populateEmployeeProjectEngagements( rawData );
         List<Employee> validatedEmployee = new ArrayList<Employee>();
@@ -223,33 +233,35 @@ public class ProjectBO {
             logger.error( "BatchUpdateException due to " + e.getMessage() );
             System.out.println( e.getErrorCode() );
             // if (e.getErrorCode() == OpumConstants.MYSQL_DUPLICATE_PK_ERROR_CODE) {
-            return responseBuilder(206, OpumConstants.DUPLICATE_ENTRY, responseHeaderUri);
+            return responseBuilder( 206, OpumConstants.DUPLICATE_ENTRY, responseHeaderUri );
             // return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
             // OpumConstants.DUPLICATE_ENTRY);
             // }
         }
         catch( InvalidEmployeeException e ){
             logger.error( OpumConstants.INVALID_CSV );
-            return responseBuilder(206, OpumConstants.INVALID_CSV, responseHeaderUri);
+            return responseBuilder( 206, OpumConstants.INVALID_CSV, responseHeaderUri );
             // invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
             // e.getMessage());
         }
         catch( SQLException e ){
             logger.error( "SQL Exception due to " + e.getMessage() );
             e.printStackTrace();
-            return responseBuilder(206, OpumConstants.SQL_ERROR, responseHeaderUri);
+            return responseBuilder( 206, OpumConstants.SQL_ERROR, responseHeaderUri );
             // OpumConstants.SQL_ERROR
         }
 
         logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
-        return responseBuilder(200, "Uploaded successfully", responseHeaderUri);
+        return responseBuilder( 200, "Uploaded successfully", responseHeaderUri );
     }
 
-    private Response responseBuilder(int statusCode, String message, String headerUri) {
-    	return Response.status(statusCode).header("Location", headerUri).entity(message).build();
-	}
+    private Response responseBuilder( int statusCode, String message, String headerUri ) {
+        return Response.status( statusCode ).header( "Location", headerUri ).entity( message ).build();
+    }
 
-	/**
+    /**
+     * This method is used when Super Administrator uploads the list of Admin Users
+     * 
      * @param rawData
      * @param uriInfo
      * @return Response
@@ -260,9 +272,10 @@ public class ProjectBO {
         ProjectEngagement projectEngagement = new ProjectEngagement();
         List<List<String>> rows = populateEmployeeProjectEngagements( rawData );
         List<Employee> validatedEmployee = new ArrayList<Employee>();
+        Employee validateEmployee = new Employee();
         try{
             for( List<String> row : rows ){
-                Employee validateEmployee = validateEmployee( uriInfo, row );
+                validateEmployee = validateEmployee( uriInfo, row );
                 validatedEmployee.add( validateEmployee );
                 System.out.println( "Row Data: " + row );
             }
@@ -287,33 +300,18 @@ public class ProjectBO {
         catch( BatchUpdateException e ){
             logger.error( "BatchUpdateException due to " + e.getMessage() );
             System.out.println( e.getErrorCode() );
-            // if (e.getErrorCode() == OpumConstants.MYSQL_DUPLICATE_PK_ERROR_CODE) {
-            return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
-                OpumConstants.DUPLICATE_ENTRY ).build();
-            // return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
-            // OpumConstants.DUPLICATE_ENTRY);
+            return invalidCsvResponseBuilder( uriInfo, validateEmployee, OpumConstants.DUPLICATE_ENTRY );
             // }
         }
-        catch( InvalidEmployeeException e ){
-            logger.error( OpumConstants.INVALID_CSV );
-            return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
-                OpumConstants.INVALID_CSV ).build();
-            // invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
-            // e.getMessage());
-        }
         catch( InvalidCSVException e ){
-            logger.error( OpumConstants.INVALID_CSV );
-            // return Response.status(206).header("Location", uriInfo.getBaseUri() +
-            // "employee/")
-            // .entity(OpumConstants.INVALID_CSV).build();
-            return invalidCsvResponseBuilder( uriInfo, e.getEmployee(), OpumConstants.INVALID_CSV );
+            logger.error( e.getError() );
+            return invalidCsvResponseBuilder( uriInfo, e.getEmployee(), e.getError() );
         }
         catch( SQLException e ){
             logger.error( "SQL Exception due to " + e.getMessage() );
             e.printStackTrace();
             return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
                 OpumConstants.SQL_ERROR ).build();
-            // OpumConstants.SQL_ERROR
         }
 
         logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
@@ -322,9 +320,11 @@ public class ProjectBO {
     }
 
     /**
-     * @param rawData
+     * This method is used to validate uploaded list of Users/Employees
+     * 
      * @param uriInfo
-     * @return Response
+     * @param row
+     * @return Employee
      * @throws Exception
      */
 
@@ -334,12 +334,21 @@ public class ProjectBO {
             throw new InvalidEmployeeException( OpumConstants.INVALID_CSV );
         }
         Employee validateEmployee = new Employee();
-        validateEmployee.setEmployeeSerial( row.get( 1 ) );
-        validateEmployee.setFullName( row.get( 8 ) );
+        validateEmployee.setEmployeeSerial( row.get( 0 ) );
+        validateEmployee.setFullName( row.get( 1 ) );
         validateEmployee.setIntranetId( row.get( 2 ) );
+        validateEmployee.setRollInDate( row.get( 3 ) );
+        validateEmployee.setRollOffDate( row.get( 4 ) );
         validator.validate( validateEmployee );
         return validateEmployee;
     }
+
+    /**
+     * This method is to populate list directly from CSV file
+     * 
+     * @param rawData
+     * @return populated list of employee row data from CSV file
+     */
 
     private List<List<String>> populateEmployeeProjectEngagements( String rawData ) {
         List<List<String>> employeeProjectEngagements = new ArrayList<List<String>>();
@@ -358,6 +367,11 @@ public class ProjectBO {
         return employeeProjectEngagements;
     }
 
+    /**
+     * This method used to ignore the header of the CSV file
+     * 
+     * @param raw Data from the CSV file
+     */
     private void ignoreFirstRow( Scanner sc ) {
         while( sc.hasNextLine() ){
             String line = sc.nextLine();
@@ -368,15 +382,29 @@ public class ProjectBO {
         }
     }
 
+    /**
+     * This method used to validate if CSV row data is Empty
+     * 
+     * @param row data from the CSV file
+     * @return boolean
+     */
+
     private boolean isRowEmpty( String line ) {
         return line == null || line.equals( "\\n" ) || line.equals( "" );
     }
 
-    private Response invalidCsvResponseBuilder( UriInfo uriInfo, Employee employee, String errorMessage ) {
+    /**
+     * This method is used to generate error message for Upload List
+     * 
+     * @param row data from the CSV file
+     * @return boolean
+     */
+    private Response invalidCsvResponseBuilder( UriInfo uriInfo, Employee e, String errorMessage ) {
         String invalidCsv;
-        invalidCsv = String.format( "Invalid CSV for employee: %s, %s, %s \n", employee.getEmployeeSerial(),
-            employee.getIntranetId(),
-            employee.getFullName(), uriInfo );
+        invalidCsv = String.format(
+            "Invalid CSV for employee!\n\nSerial No: %s \nFull Name: %s \nIntranet Id: %s \nRoll In Date: %s \nRoll Off date: %s \n\nError message: %s",
+            e.getEmployeeSerial(), e.getFullName(), e.getIntranetId(), e.getRollInDate(), e.getRollOffDate(),
+            errorMessage, uriInfo );
         return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
             invalidCsv ).build();
     }
@@ -467,7 +495,7 @@ public class ProjectBO {
                 monthOfQuarter.setMonthToDateUtilization( Double.parseDouble( formatter.format( MTD5 ) ) );
 
                 // Months
-                monthOfQuarter.setName(CalendarUtils.getMonthString(json.getMonth(), TextStyle.FULL));
+                monthOfQuarter.setName( CalendarUtils.getMonthString( json.getMonth(), TextStyle.FULL ) );
 
                 getComputationSysouts( monthHours, monthVLCount, monthSLCount, monthOLCount, MTD5 );
 
@@ -494,7 +522,7 @@ public class ProjectBO {
                 monthOfQuarter.setNumberOfAvailableHours( FOUR_WEEK_TOTAL_HOURS );
                 monthOfQuarter.setMonthToDateUtilization( Double.parseDouble( formatter.format( MTD4 ) ) );
 
-                monthOfQuarter.setName(CalendarUtils.getMonthString(json.getMonth(), TextStyle.FULL));
+                monthOfQuarter.setName( CalendarUtils.getMonthString( json.getMonth(), TextStyle.FULL ) );
 
                 getComputationSysouts( monthHours, monthVLCount, monthSLCount, monthOLCount, MTD4 );
 
@@ -576,50 +604,57 @@ public class ProjectBO {
         Utilization utilization = utilizationEngagementRepository.getComputation( employeeSerial, year );
         UtilizationYear utilization_Year =
             ObjectMapperAdapter.unmarshal( utilization.getUtilizationJson(), UtilizationYear.class );
-        
-        List<TimeAwayTokens> tokens = Arrays.asList(TimeAwayTokens.values());
+
+        List<TimeAwayTokens> tokens = Arrays.asList( TimeAwayTokens.values() );
         Map<TimeAwayTokens, Double> tokenValueMap = new HashMap<>();
-        
+
         double count = 0;
-        for (TimeAwayTokens timeAwayToken : tokens) {
-			tokenValueMap.put(timeAwayToken, count);
-		}
-        
+        for( TimeAwayTokens timeAwayToken : tokens ){
+            tokenValueMap.put( timeAwayToken, count );
+        }
+
         double hours = 0;
         for( UtilizationJson json : utilization_Year.getUtilizationJSON() ){
-        	String utilizationHours = json.getUtilizationHours();
-        	if (tokens.contains(TimeAwayTokens.valueOf(utilizationHours)) || utilizationHours.equals("")) {
-        		hours = 0;
-        	} else if( utilizationHours != null ){
+            String utilizationHours = json.getUtilizationHours();
+            if( tokens.contains( TimeAwayTokens.valueOf( utilizationHours ) ) || utilizationHours.equals( "" ) ){
+                hours = 0;
+            }
+            else if( utilizationHours != null ){
                 hours = Integer.parseInt( utilizationHours );
             }
-        	
-        	TimeAwayTokens timeAwayKey = TimeAwayTokens.valueOf(utilizationHours);
-        	if (tokenValueMap.get(timeAwayKey) != null) {
-        		double timeAwayCount = tokenValueMap.get(timeAwayKey);
-        		tokenValueMap.put(timeAwayKey, timeAwayCount + 1d);
-        	}
+
+            TimeAwayTokens timeAwayKey = TimeAwayTokens.valueOf( utilizationHours );
+            if( tokenValueMap.get( timeAwayKey ) != null ){
+                double timeAwayCount = tokenValueMap.get( timeAwayKey );
+                tokenValueMap.put( timeAwayKey, timeAwayCount + 1d );
+            }
         }
         return null;
     }
 
     public String saveQuarter( PUMQuarter pumQuarter ) throws SQLException, ParseException {
-    	if (isValueEmpty(pumQuarter.getStart())) { return OpumConstants.ERROR; }
-        if (isValueEmpty(pumQuarter.getEnd())) { return OpumConstants.ERROR_END_DATE; }
-        
+        if( isValueEmpty( pumQuarter.getStart() ) ){
+            return OpumConstants.ERROR;
+        }
+        if( isValueEmpty( pumQuarter.getEnd() ) ){
+            return OpumConstants.ERROR_END_DATE;
+        }
+
         logger.info( "saveQuarter" );
-        return pumYearRepository.saveQuarter(pumQuarter) 
-        	? OpumConstants.SUCCESSFULLY_SAVED 
-        	: OpumConstants.ERROR_WHEN_SAVING;
+        return pumYearRepository.saveQuarter( pumQuarter ) ? OpumConstants.SUCCESSFULLY_SAVED
+                        : OpumConstants.ERROR_WHEN_SAVING;
     }
 
     public String saveMonth( PUMMonth pumMonth ) throws SQLException, ParseException {
-    	if (isValueEmpty(pumMonth.getStart())) { return OpumConstants.YEAR_START_NOTFOUND; }
-        if (isValueEmpty(pumMonth.getEnd())) { return OpumConstants.ERROR_END_DATE; }
-        
+        if( isValueEmpty( pumMonth.getStart() ) ){
+            return OpumConstants.YEAR_START_NOTFOUND;
+        }
+        if( isValueEmpty( pumMonth.getEnd() ) ){
+            return OpumConstants.ERROR_END_DATE;
+        }
+
         logger.info( "saveMonth" );
-        return pumYearRepository.saveMonth(pumMonth) 
-        	? OpumConstants.SUCCESSFULLY_SAVED 
-        	: OpumConstants.ERROR_WHEN_SAVING;
+        return pumYearRepository.saveMonth( pumMonth ) ? OpumConstants.SUCCESSFULLY_SAVED
+                        : OpumConstants.ERROR_WHEN_SAVING;
     }
 }

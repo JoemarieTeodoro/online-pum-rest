@@ -31,6 +31,8 @@ public class OpumConstants {
 	public static final String ERROR_END_DATE = "ERROR END DATE";
 	public static final String YEAR_START_NOTFOUND = "YEAR START NOT FOUND";
 	public static final String YEAR_END_NOT_FOUND = "YEAR END NOT FOUND";
+
+    public static final String INVALID_DATE = "INVALID DATE FORMAT ->MM/DD/YYYY";
 	
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";
