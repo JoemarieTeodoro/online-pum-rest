@@ -127,7 +127,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				employee.setEmployeeSerial(resultSet.getString(2));
 				employee.setIntranetId(resultSet.getString(3));
 				employee.setAdmin(resultSet.getBoolean(4));
-				employee.setAssignedRoles(getRolesFromEmployeeRole(connection, employee, assignedRoles));
+				employee.setAssignedRoles(getRolesFromEmployeeRole(employee, assignedRoles));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -137,21 +137,28 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		return employee;
 	}
 
-	private List<Role> getRolesFromEmployeeRole(Connection connection, Employee employee, List<Role> assignedRoles) throws SQLException {
-		PreparedStatement preparedStatement;
-		ResultSet resultSet;
-		String query = "SELECT ROLE FROM EMPLOYEE_ROLE WHERE EMPLOYEE_ID = ?";
-		preparedStatement = connection.prepareStatement(query);
-		preparedStatement.setString(1, employee.getEmployeeId());
-		resultSet = preparedStatement.executeQuery();
-				
-		while(resultSet.next()) {
-			for (Role role : Role.values()) {
-				if (role.equals(resultSet.getString(1))) {
-					assignedRoles.add(role);
-					break;
+	private List<Role> getRolesFromEmployeeRole(Employee employee, List<Role> assignedRoles) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		try {
+			String query = "SELECT name FROM employee_role_v WHERE Employee_ID = ? ;";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, employee.getEmployeeId());
+			resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next()) {
+				for (Role role : Role.values()) {
+					if (role.equals(resultSet.getString(1))) {
+						assignedRoles.add(role);
+						break;
+					}
 				}
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 		
 		return assignedRoles;
