@@ -77,8 +77,11 @@ INSERT INTO `employee` VALUES
 	('123456PH1','admin@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,1,'Admin','47b82bd4ffff817f1ce3ffffa55bffffd52bffffb44cffffbc446c9348b77e81fffffa06ffff986848b71de237c8',0,'2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN'),
 	('121212PH1','magdanc@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,0,'Claude Magdangal',NULL,0,'2017-08-16 08:42:23','ADMIN','2017-08-16 08:42:23',NULL),
 	('131313PH1','aumana@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,0,'Aldaina Auman','1fe02bd4ffffb947619effffac5458a7075aa5ffff966a4ab50714eb2cd322dd4ab56f90',0,'2017-08-16 08:42:23','ADMIN','2017-08-16 13:36:15','aumana@ph.ibm.com'),
-	('141414PH1', 'admin', '123456PH1', NULL,NULL,NULL,NULL,1,'admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-10-25 03:23:16','ADMIN','2017-10-25 03:23:16','ADMIN');
--- usr/pw as admin/admin credentials
+	('141414PH1', 'admin', '123456PH1', NULL,NULL,NULL,NULL,1,'admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-10-25 03:23:16','ADMIN','2017-10-25 03:23:16','ADMIN'),
+	('151515PH1','onlinepumsender@gmail.com', '123456PH1', NULL,NULL,NULL,NULL,1,'opum','ffff9b650366992dd24fb03ac543bc4eb1ffffbe42ffffbf4139c6fffff30dffffb8484fb0ffffb64affffa45c',0,'2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN'),
+	('161616PH1', 'onlinepumrecipient@gmail.com', '123456PH1', NULL,NULL,NULL,NULL,1,'opum','42bd39c6ffffae52ffff8c74ffffee12ffffd9270016e916e97887ffffa95752adffff847c40bf30cf42bd',0,'2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN');
+	
+	-- usr/pw as admin/admin credentials
 -- (1001, '1001', 'admin', NULL, NULL, NULL, NULL, 1, 'System Administrator', '20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d', 0, '2017-10-25 18:19:52', 'ADMIN', now(), 'ADMIN');
 
 CREATE TABLE `role` (

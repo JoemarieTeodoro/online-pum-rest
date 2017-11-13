@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -14,7 +12,6 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.core.Response;
@@ -63,15 +60,16 @@ public class EmailBO {
 			});
 
 		try {
-			String emailResetPasswordLink = generateEmailResetPasswordLink(email.getRecipientAddresses().get(0));		
-
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(email.getSenderAddress()));
-			message.setRecipients(Message.RecipientType.TO,
-					convertAddressListToInternetAddresses(email.getRecipientAddresses()));
 			message.setSubject(email.getSubject());
-			message.setText(String.format(email.getText(), emailResetPasswordLink));
-			Transport.send(message);
+			for (String recipientAddress: email.getRecipientAddresses()) {
+				message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipientAddress));
+				String emailResetPasswordLink = generateEmailResetPasswordLink(recipientAddress);
+				message.setText(String.format(email.getText(), emailResetPasswordLink));
+				Transport.send(message);
+			}
+			
 		} catch (MessagingException e) {
 			throw new RuntimeException(e);
 		}
@@ -82,11 +80,17 @@ public class EmailBO {
 	}
 	
 	public boolean validateToken(ResetPassword resetPassword) throws SQLException, OpumException {
-		String salt = employeeRepository.retrieveSalt(resetPassword.getEmail());
-		Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(resetPassword.getToken()).getSignature();
-	    Jws<Claims> parseClaimsJws = Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(resetPassword.getToken());        
+		boolean tokenValidated = false;
+		String token = resetPassword.getToken();
+		String email = resetPassword.getEmail();
 		
-	    return (resetPassword.getEmail()).equals(parseClaimsJws.getBody().getSubject()) ? true : false;
+		String salt = employeeRepository.retrieveSalt(email);		
+		if (token != null) {
+			Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(resetPassword.getToken()).getSignature();
+		    Jws<Claims> parseClaimsJws = Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(resetPassword.getToken());        
+		    tokenValidated = email.equals(parseClaimsJws.getBody().getSubject()) ? true : false;
+		}
+	    return tokenValidated;
 	}
 	
 	public String generateToken(String email) throws SQLException, OpumException {
@@ -104,7 +108,7 @@ public class EmailBO {
 	}
 	
 	private String generateEmailResetPasswordLink(String email) throws UnsupportedEncodingException {
-		String resetPasswordHomeLink = "http://localhost:8080/online-pum-ui/admin/resetPasswordLink";
+		String resetPasswordHomeLink = "http://localhost:8080/online-pum-ui/resetPassword/resetPasswordLink";
 		String token = null;
 		try {
 			token = generateToken(email);
@@ -113,22 +117,22 @@ public class EmailBO {
 		}
 		return new StringBuilder(resetPasswordHomeLink)
 				.append("?email=")
-				.append(URLEncoder.encode(email, "UTF-8"))
+				.append(email != null ? URLEncoder.encode(email, "UTF-8") : "")
 				.append("&token=")
-				.append(URLEncoder.encode(token, "UTF-8"))
+				.append(token != null ? URLEncoder.encode(token, "UTF-8") : "")
 				.toString();
 	}
 	
-	private InternetAddress[] convertAddressListToInternetAddresses(List<String> addresses) {
-		List<InternetAddress> internetAddresses = new ArrayList<>();
-		for (String address : addresses) {
-			try {
-				internetAddresses.add(new InternetAddress(address));				
-			} catch (AddressException e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-		return internetAddresses.toArray(new InternetAddress[internetAddresses.size()]);
-	}
+//	private InternetAddress[] convertAddressListToInternetAddresses(List<String> addresses) {
+//		List<InternetAddress> internetAddresses = new ArrayList<>();
+//		for (String address : addresses) {
+//			try {
+//				internetAddresses.add(new InternetAddress(address));				
+//			} catch (AddressException e) {
+//				logger.error(e.getMessage(), e);
+//			}
+//		}
+//		return internetAddresses.toArray(new InternetAddress[internetAddresses.size()]);
+//	}
 	
 }
