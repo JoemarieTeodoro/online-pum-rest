@@ -21,9 +21,11 @@ import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Email;
 import com.ph.ibm.model.ResetPassword;
+import com.ph.ibm.model.ResetPasswordToken;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
+import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
 
 import io.jsonwebtoken.Claims;
@@ -31,9 +33,9 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-public class EmailBO {
+public class ResetPasswordBO {
 
-	private Logger logger = Logger.getLogger(EmailBO.class);
+	private Logger logger = Logger.getLogger(ResetPasswordBO.class);
 
 	/**
 	 * EmployeeRepository is a Data Access Object which contain methods to add,
@@ -42,6 +44,27 @@ public class EmailBO {
 	 */
 	private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
+	public Response resetPassword(ResetPassword resetPassword) throws Exception {
+		String retrievedHashedOldPassword = employeeRepository.retrieveSalt(resetPassword.getEmail());
+		String hashedOldPassword = MD5HashEncrypter.computeMD5Digest(resetPassword.getOldPassword());
+		
+		if (!hashedOldPassword.equals(retrievedHashedOldPassword)) {
+			throw new OpumException("Old password did not match.");
+		}
+		
+		logger.info("retrievedHashedOldPassword : " + retrievedHashedOldPassword);
+		logger.info("hashedOldPassword : " + hashedOldPassword);
+
+		resetPassword.setNewPassword(MD5HashEncrypter.computeMD5Digest(resetPassword.getNewPassword()));
+		employeeRepository.updatePassword(resetPassword);
+		
+		return Response.status(Status.OK)
+				.header("Location", "" + "employee/")
+				.entity("email sent successfully")
+				.build();
+		
+	}
+	
 	public Response emailResetPasswordLink(Email email) throws IOException {
 		
 		Properties props = new Properties();
@@ -81,15 +104,15 @@ public class EmailBO {
 				.build();
 	}
 	
-	public boolean validateToken(ResetPassword resetPassword) throws SQLException, OpumException {
+	public boolean validateToken(ResetPasswordToken ResetPasswordToken) throws SQLException, OpumException {
 		boolean tokenValidated = false;
-		String token = resetPassword.getToken();
-		String email = resetPassword.getEmail();
+		String token = ResetPasswordToken.getToken();
+		String email = ResetPasswordToken.getEmail();
 		
 		String salt = employeeRepository.retrieveSalt(email);		
 		if (token != null) {
-			Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(resetPassword.getToken()).getSignature();
-		    Jws<Claims> parseClaimsJws = Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(resetPassword.getToken());        
+			Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(ResetPasswordToken.getToken()).getSignature();
+		    Jws<Claims> parseClaimsJws = Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(ResetPasswordToken.getToken());        
 		    tokenValidated = email.equals(parseClaimsJws.getBody().getSubject()) ? true : false;
 		}
 	    return tokenValidated;
@@ -124,17 +147,5 @@ public class EmailBO {
 				.append(token != null ? URLEncoder.encode(token, "UTF-8") : "")
 				.toString();
 	}
-	
-//	private InternetAddress[] convertAddressListToInternetAddresses(List<String> addresses) {
-//		List<InternetAddress> internetAddresses = new ArrayList<>();
-//		for (String address : addresses) {
-//			try {
-//				internetAddresses.add(new InternetAddress(address));				
-//			} catch (AddressException e) {
-//				logger.error(e.getMessage(), e);
-//			}
-//		}
-//		return internetAddresses.toArray(new InternetAddress[internetAddresses.size()]);
-//	}
 	
 }

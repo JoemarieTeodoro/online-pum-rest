@@ -1,24 +1,24 @@
 package com.ph.ibm.model;
 
-public class ResetPassword {
+public class ResetPassword extends ResetPasswordToken {
 
-	private String email;
-	private String token;
+	private String oldPassword;
+	private String newPassword;
 	
-	public String getEmail() {
-		return email;
+	public String getOldPassword() {
+		return oldPassword;
 	}
 	
-	public void setEmail(String email) {
-		this.email = email;
+	public void setOldPassword(String oldPassword) {
+		this.oldPassword = oldPassword;
 	}
 	
-	public String getToken() {
-		return token;
+	public String getNewPassword() {
+		return newPassword;
 	}
 	
-	public void setToken(String token) {
-		this.token = token;
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
 	}
-	
+
 }

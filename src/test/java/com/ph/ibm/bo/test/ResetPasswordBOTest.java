@@ -7,13 +7,13 @@ import javax.mail.internet.MimeMessage.RecipientType;
 
 import org.junit.Test;
 
-import com.ph.ibm.bo.EmailBO;
 import com.ph.ibm.bo.ProjectBO;
+import com.ph.ibm.bo.ResetPasswordBO;
 import com.ph.ibm.model.Email;
 
-public class EmailBOTest {
+public class ResetPasswordBOTest {
 
-	EmailBO emailBO;
+	ResetPasswordBO resetPasswordBO;
 
 	// test email credentials:
 	//
@@ -21,7 +21,7 @@ public class EmailBOTest {
 	//   onlinepumrecipient@gmail.com : onlinepum01
 	
 	public void testFormatAndSendEmailPasswordReset() throws Exception {
-		emailBO = new EmailBO();
+		resetPasswordBO = new ResetPasswordBO();
 		Email email = new Email();
 		List<String> recipientAddresses = new ArrayList<>();
 		recipientAddresses.add("onlinepumsender@gmail.com");
@@ -33,7 +33,7 @@ public class EmailBOTest {
 		email.setSubject("Testing");
 		email.setText("Dear User," + "\n\n For testing, please! \n\n reset password link: %s");
 		
-		emailBO.emailResetPasswordLink(email);
+		resetPasswordBO.emailResetPasswordLink(email);
 	}
 	
 /*	@Test
@@ -45,7 +45,7 @@ public class EmailBOTest {
 	@Test
 	public void testEmailToListOfRecipients() throws Exception
 	{
-		emailBO = new EmailBO();
+		resetPasswordBO = new ResetPasswordBO();
 		ProjectBO projectBO = new ProjectBO();
 		Email email = new Email();
 		List<String> recipientAddresses = new ArrayList<>();
@@ -55,7 +55,6 @@ public class EmailBOTest {
 		email.setRecipientAddresses(recipientAddresses);
 		email.setSenderAddress("onlinepumsender@gmail.com");
 		projectBO.sendEmailsToListOfRecepientsToChangePasswords(recipientAddresses);
-
 	}
 
 }

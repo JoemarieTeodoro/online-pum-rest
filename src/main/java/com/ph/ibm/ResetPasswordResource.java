@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
-import com.ph.ibm.bo.EmailBO;
+import com.ph.ibm.bo.ResetPasswordBO;
 import com.ph.ibm.model.Email;
 import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.opum.exception.OpumException;
@@ -26,13 +26,40 @@ import com.ph.ibm.opum.exception.OpumException;
 @Path("resetPassword")
 public class ResetPasswordResource {
 
-	private EmailBO emailBO;
+	private ResetPasswordBO resetPasswordBO;
 	/**
 	 * Logger is used to document the execution of the system and logs the
 	 * corresponding log level such as INFO, WARN, ERROR
 	 */
 	private Logger logger = Logger.getLogger(ResetPasswordResource.class);
 
+	/**
+	 * This service is invoked when the list of admins were successfully uploaded and registered.
+	 *
+	 * <br><br>Exposed at "resetPassword/email" path
+	 *
+	 * @return <b>Response</b>
+	 * 			  - object that contains the HTTP Response
+	 * @throws OpumException
+	 */
+	@Path("/reset")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response resetPassword(ResetPassword resetPassword) throws OpumException {
+		logger.info("START emailResetPasswordLink");
+		Response response;
+		try {
+			resetPasswordBO = new ResetPasswordBO();
+			response = resetPasswordBO.resetPassword(resetPassword);
+		} catch (Exception e) {
+			logger.error(e);
+			throw new OpumException(e.getMessage(), e);
+		}
+		logger.info("END emailResetPasswordLink");
+		return response;
+	}
+	
 	/**
 	 * This service is invoked when the list of admins were successfully uploaded and registered.
 	 *
@@ -50,8 +77,8 @@ public class ResetPasswordResource {
 		logger.info("START emailResetPasswordLink");
 		Response response;
 		try {
-			emailBO = new EmailBO();
-			response = emailBO.emailResetPasswordLink(email);
+			resetPasswordBO = new ResetPasswordBO();
+			response = resetPasswordBO.emailResetPasswordLink(email);
 		} catch (Exception e) {
 			logger.error(e);
 			throw new OpumException(e.getMessage(), e);
@@ -79,8 +106,8 @@ public class ResetPasswordResource {
 		boolean validToken = false;
 		Response response = null;
 		try {
-			emailBO = new EmailBO();
-			validToken = emailBO.validateToken(resetPassword);
+			resetPasswordBO = new ResetPasswordBO();
+			validToken = resetPasswordBO.validateToken(resetPassword);
 		} catch (Exception e) {
 			logger.error(e);
 			throw new OpumException(e.getMessage(), e);

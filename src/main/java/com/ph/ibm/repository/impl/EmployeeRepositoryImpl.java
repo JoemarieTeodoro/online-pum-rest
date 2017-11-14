@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUpdate;
+import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
@@ -391,4 +392,33 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         }
     }
 
+	@Override
+	public boolean updatePassword(ResetPassword resetPassword) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		try {
+			connection.setAutoCommit(false);
+			String query = "UPDATE EMPLOYEE "
+					+ "SET EMPLOYEE.PASSWORD = ?"
+					+ " WHERE EMPLOYEE.EMAIL = ?";
+
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, resetPassword.getNewPassword());
+			preparedStatement.setString(2, resetPassword.getEmail());
+			preparedStatement.executeUpdate();
+			connection.commit();
+			
+			System.out.println(preparedStatement.toString());
+
+			System.out.println(OpumConstants.UPDATED_SUCCESS);
+			preparedStatement.close();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
+		return false;
+	}
+	
 }

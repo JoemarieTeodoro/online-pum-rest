@@ -332,14 +332,14 @@ public class ProjectBO {
 	 * Method to email list of addresses from the list uploaded by sys_admin/admin
 	 */
 	public void sendEmailsToListOfRecepientsToChangePasswords(List<String> lstRecipients) throws IOException {
-		EmailBO emailBO = new EmailBO();
+		ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
 		Email email = new Email();
 		email.setRecipientAddresses(lstRecipients);
 		email.setSenderAddress("onlinepumsender@gmail.com");
 		email.setRecipientType(RecipientType.TO.toString());
 		email.setSubject(OpumConstants.EMAIL_SUBJECT);
 		email.setText(OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s");
-		emailBO.emailResetPasswordLink(email);
+		resetPasswordBO.emailResetPasswordLink(email);
 	}
 
     /**

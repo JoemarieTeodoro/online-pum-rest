@@ -7,6 +7,7 @@ import java.text.ParseException;
 
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUpdate;
+import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.opum.exception.OpumException;
 
 /**
@@ -112,4 +113,13 @@ public interface EmployeeRepository {
      */
     public String retrieveSalt( String email ) throws SQLException, OpumException;
 
+	/**
+	 * This method is used to update the password
+	 * @param resetPassword
+	 * @return boolean
+	 * @throws SQLException
+	 * @throws OpumException 
+	 */
+	boolean updatePassword( ResetPassword resetPassword ) throws SQLException;
+	
 }
