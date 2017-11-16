@@ -45,16 +45,6 @@ public class ResetPasswordBO {
 	private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
 	public Response resetPassword(ResetPassword resetPassword) throws Exception {
-		String retrievedHashedOldPassword = employeeRepository.retrieveSalt(resetPassword.getEmail());
-		String hashedOldPassword = MD5HashEncrypter.computeMD5Digest(resetPassword.getOldPassword());
-		
-		if (!hashedOldPassword.equals(retrievedHashedOldPassword)) {
-			throw new OpumException("Old password did not match.");
-		}
-		
-		logger.info("retrievedHashedOldPassword : " + retrievedHashedOldPassword);
-		logger.info("hashedOldPassword : " + hashedOldPassword);
-
 		resetPassword.setNewPassword(MD5HashEncrypter.computeMD5Digest(resetPassword.getNewPassword()));
 		employeeRepository.updatePassword(resetPassword);
 		
