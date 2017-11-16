@@ -52,8 +52,6 @@ public class EmployeeValidator implements Validator<Employee> {
 				            && isValidRollDate( employee, employee.getRollInDate() )
 				            && isValidRollDate( employee, employee.getRollOffDate() )
 				            && isValidDateRange( employee, employee.getRollInDate(), employee.getRollOffDate() );
-
-
         return isValid;
     }
 

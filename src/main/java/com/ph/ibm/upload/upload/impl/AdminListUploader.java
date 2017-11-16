@@ -1,12 +1,3 @@
-/*
- *  Copyright (c) 2017 Nokia. All rights reserved.
- *
- *  Revision History:
- *
- *  DATE/AUTHOR          COMMENT
- *  ---------------------------------------------------------------------
- *  Nov 14, 2017/P100XX
- */
 package com.ph.ibm.upload.upload.impl;
 
 import java.sql.BatchUpdateException;
@@ -40,6 +31,8 @@ import com.ph.ibm.validation.impl.EmployeeValidator;
 
 /**
  * Class implementation for uploading list of user administrator
+ * 
+ * @author <a HREF="teodorj@ph.ibm.com">Joemarie Teodoro</a>
  */
 public class AdminListUploader implements Uploader {
 
@@ -74,7 +67,7 @@ public class AdminListUploader implements Uploader {
 
     /**
      * This method is used when Super Administrator uploads the list of Admin Users
-     *
+     * 
      * @param rawData Data from the CSV file
      * @param uriInfo uri information
      * @return @throws Exception exception
@@ -124,7 +117,7 @@ public class AdminListUploader implements Uploader {
             catch( SQLException e ){
                 logger.error( "SQL Exception due to " + e.getMessage() );
                 e.printStackTrace();
-                return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
+            return Response.status( 406 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
                     OpumConstants.SQL_ERROR ).build();
             }
 
@@ -135,7 +128,7 @@ public class AdminListUploader implements Uploader {
 
     /**
      * This method is used to generate error message for Upload List
-     *
+     * 
      * @param uriInfo uri information
      * @param e employee object
      * @param errorMessage error message
@@ -147,13 +140,13 @@ public class AdminListUploader implements Uploader {
             "Invalid CSV for employee!\n\nSerial No: %s \nFull Name: %s \nIntranet Id: %s \nRoll In Date: %s \nRoll Off date: %s \n\nError message: %s",
             e.getEmployeeSerial(), e.getFullName(), e.getIntranetId(), e.getRollInDate(), e.getRollOffDate(),
             errorMessage, uriInfo );
-        return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
+        return Response.status( 406 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
             invalidCsv ).build();
     }
 
     /**
      * This method is to populate list directly from CSV file
-     *
+     * 
      * @param rawData Data from the CSV file
      * @return Populated list of employee row data from CSV file
      */
@@ -176,7 +169,7 @@ public class AdminListUploader implements Uploader {
 
     /**
      * This method is used to validate uploaded list of Users/Employees
-     *
+     * 
      * @param uriInfo uri information
      * @param row represents row in csv file
      * @return Employee employee object
@@ -199,7 +192,7 @@ public class AdminListUploader implements Uploader {
 
     /**
      * This method used to ignore the header of the CSV file
-     *
+     * 
      * @param sc Scanner
      */
     private void ignoreFirstRow( Scanner sc ) {
@@ -214,7 +207,7 @@ public class AdminListUploader implements Uploader {
 
     /**
      * This method used to validate if CSV row data is Empty
-     *
+     * 
      * @param line represents row in csv file
      * @return boolean true if row is empty otherwise false
      */

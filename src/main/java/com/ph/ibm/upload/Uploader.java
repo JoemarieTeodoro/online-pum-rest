@@ -1,20 +1,14 @@
-/*
- *  Copyright (c) 2017 Nokia. All rights reserved.
- *
- *  Revision History:
- *
- *  DATE/AUTHOR          COMMENT
- *  ---------------------------------------------------------------------
- *  Nov 14, 2017/P100XX                            
- */
 package com.ph.ibm.upload;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+
 /**
  * Service which provide abstract implementation for upload functionality
+ * 
+ * @author <a HREF="teodorj@ph.ibm.com">Joemarie Teodoro</a>
  */
 public interface Uploader {
 
