@@ -229,7 +229,6 @@ public class OnlinePUMResource {
     @Path( "/userLogin/{username}" )
     @POST
     @Produces( MediaType.APPLICATION_JSON )
-    @Consumes( MediaType.APPLICATION_JSON )
     public Response loginEmployee( @PathParam( "username" ) String username, String password )
         throws SQLException, OpumException {
         logger.info( "START loginEmployee" );
