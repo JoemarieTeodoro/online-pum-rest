@@ -91,7 +91,7 @@ public class ProjectBO {
     /**
      * Validation contain methods to validate field such as employee name, employee id, project name, email address
      */
-    private Validator<Employee> validator = new EmployeeValidator();
+    private Validator<Employee> validator = new EmployeeValidator(employeeRepository);
 
     /**
      * Logger is used to document the execution of the system and logs the corresponding log level such as INFO, WARN,
@@ -194,8 +194,13 @@ public class ProjectBO {
     }
 
     /**
+<<<<<<< HEAD
      * This method is used when Administrator upload the list of employees
+<<<<<<< HEAD
+     *
+=======
      * 
+>>>>>>> Commit changes to fix conflicts with the development branch
      * @param rawData
      * @param uriInfo
      * @return Response
@@ -264,7 +269,11 @@ public class ProjectBO {
 
     /**
      * This method is used when Super Administrator uploads the list of Admin Users
+<<<<<<< HEAD
+     *
+=======
      * 
+>>>>>>> Commit changes to fix conflicts with the development branch
      * @param rawData
      * @param uriInfo
      * @return Response
@@ -344,7 +353,11 @@ public class ProjectBO {
 
     /**
      * This method is used to validate uploaded list of Users/Employees
+<<<<<<< HEAD
+     *
+=======
      * 
+>>>>>>> Commit changes to fix conflicts with the development branch
      * @param uriInfo
      * @param row
      * @return Employee
@@ -368,7 +381,11 @@ public class ProjectBO {
 
     /**
      * This method is to populate list directly from CSV file
+<<<<<<< HEAD
+     *
+=======
      * 
+>>>>>>> Commit changes to fix conflicts with the development branch
      * @param rawData
      * @return populated list of employee row data from CSV file
      */
@@ -392,7 +409,11 @@ public class ProjectBO {
 
     /**
      * This method used to ignore the header of the CSV file
+<<<<<<< HEAD
+     *
+=======
      * 
+>>>>>>> Commit changes to fix conflicts with the development branch
      * @param raw Data from the CSV file
      */
     private void ignoreFirstRow( Scanner sc ) {
@@ -407,7 +428,11 @@ public class ProjectBO {
 
     /**
      * This method used to validate if CSV row data is Empty
+<<<<<<< HEAD
+     *
+=======
      * 
+>>>>>>> Commit changes to fix conflicts with the development branch
      * @param row data from the CSV file
      * @return boolean
      */
@@ -417,11 +442,18 @@ public class ProjectBO {
     }
 
     /**
+=======
+>>>>>>> uploader
      * This method is used to generate error message for Upload List
+<<<<<<< HEAD
+     *
+=======
      * 
+>>>>>>> Commit changes to fix conflicts with the development branch
      * @param row data from the CSV file
      * @return boolean
      */
+
     private Response invalidCsvResponseBuilder( UriInfo uriInfo, Employee e, String errorMessage ) {
         String invalidCsv;
         invalidCsv = String.format(

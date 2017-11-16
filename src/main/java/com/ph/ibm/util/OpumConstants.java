@@ -4,10 +4,10 @@ package com.ph.ibm.util;
  * This class contain constants used for notification, validation error, mysql error message/s
  */
 public class OpumConstants {
-	
+
 	/** MYSQL ERROR MESSAGE/s */
 	public static final int MYSQL_DUPLICATE_PK_ERROR_CODE = 1062;
-	
+
 	/** VALIDATION ERROR MESSAGE/s */
 	public static final String UNABLE_TO_ESTABLISH_CONNECTION = "UNABLE TO ESTABLISH CONNECTION";
 	public static final String DUPLICATE_ENTRY = "DUPLICATE ENTRY";
@@ -22,6 +22,8 @@ public class OpumConstants {
 	public static final String INVALID_EMAIL_ADDRESS = "INVALID EMAIL ADDRESS";
 	public static final String INVALID_EMPLOYEE_ID = "INVALID EMPLOYEE ID";
 	public static final String INVALID_HOLIDAY = "INVALID HOLIDAY";
+	public static final String INVALID_DATE = "INVALID DATE";
+	public static final String INVALID_DATE_RANGE = "INVALID DATE RANGE";
     public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
 	public static final String EMPLOYEE_ID_EMAIL_NOT_FOUND = "EMPLOYEE ID / EMAIL NOT FOUND";
 	public static final String EMPLOYEE_ID_EMAIL_EXISTS = "EMPLOYEE ID / EMAIL ALREADY EXISTS";
@@ -32,8 +34,6 @@ public class OpumConstants {
 	public static final String YEAR_START_NOTFOUND = "YEAR START NOT FOUND";
 	public static final String YEAR_END_NOT_FOUND = "YEAR END NOT FOUND";
 
-    public static final String INVALID_DATE = "INVALID DATE FORMAT ->MM/DD/YYYY";
-	
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";
 	public static final String SUCCESSFULLY_SAVED_DATA = "SUCCESSFULLY SAVED DATA";

@@ -41,6 +41,8 @@ import com.ph.ibm.model.Project;
 import com.ph.ibm.model.Utilization;
 import com.ph.ibm.model.Year;
 import com.ph.ibm.opum.exception.OpumException;
+import com.ph.ibm.upload.Uploader;
+import com.ph.ibm.upload.upload.impl.AdminListUploader;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConstants;
 
@@ -69,6 +71,11 @@ public class OnlinePUMResource {
      * ProjectBO is a business object layer which handle validations and invoke method/s from the DAO
      */
     private ProjectBO projectBO;
+
+    /**
+     * Service used for uploading project information
+     */
+    private Uploader uploader;
 
     /**
      * UtilityBO is a business object layer which handle validations and invoke method/s from the DAO
@@ -166,8 +173,8 @@ public class OnlinePUMResource {
         logger.info( "START uploadEmployeeList" );
         Response response;
         try{
-            projectBO = new ProjectBO();
-            response = projectBO.uploadAdminEmployeeList( rawData, uriInfo );
+            uploader = new AdminListUploader();
+            response = uploader.upload( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );
@@ -197,7 +204,8 @@ public class OnlinePUMResource {
         Response response;
         try{
             projectBO = new ProjectBO();
-            response = projectBO.uploadAdminEmployeeList( rawData, uriInfo );
+//            response = projectBO.uploadAdminEmployeeList( rawData, uriInfo );
+            response = uploader.upload( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );

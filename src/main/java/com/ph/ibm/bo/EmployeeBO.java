@@ -41,7 +41,7 @@ public class EmployeeBO {
 	private ProjectEngagementRepository projectEngagementRepository = new ProjectEngagementRepositoryImpl();
 
 	/** Validation contain methods to validate field such as employee name, employee id, project name, email address */
-	private Validator<Employee> validator = new EmployeeValidator();
+	private Validator<Employee> validator = new EmployeeValidator(employeeRepository);
 
 	private static Logger logger = Logger.getLogger(EmployeeBO.class);
 
