@@ -320,6 +320,23 @@ CREATE TABLE `year` (
 INSERT INTO `year` VALUES (1,2017,'2018-12-31','2017-01-10','2017-08-16 10:32:53','ADMIN','2017-08-16 10:42:24',NULL);
 
 --
+-- Table structure for table `pem`
+--
+CREATE TABLE `PEM` (
+  `PEM_Serial` varchar(11) NOT NULL,
+  `Employee_Serial` varchar(11) NOT NULL,
+  `Start_Date` date NOT NULL DEFAULT '0000-00-00',
+  `End_Date` date NOT NULL DEFAULT '0000-00-00',
+  PRIMARY KEY (`PEM_Serial`),
+  UNIQUE KEY `UNQ_PEM` (`PEM_Serial`,`Employee_Serial`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `year`
+--
+INSERT INTO `PEM` VALUES ('P100Y2', 'P100Y2', '2017-09-18', '2017-12-31');
+
+--
 -- Views
 --
 CREATE OR REPLACE VIEW manager_employee_v AS

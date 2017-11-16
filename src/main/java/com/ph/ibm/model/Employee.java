@@ -199,5 +199,11 @@ public class Employee extends BaseAuditBean {
     public void setRollOffDate( String rollOffDate ) {
         this.rollOffDate = rollOffDate;
     }
+    
+    @Override
+    public String toString(){
+    	return String.format( "Employee!\n\nSerial No: %s \nFull Name: %s \nIntranet Id: %s \nRoll In Date: %s \nRoll Off date: %s",
+    			this.getEmployeeSerial(), this.getFullName(), this.getIntranetId(), this.getRollInDate(), this.getRollOffDate());
+    }
 
 }

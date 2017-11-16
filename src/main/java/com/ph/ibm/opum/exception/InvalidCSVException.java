@@ -1,23 +1,21 @@
 package com.ph.ibm.opum.exception;
 
-import com.ph.ibm.model.Employee;
-
 public class InvalidCSVException extends Exception {
 
     private static final long serialVersionUID = -2789532735929540288L;
 
-    private Employee myEmployee;
+    private Object myObject;
 
     private String myError;
 
-    public InvalidCSVException( Employee employee, String error ) {
+    public InvalidCSVException( Object object, String error ) {
         super();
-        myEmployee = employee;
+        myObject = object;
         myError = error;
     }
 
-    public Employee getEmployee() {
-        return myEmployee;
+    public Object getObject() {
+        return myObject;
     }
 
     public String getError() {

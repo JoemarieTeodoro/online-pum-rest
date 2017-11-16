@@ -179,37 +179,6 @@ public class EmployeeValidatorTest {
 	}
 
 	@Test
-	public void testIsValidRollInDate() throws InvalidCSVException {
-		Mockito.doReturn(true).when(validator).isValidRollDate(createValidEmployee(),validEmployee.getRollInDate());
-		assertTrue(validator.isValidRollDate(createValidEmployee(),validEmployee.getRollInDate()));
-	}
-
-	@Test(expected = InvalidCSVException.class)
-	public void testIsValidRollInDateException() throws InvalidCSVException {
-		validator.isValidRollDate(createValidEmployee(),invalidEmployee.getRollInDate());
-	}
-
-	@Test
-	public void testIsValidRollOffDate() throws InvalidCSVException {
-		assertTrue(validator.isValidRollDate(createValidEmployee(),validEmployee.getRollOffDate()));
-	}
-
-	@Test(expected = InvalidCSVException.class)
-	public void testIsValidRollOffDateException() throws InvalidCSVException {
-		validator.isValidRollDate(createValidEmployee(),invalidEmployee.getRollOffDate());
-	}
-
-	@Test
-	public void testIsValidDateRange() throws InvalidCSVException {
-		assertTrue(validator.isValidDateRange(createValidEmployee(),validEmployee.getRollInDate(), validEmployee.getRollOffDate()));
-	}
-
-	@Test(expected = InvalidCSVException.class)
-	public void testIsValidDateRangeException() throws InvalidCSVException {
-		validator.isValidDateRange(createValidEmployee(),"12/31/2017", "9/20/2017");
-	}
-
-	@Test
 	public void testIsEmployeeExisting() throws SQLException, InvalidCSVException {
 		Employee nonExistingEmployee = createNonExistingEmployee();
 		Mockito.doReturn(false).when(employeeRepository).doesEmployeeExist(nonExistingEmployee.getEmployeeSerial(),

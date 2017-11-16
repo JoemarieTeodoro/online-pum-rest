@@ -3,9 +3,7 @@ package com.ph.ibm.upload.upload.impl;
 import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -26,6 +24,7 @@ import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.upload.Uploader;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -77,7 +76,7 @@ public class AdminListUploader implements Uploader {
     public Response upload( String rawData, UriInfo uriInfo ) throws Exception {
 
             ProjectEngagement projectEngagement = new ProjectEngagement();
-            List<List<String>> rows = populateEmployeeProjectEngagements( rawData );
+            List<List<String>> rows = UploaderUtils.populateList( rawData );
             List<Employee> validatedEmployee = new ArrayList<Employee>();
             Employee validateEmployee = new Employee();
             try{
@@ -107,12 +106,11 @@ public class AdminListUploader implements Uploader {
             catch( BatchUpdateException e ){
                 logger.error( "BatchUpdateException due to " + e.getMessage() );
                 System.out.println( e.getErrorCode() );
-                return invalidCsvResponseBuilder( uriInfo, validateEmployee, OpumConstants.DUPLICATE_ENTRY );
-                // }
+                return UploaderUtils.invalidCsvResponseBuilder( uriInfo, validateEmployee, OpumConstants.DUPLICATE_ENTRY );
             }
             catch( InvalidCSVException e ){
                 logger.error( e.getError() );
-                return invalidCsvResponseBuilder( uriInfo, e.getEmployee(), e.getError() );
+                return UploaderUtils.invalidCsvResponseBuilder( uriInfo, validateEmployee, OpumConstants.DUPLICATE_ENTRY );
             }
             catch( SQLException e ){
                 logger.error( "SQL Exception due to " + e.getMessage() );
@@ -125,47 +123,6 @@ public class AdminListUploader implements Uploader {
             return Response.status( Status.OK ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
                 "uploaded successfully" ).build();
         }
-
-    /**
-     * This method is used to generate error message for Upload List
-     * 
-     * @param uriInfo uri information
-     * @param e employee object
-     * @param errorMessage error message
-     * @return Response response
-     */
-    private Response invalidCsvResponseBuilder( UriInfo uriInfo, Employee e, String errorMessage ) {
-        String invalidCsv;
-        invalidCsv = String.format(
-            "Invalid CSV for employee!\n\nSerial No: %s \nFull Name: %s \nIntranet Id: %s \nRoll In Date: %s \nRoll Off date: %s \n\nError message: %s",
-            e.getEmployeeSerial(), e.getFullName(), e.getIntranetId(), e.getRollInDate(), e.getRollOffDate(),
-            errorMessage, uriInfo );
-        return Response.status( 406 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
-            invalidCsv ).build();
-    }
-
-    /**
-     * This method is to populate list directly from CSV file
-     * 
-     * @param rawData Data from the CSV file
-     * @return Populated list of employee row data from CSV file
-     */
-    private List<List<String>> populateEmployeeProjectEngagements( String rawData ) {
-        List<List<String>> employeeProjectEngagements = new ArrayList<List<String>>();
-        List<String> row;
-        String delimiter = ",";
-        Scanner sc = new Scanner( rawData );
-        ignoreFirstRow( sc );
-        while( sc.hasNextLine() ){
-            String line = sc.nextLine();
-            if( !isRowEmpty( line ) && !line.startsWith( "----" ) ){
-                row = Arrays.asList( line.split( delimiter ) );
-                employeeProjectEngagements.add( row );
-            }
-        }
-        sc.close();
-        return employeeProjectEngagements;
-    }
 
     /**
      * This method is used to validate uploaded list of Users/Employees
@@ -189,30 +146,4 @@ public class AdminListUploader implements Uploader {
         validator.validate( validateEmployee );
         return validateEmployee;
     }
-
-    /**
-     * This method used to ignore the header of the CSV file
-     * 
-     * @param sc Scanner
-     */
-    private void ignoreFirstRow( Scanner sc ) {
-        while( sc.hasNextLine() ){
-            String line = sc.nextLine();
-            if( isRowEmpty( line ) ){
-                sc.nextLine();
-                break;
-            }
-        }
-    }
-
-    /**
-     * This method used to validate if CSV row data is Empty
-     * 
-     * @param line represents row in csv file
-     * @return boolean true if row is empty otherwise false
-     */
-    private boolean isRowEmpty( String line ) {
-        return line == null || line.equals( "\\n" ) || line.equals( "" );
-    }
-
 }

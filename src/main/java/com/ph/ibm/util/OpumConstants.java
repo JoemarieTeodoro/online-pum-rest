@@ -21,12 +21,15 @@ public class OpumConstants {
 	public static final String INVALID_EMAIL_ID = "INVALID EMAIL ID";
 	public static final String INVALID_EMAIL_ADDRESS = "INVALID EMAIL ADDRESS";
 	public static final String INVALID_EMPLOYEE_ID = "INVALID EMPLOYEE ID";
+	public static final String INVALID_PEM_ID = "INVALID PEM ID";
 	public static final String INVALID_HOLIDAY = "INVALID HOLIDAY";
 	public static final String INVALID_DATE = "INVALID DATE";
 	public static final String INVALID_DATE_RANGE = "INVALID DATE RANGE";
     public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
 	public static final String EMPLOYEE_ID_EMAIL_NOT_FOUND = "EMPLOYEE ID / EMAIL NOT FOUND";
+	public static final String EMPLOYEE_ID_EXISTS = "EMPLOYEE ID ALREADY EXISTS";
 	public static final String EMPLOYEE_ID_EMAIL_EXISTS = "EMPLOYEE ID / EMAIL ALREADY EXISTS";
+	public static final String PEM_ID_EXISTS = "PEM ID ALREADY EXISTS";
 	public static final String PROJECT_ENGAGEMENT_NOT_FOUND = "PROJECT ENGAGEMENT NOT FOUND";
 	public static final String UNAUTHORIZED = "UNAUTHORIZED";
 	public static final String ERROR_START_DATE = "ERROR START DATE";
@@ -57,4 +60,5 @@ public class OpumConstants {
 	public static final String EMAIL_BODY = "You can reset your password by clicking the link below:";
 	public static final String EMAIL_CLOSING = "Thank you,";
 	public static final String EMAIL_SIGNATURE = "Online PUM Support";
+
 }

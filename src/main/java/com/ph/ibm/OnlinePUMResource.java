@@ -43,6 +43,7 @@ import com.ph.ibm.model.Year;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.upload.Uploader;
 import com.ph.ibm.upload.upload.impl.AdminListUploader;
+import com.ph.ibm.upload.upload.impl.PEMListUploader;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConstants;
 
@@ -183,6 +184,33 @@ public class OnlinePUMResource {
         logger.info( "END uploadEmployeeList" );
         return response;
     }
+    
+    /**
+     * This service is invoked when administrator upload file <br>
+     * <br>
+     * Exposed at "opum/dataLoading" path ======= <br>
+     * <br>
+     * 
+     * @throws OpumException
+     */
+    @Path( "/pem" )
+    @POST
+    @Consumes( MediaType.MULTIPART_FORM_DATA )
+    @Produces( MediaType.TEXT_PLAIN )
+    public Response uploadPEMList( String rawData, @Context UriInfo uriInfo ) throws SQLException, OpumException {
+        logger.info( "START uploadPEMList" );
+        Response response;
+        try{
+            uploader = new PEMListUploader();
+            response = uploader.upload( rawData, uriInfo );
+        }
+        catch( Exception e ){
+            logger.error( e );
+            throw new OpumException( e.getMessage(), e );
+        }
+        logger.info( "END uploadPEMList" );
+        return response;
+    }
 
     /**
      * This service is invoked when super administrator upload csv file of admin <br>
@@ -204,7 +232,6 @@ public class OnlinePUMResource {
         Response response;
         try{
             projectBO = new ProjectBO();
-//            response = projectBO.uploadAdminEmployeeList( rawData, uriInfo );
             response = uploader.upload( rawData, uriInfo );
         }
         catch( Exception e ){
