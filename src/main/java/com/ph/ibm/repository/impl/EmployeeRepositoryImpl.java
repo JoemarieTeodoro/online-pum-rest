@@ -19,6 +19,7 @@ import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.resources.ConnectionPool;
+import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
@@ -329,7 +330,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString( 7, null );
             preparedStatement.setBoolean( 8, isAdmin );
             preparedStatement.setString( 9, validateEmployee.getFullName() );
-            preparedStatement.setString( 10, null );
+            preparedStatement.setString( 10, MD5HashEncrypter.computeMD5Digest(validateEmployee.getEmployeeSerial()) );
             preparedStatement.setBoolean( 11, isActive );
             preparedStatement.setString( 12, dateFormat( validateEmployee.getRollInDate() ) );
             preparedStatement.setString( 13, dateFormat( validateEmployee.getRollOffDate() ) );
@@ -345,7 +346,9 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         }
         catch( SQLException e ){
             e.printStackTrace();
-        }
+        } catch ( Exception e ) {
+			e.printStackTrace();
+		}
         finally{
             try{
                 if( preparedStatement != null )
