@@ -45,6 +45,7 @@ import com.ph.ibm.upload.Uploader;
 import com.ph.ibm.upload.upload.impl.AdminListUploader;
 import com.ph.ibm.upload.upload.impl.PEMListUploader;
 import com.ph.ibm.util.Authenticate;
+import com.ph.ibm.util.OpumConfig;
 import com.ph.ibm.util.OpumConstants;
 
 /**
@@ -262,6 +263,7 @@ public class OnlinePUMResource {
         Employee employee = null;
         try{
             employeeBO = new EmployeeBO();
+			OpumConfig.initProperties();
             employee = employeeBO.loginEmployee( username, password );
             logger.info( "END loginEmployee" );
             return Response.status( 201 ).entity( employee ).build();

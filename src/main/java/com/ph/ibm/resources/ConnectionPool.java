@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.ph.ibm.util.OpumConfig;
 import com.ph.ibm.util.OpumConstants;
 
 /**
@@ -17,10 +18,6 @@ import com.ph.ibm.util.OpumConstants;
 public class ConnectionPool {
 
 	Logger logger = Logger.getLogger(ConnectionPool.class);
-
-	private String dbUrl = "jdbc:mysql://localhost:3306/opum";
-	private String userName = "root";
-	private String password = "root";
 
 	private static ConnectionPool connectionPool;
 
@@ -44,11 +41,12 @@ public class ConnectionPool {
 	public Connection getConnection() {
 		Connection connection = null;
 		Properties connectionProps = new Properties();
-	    connectionProps.put("user", this.userName);
-	    connectionProps.put("password", this.password);
+		connectionProps.put("user", OpumConfig.getConfigProperties().getProperty("DB_USERNAME"));
+		connectionProps.put("password", OpumConfig.getConfigProperties().getProperty("DB_PASSWORD"));
 	    connectionProps.put("useSSL", "false");
 		try {
-			connection = DriverManager.getConnection(dbUrl, connectionProps);
+			connection = DriverManager.getConnection(OpumConfig.getConfigProperties().getProperty("DB_URL"),
+					connectionProps);
 		} catch (SQLException e) {
 			logger.error(OpumConstants.UNABLE_TO_ESTABLISH_CONNECTION);
 			e.printStackTrace();

@@ -71,7 +71,7 @@ public class UploaderUtils {
         invalidCsv = String.format(
             "Invalid CSV for %s \n\nError message: %s",
             e.toString(), errorMessage, uriInfo );
-        return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
+        return Response.status( 206 ).entity(
             invalidCsv ).build();
     }
 }

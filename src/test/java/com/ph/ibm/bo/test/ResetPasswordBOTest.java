@@ -54,7 +54,6 @@ public class ResetPasswordBOTest {
 
 		email.setRecipientAddresses(recipientAddresses);
 		email.setSenderAddress("onlinepumsender@gmail.com");
-		projectBO.sendEmailsToListOfRecepientsToChangePasswords(recipientAddresses);
 	}
 
 }

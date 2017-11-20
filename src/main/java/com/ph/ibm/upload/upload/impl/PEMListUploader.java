@@ -66,6 +66,9 @@ public class PEMListUploader implements Uploader {
 		List<PEM> pemList = new ArrayList<PEM>();
 		for(List<String> list : rows)
 		{
+			if(list.size() < 4){
+	            throw new InvalidPEMException( OpumConstants.INVALID_CSV );
+	        }
 			pemList.add( validatePEM( list ) );
 		}
 		return pemList;

@@ -26,6 +26,7 @@ import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.util.MD5HashEncrypter;
+import com.ph.ibm.util.OpumConfig;
 import com.ph.ibm.util.OpumConstants;
 
 import io.jsonwebtoken.Claims;
@@ -123,7 +124,8 @@ public class ResetPasswordBO {
 	}
 	
 	private String generateEmailResetPasswordLink(String email) throws UnsupportedEncodingException {
-		String resetPasswordHomeLink = "http://localhost:8080/online-pum-ui/resetPassword/resetPasswordLink";
+		String resetPasswordHomeLink = OpumConfig.getConfigProperties().getProperty("SERVER_URL")
+				+ "/online-pum-ui/resetPassword/resetPasswordLink";
 		String token = null;
 		try {
 			token = generateToken(email);
