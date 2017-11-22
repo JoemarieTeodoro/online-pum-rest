@@ -20,11 +20,7 @@ import com.ph.ibm.model.Employee;
 import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.opum.exception.InvalidEmployeeException;
 import com.ph.ibm.repository.EmployeeRepository;
-import com.ph.ibm.repository.ProjectEngagementRepository;
-import com.ph.ibm.repository.ProjectRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
-import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
-import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.upload.Uploader;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
@@ -43,18 +39,6 @@ public class AdminListUploader implements Uploader {
      * stored in employee table - opum database
      */
     private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
-
-    /**
-     * ProjectRepository is a Data Access Object which contain method to retrieve fields stored in project table - opum
-     * database
-     */
-    private ProjectRepository projectRepository = new ProjectRepositoryImpl();
-
-    /**
-     * ProjectEngagementRepository is a Data Access Object which contain method to add, save, get, check field/s stored
-     * in project_engagement table - opum database
-     */
-    private ProjectEngagementRepository projectEngagementRepository = new ProjectEngagementRepositoryImpl();
 
     /**
      * Validation contain methods to validate field such as employee name, employee id, project name, email address
@@ -78,7 +62,7 @@ public class AdminListUploader implements Uploader {
     @Override
     public Response upload( String rawData, UriInfo uriInfo ) throws Exception {
 
-    	  Map<String, List<String>> rows = UploaderUtils.populateList( rawData );
+        Map<String, List<String>> rows = UploaderUtils.populateList( rawData );
         List<Employee> validatedEmployee = new ArrayList<Employee>();
         Employee validateEmployee = new Employee();
         List<String> lstRecipients = new ArrayList<String>();

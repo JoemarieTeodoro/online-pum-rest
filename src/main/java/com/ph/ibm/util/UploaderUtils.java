@@ -18,8 +18,8 @@ public class UploaderUtils {
      * @return Populated list of employee row data from CSV file
      */
 	public static Map<String, List<String>> populateList(String rawData) {
-		Map<String, List<String>> listRawData = new HashMap<String, List<String>>();
-
+		Map<String, List<String>> rawDataMap = new HashMap<String, List<String>>();
+		
         List<String> row;
         String delimiter = ",";
         Scanner sc = new Scanner( rawData );
@@ -28,12 +28,12 @@ public class UploaderUtils {
             String line = sc.nextLine();
             if( !isRowEmpty( line ) && !line.startsWith( "----" ) ){
                 row = Arrays.asList( line.split( delimiter ) );
-
-                listRawData.put(row.get(0), row);
+                
+                rawDataMap.put(row.get(0), row);
             }
         }
         sc.close();
-        return listRawData;
+        return rawDataMap;
 	}
 
     /**

@@ -44,6 +44,7 @@ import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.upload.Uploader;
 import com.ph.ibm.upload.upload.impl.AdminListUploader;
 import com.ph.ibm.upload.upload.impl.EmployeeRoleUploader;
+import com.ph.ibm.upload.upload.impl.TeamEmployeeUploader;
 import com.ph.ibm.upload.upload.impl.PEMListUploader;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConfig;
@@ -173,8 +174,8 @@ public class OnlinePUMResource {
     @Consumes( MediaType.MULTIPART_FORM_DATA )
     @Produces( MediaType.TEXT_PLAIN )
     public Response uploadEmployeeList( String rawData, @Context UriInfo uriInfo ) throws SQLException, OpumException {
-        logger.info( "START uploadEmployeeList" );
-        Response response;
+    	logger.info( "START uploadEmployeeList" );
+    	Response response;
         try{
             uploader = new AdminListUploader();
             response = uploader.upload( rawData, uriInfo );
@@ -187,6 +188,31 @@ public class OnlinePUMResource {
         return response;
     }
 
+    /**
+     * This service is invoked when administrator upload file for employee's designated team <br>
+     * <br>
+     * Exposed at "opum/dataLoadingTeamEmpList" path ======= <br>
+     * <br>
+     * 
+     * @throws OpumException
+     */
+    @Path( "/dataLoadingTeamEmpList" )
+    @POST
+    @Consumes( MediaType.MULTIPART_FORM_DATA )
+    @Produces( MediaType.TEXT_PLAIN )
+    public Response uploadTeamEmployeeList( String rawData, @Context UriInfo uriInfo ) throws SQLException, OpumException {
+        Response response;
+        try{
+            uploader = new TeamEmployeeUploader();
+            response = uploader.upload( rawData, uriInfo );
+        }
+        catch( Exception e ){
+            logger.error( e );
+            throw new OpumException( e.getMessage(), e );
+        }
+        return response;
+    }
+    
     /**
      * This service is invoked when administrator upload file <br>
      * <br>
@@ -260,7 +286,7 @@ public class OnlinePUMResource {
         logger.info( "START uploadAdminEmployeeList" );
         Response response;
         try{
-            projectBO = new ProjectBO();
+        	uploader = new AdminListUploader();
             response = uploader.upload( rawData, uriInfo );
         }
         catch( Exception e ){
