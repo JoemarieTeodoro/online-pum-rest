@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.log4j.Logger;
-
 import com.ph.ibm.opum.exception.InvalidCSVException;
 
 public class ValidationUtils 

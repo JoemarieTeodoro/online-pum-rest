@@ -2,7 +2,6 @@ package com.ph.ibm.bo;
 
 import static com.ph.ibm.util.ValidationUtils.isValueEmpty;
 
-import java.io.IOException;
 import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -17,15 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.mail.Message.RecipientType;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
 
-import com.ph.ibm.model.Email;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUtil;
 import com.ph.ibm.model.Holiday;
@@ -41,7 +37,6 @@ import com.ph.ibm.model.UtilizationJson;
 import com.ph.ibm.model.UtilizationYear;
 import com.ph.ibm.model.Week;
 import com.ph.ibm.model.Year;
-import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.opum.exception.InvalidEmployeeException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.HolidayEngagementRepository;
@@ -58,7 +53,6 @@ import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
 import com.ph.ibm.util.CalendarUtils;
 import com.ph.ibm.util.ObjectMapperAdapter;
 import com.ph.ibm.util.OpumConstants;
-import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -293,7 +287,6 @@ public class ProjectBO {
      * @param rawData
      * @return populated list of employee row data from CSV file
      */
-
     private List<List<String>> populateEmployeeProjectEngagements( String rawData ) {
         List<List<String>> employeeProjectEngagements = new ArrayList<List<String>>();
         List<String> row;
@@ -326,6 +319,7 @@ public class ProjectBO {
         }
     }
 
+
     /**
      * This method used to validate if CSV row data is Empty
      *
@@ -336,7 +330,6 @@ public class ProjectBO {
     private boolean isRowEmpty( String line ) {
         return line == null || line.equals( "\\n" ) || line.equals( "" );
     }
-    
     public Year getComputation( String employeeId, int year ) throws SQLException, ParseException {
         Utilization utilization = utilizationEngagementRepository.getComputation( employeeId, year );
         UtilizationYear utilization_Year =

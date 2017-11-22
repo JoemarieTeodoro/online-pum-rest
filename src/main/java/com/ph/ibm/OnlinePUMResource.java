@@ -43,6 +43,7 @@ import com.ph.ibm.model.Year;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.upload.Uploader;
 import com.ph.ibm.upload.upload.impl.AdminListUploader;
+import com.ph.ibm.upload.upload.impl.EmployeeRoleUploader;
 import com.ph.ibm.upload.upload.impl.PEMListUploader;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConfig;
@@ -164,7 +165,7 @@ public class OnlinePUMResource {
      * <br>
      * Exposed at "opum/dataLoading" path ======= <br>
      * <br>
-     * 
+     *
      * @throws OpumException
      */
     @Path( "/dataLoading" )
@@ -185,13 +186,13 @@ public class OnlinePUMResource {
         logger.info( "END uploadEmployeeList" );
         return response;
     }
-    
+
     /**
      * This service is invoked when administrator upload file <br>
      * <br>
      * Exposed at "opum/dataLoading" path ======= <br>
      * <br>
-     * 
+     *
      * @throws OpumException
      */
     @Path( "/pem" )
@@ -214,10 +215,37 @@ public class OnlinePUMResource {
     }
 
     /**
+     * This service is invoked when administrator upload file <br>
+     * <br>
+     * Exposed at "opum/emprole" path ======= <br>
+     * <br>
+     *
+     * @throws OpumException
+     */
+    @Path( "/emprole" )
+    @POST
+    @Consumes( MediaType.MULTIPART_FORM_DATA )
+    @Produces( MediaType.TEXT_PLAIN )
+    public Response uploadEmployeeRoleList( String rawData, @Context UriInfo uriInfo ) throws SQLException, OpumException {
+        logger.info( "START employeeRoleList" );
+        Response response;
+        try{
+            uploader = new EmployeeRoleUploader();
+            response = uploader.upload( rawData, uriInfo );
+        }
+        catch( Exception e ){
+            logger.error( e );
+            throw new OpumException( e.getMessage(), e );
+        }
+        logger.info( "END employeeRoleList" );
+        return response;
+    }
+
+    /**
      * This service is invoked when super administrator upload csv file of admin <br>
      * <br>
      * Exposed at "opum/adminDataLoading" path
-     * 
+     *
      * @param rawData - JSON file e.g. (.xlsx, .xls, .csv)
      * @param uriInfo - used to obtain information about URI in Response
      * @return <b>Response</b> - object that contains the HTTP Response
@@ -247,7 +275,7 @@ public class OnlinePUMResource {
      * This service is invoked when user log-in <br>
      * <br>
      * Exposed at "opum/userLogin" path
-     * 
+     *
      * @param username - this is the email address of the user
      * @param password - this is the password of the user
      * @return <b>Response</b> - object that contains the http response
@@ -497,7 +525,7 @@ public class OnlinePUMResource {
      * This service is invoked when user retrieve list of year <br>
      * <br>
      * Exposed at "opum/yearList" path
-     * 
+     *
      * @param header - this contains the HTTP request header - username and password
      * @return <b>JSON</b> - PUMYearList object
      * @throws Exception
@@ -566,7 +594,7 @@ public class OnlinePUMResource {
      * <br>
      * Exposed at "opum/searchEmployee{companyIdNumber}" path ======= <br>
      * <br>
-     * 
+     *
      * @param employeeIdNumber - this is the company Id number of an employee
      * @param header - this contains the HTTP request header - username and password
      * @return <b>String</b> - holds a message if the admin has successfully
@@ -606,7 +634,7 @@ public class OnlinePUMResource {
     /**
      * This service is invoked when admin edit or update employee information details <br>
      * <br>
-     * 
+     *
      * @param employeeUpdate - Plain Old Java Object
      * @param header - this contains the HTTP request header - username and password
      * @return <b>String</b> - holds a message if the admin has successfully updated

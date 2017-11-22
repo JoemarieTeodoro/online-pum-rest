@@ -13,7 +13,6 @@ public class InvalidCSVException extends Exception {
         myObject = object;
         myError = error;
     }
-
     public Object getObject() {
         return myObject;
     }
@@ -21,5 +20,4 @@ public class InvalidCSVException extends Exception {
     public String getError() {
         return myError;
     }
-
 }

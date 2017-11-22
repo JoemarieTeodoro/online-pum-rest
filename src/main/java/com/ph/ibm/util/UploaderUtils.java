@@ -1,8 +1,9 @@
 package com.ph.ibm.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.ws.rs.core.Response;
@@ -12,12 +13,13 @@ public class UploaderUtils {
 
     /**
      * This method is to populate list directly from CSV file
-     * 
+     *
      * @param rawData Data from the CSV file
      * @return Populated list of employee row data from CSV file
      */
-	public static List<List<String>> populateList(String rawData) {
-        List<List<String>> list = new ArrayList<List<String>>();
+	public static Map<String, List<String>> populateList(String rawData) {
+		Map<String, List<String>> listRawData = new HashMap<String, List<String>>();
+
         List<String> row;
         String delimiter = ",";
         Scanner sc = new Scanner( rawData );
@@ -26,16 +28,17 @@ public class UploaderUtils {
             String line = sc.nextLine();
             if( !isRowEmpty( line ) && !line.startsWith( "----" ) ){
                 row = Arrays.asList( line.split( delimiter ) );
-                list.add( row );
+
+                listRawData.put(row.get(0), row);
             }
         }
         sc.close();
-        return list;
+        return listRawData;
 	}
-	
+
     /**
      * This method used to ignore the header of the CSV file
-     * 
+     *
      * @param sc Scanner
      */
     public static void ignoreFirstRow( Scanner sc ) {
@@ -47,20 +50,20 @@ public class UploaderUtils {
             }
         }
     }
-    
+
     /**
      * This method used to validate if CSV row data is Empty
-     * 
+     *
      * @param line represents row in csv file
      * @return boolean true if row is empty otherwise false
      */
     public static boolean isRowEmpty( String line ) {
         return line == null || line.equals( "\\n" ) || line.equals( "" );
     }
-    
+
     /**
      * This method is used to generate error message for Upload List
-     * 
+     *
      * @param uriInfo uri information
      * @param e employee object
      * @param errorMessage error message

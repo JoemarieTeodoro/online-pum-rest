@@ -4,11 +4,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-
 /**
  * Service which provide abstract implementation for upload functionality
  * 
  * @author <a HREF="teodorj@ph.ibm.com">Joemarie Teodoro</a>
+ * 
  */
 public interface Uploader {
 

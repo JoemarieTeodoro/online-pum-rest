@@ -23,7 +23,7 @@ public class OpumConstants {
 	public static final String INVALID_EMPLOYEE_ID = "INVALID EMPLOYEE ID";
 	public static final String INVALID_PEM_ID = "INVALID PEM ID";
 	public static final String INVALID_HOLIDAY = "INVALID HOLIDAY";
-	public static final String INVALID_DATE = "INVALID DATE";
+    public static final String INVALID_DATE = "INVALID DATE FORMAT ->MM/DD/YYYY";
 	public static final String INVALID_DATE_RANGE = "INVALID DATE RANGE";
     public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
 	public static final String EMPLOYEE_ID_EMAIL_NOT_FOUND = "EMPLOYEE ID / EMAIL NOT FOUND";
@@ -36,6 +36,8 @@ public class OpumConstants {
 	public static final String ERROR_END_DATE = "ERROR END DATE";
 	public static final String YEAR_START_NOTFOUND = "YEAR START NOT FOUND";
 	public static final String YEAR_END_NOT_FOUND = "YEAR END NOT FOUND";
+	public static final String INVALID_EMPLOYEE_ROLE = "INVALID EMPLOYEE ROLE";
+	public static final String EMPTY_CSV_ENTRIES_EMPLOYEE_ROLE = "EMPTY ENTRY EMPLOYEE ROLE CSV";
 
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";
