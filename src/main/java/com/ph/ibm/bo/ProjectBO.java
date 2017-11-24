@@ -2,7 +2,6 @@ package com.ph.ibm.bo;
 
 import static com.ph.ibm.util.ValidationUtils.isValueEmpty;
 
-import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -16,9 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +34,6 @@ import com.ph.ibm.model.UtilizationJson;
 import com.ph.ibm.model.UtilizationYear;
 import com.ph.ibm.model.Week;
 import com.ph.ibm.model.Year;
-import com.ph.ibm.opum.exception.InvalidEmployeeException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.repository.PUMYearRepository;
@@ -86,7 +82,7 @@ public class ProjectBO {
     /**
      * Validation contain methods to validate field such as employee name, employee id, project name, email address
      */
-    private Validator<Employee> validator = new EmployeeValidator(employeeRepository);
+    private Validator<Employee> validator = new EmployeeValidator( employeeRepository );
 
     /**
      * Logger is used to document the execution of the system and logs the corresponding log level such as INFO, WARN,
@@ -189,99 +185,6 @@ public class ProjectBO {
     }
 
     /**
-     * This method is used when Administrator upload the list of employees
-     *
-     * @param rawData
-     * @param uriInfo
-     * @return Response
-     * @throws Exception
-     */
-    public Response uploadEmployeeList( String rawData, @Context UriInfo uriInfo ) throws Exception {
-        String responseHeaderUri = uriInfo.getBaseUri() + "employee/";
-        ProjectEngagement projectEngagement = new ProjectEngagement();
-        List<List<String>> rows = populateEmployeeProjectEngagements( rawData );
-        List<Employee> validatedEmployee = new ArrayList<Employee>();
-        try{
-            for( List<String> row : rows ){
-                Employee validateEmployee = validateEmployee( uriInfo, row );
-                validatedEmployee.add( validateEmployee );
-                System.out.println( "Row Data: " + row );
-            }
-
-            for( Employee employee : validatedEmployee ){
-                Employee savedEmployee = employeeRepository.saveOrUpdate( employee );
-                if( savedEmployee != null ){
-                    List<Project> projectdata = projectRepository.retrieveData();
-                    for( Project project : projectdata ){
-                        // if (!project.getProjectName().equals(validatedEmployee.get(3))) {
-                        // TODO return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
-                        // OpumConstants.INVALID_PROJECT_NAME);
-                        // }
-
-                        projectEngagement.setProjectId( project.getProjectId() );
-                    }
-
-                    projectEngagement.setEmployeeId( employeeRepository.viewEmployee( employee.getEmployeeSerial() ) );
-                    projectEngagementRepository.addProjectEngagement( projectEngagement );
-                }
-
-            }
-        }
-        catch( BatchUpdateException e ){
-            logger.error( "BatchUpdateException due to " + e.getMessage() );
-            System.out.println( e.getErrorCode() );
-            // if (e.getErrorCode() == OpumConstants.MYSQL_DUPLICATE_PK_ERROR_CODE) {
-            return responseBuilder( 206, OpumConstants.DUPLICATE_ENTRY, responseHeaderUri );
-            // return invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
-            // OpumConstants.DUPLICATE_ENTRY);
-            // }
-        }
-        catch( InvalidEmployeeException e ){
-            logger.error( OpumConstants.INVALID_CSV );
-            return responseBuilder( 206, OpumConstants.INVALID_CSV, responseHeaderUri );
-            // invalidCsvResponseBuilder(uriInfo, employeeProjectEngagement,
-            // e.getMessage());
-        }
-        catch( SQLException e ){
-            logger.error( "SQL Exception due to " + e.getMessage() );
-            e.printStackTrace();
-            return responseBuilder( 206, OpumConstants.SQL_ERROR, responseHeaderUri );
-            // OpumConstants.SQL_ERROR
-        }
-
-        logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
-        return responseBuilder( 200, "Uploaded successfully", responseHeaderUri );
-    }
-
-    private Response responseBuilder( int statusCode, String message, String headerUri ) {
-        return Response.status( statusCode ).header( "Location", headerUri ).entity( message ).build();
-    }
-
-    /**
-     * This method is used to validate uploaded list of Users/Employees
-     *
-     * @param uriInfo
-     * @param row
-     * @return Employee
-     * @throws Exception
-     */
-
-    private Employee validateEmployee( UriInfo uriInfo, List<String> row ) throws Exception {
-
-        if( row == null || row.isEmpty() ){
-            throw new InvalidEmployeeException( OpumConstants.INVALID_CSV );
-        }
-        Employee validateEmployee = new Employee();
-        validateEmployee.setEmployeeSerial( row.get( 0 ) );
-        validateEmployee.setFullName( row.get( 1 ) );
-        validateEmployee.setIntranetId( row.get( 2 ) );
-        validateEmployee.setRollInDate( row.get( 3 ) );
-        validateEmployee.setRollOffDate( row.get( 4 ) );
-        validator.validate( validateEmployee );
-        return validateEmployee;
-    }
-
-    /**
      * This method is to populate list directly from CSV file
      *
      * @param rawData
@@ -326,10 +229,10 @@ public class ProjectBO {
      * @param row data from the CSV file
      * @return boolean
      */
-
     private boolean isRowEmpty( String line ) {
         return line == null || line.equals( "\\n" ) || line.equals( "" );
     }
+    
     public Year getComputation( String employeeId, int year ) throws SQLException, ParseException {
         Utilization utilization = utilizationEngagementRepository.getComputation( employeeId, year );
         UtilizationYear utilization_Year =

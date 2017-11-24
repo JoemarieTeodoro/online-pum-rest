@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.log4j.Logger;
+
 import com.ph.ibm.opum.exception.InvalidCSVException;
 
 public class ValidationUtils 
@@ -23,6 +24,10 @@ public class ValidationUtils
 	
 	public static final String VALID_DATE_REGEX = "^(0[1-9]|1[0-2]|[1-9])\\/(0[1-9]|[1-9]|[12][0-9]|3[01])\\/(19|20)\\d{2}$";
 	
+    public static final String VALID_RECOVERABLE_REGEX = "^(?:Y|N)$";
+
+    public static final String VALID_TEAM_NAME_REGEX = "^([A-Za-z.]+[ ]{0,1})*([A-Za-z.]+[ ]{0,1})*$";
+
 	public static String CAUSE_OF_ERROR = "CAUSE OF ERROR: ";
 
     public static boolean regexValidator( Object object, String stringToValidate, String patternTomatch,

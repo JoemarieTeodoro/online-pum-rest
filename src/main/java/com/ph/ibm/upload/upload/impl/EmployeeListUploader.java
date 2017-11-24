@@ -1,20 +1,16 @@
 package com.ph.ibm.upload.upload.impl;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.mail.Message.RecipientType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
 
-import com.ph.ibm.bo.ResetPasswordBO;
-import com.ph.ibm.model.Email;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.InvalidCSVException;
@@ -23,37 +19,28 @@ import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.upload.Uploader;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
-import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
 /**
- * Class implementation for uploading list of user administrator
- *
+ * Class implementation for uploading list of employees
+ * 
  * @author <a HREF="teodorj@ph.ibm.com">Joemarie Teodoro</a>
  * @author <a HREF="dacanam@ph.ibm.com">Marjay Dacanay</a>
  */
-public class AdminListUploader implements Uploader {
+public class EmployeeListUploader implements Uploader {
 
-    /**
-     * EmployeeRepository is a Data Access Object which contain methods to add, register, login, view, validate field/s
-     * stored in employee table - opum database
-     */
+    /** Data Access Object to employee table */
     private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
-    /**
-     * Validation contain methods to validate field such as employee name, employee id, project name, email address
-     */
-    private Validator<Employee> employeeValidator = new EmployeeValidator( employeeRepository );
+    /** Validator class for employee */
+    private EmployeeValidator employeeValidator = new EmployeeValidator( employeeRepository );
+
+    /** Logger instance */
+    private Logger logger = Logger.getLogger( EmployeeListUploader.class );
 
     /**
-     * Logger is used to document the execution of the system and logs the corresponding log level such as INFO, WARN,
-     * ERROR
-     */
-    private Logger logger = Logger.getLogger( AdminListUploader.class );
-
-    /**
-     * This method is used when Super Administrator uploads the list of Admin Users
-     *
+     * Used when Super Administrator uploads the list of Admin Users
+     * 
      * @param rawData Data from the CSV file
      * @param uriInfo uri information
      * @return @throws Exception exception
@@ -68,7 +55,6 @@ public class AdminListUploader implements Uploader {
         }
         List<Employee> validatedEmployee = new ArrayList<Employee>();
         String currentEmployeeID = null;
-        List<String> recipientList = new ArrayList<String>();
 
         try{
             for( List<String> row : rows.values() ){
@@ -76,10 +62,9 @@ public class AdminListUploader implements Uploader {
                 validateEmployee = validateEmployee( row );
                 currentEmployeeID = validateEmployee.getEmployeeId();
                 validatedEmployee.add( validateEmployee );
-                recipientList.add( validateEmployee.getIntranetId() );
             }
 
-            employeeRepository.saveOrUpdate( validatedEmployee, Role.SYS_ADMIN );
+            employeeRepository.saveOrUpdate( validatedEmployee, Role.ADMIN );
             logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
         }
         catch( InvalidCSVException e ){
@@ -95,39 +80,18 @@ public class AdminListUploader implements Uploader {
         }
 
         logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
-        sendEmailsToListOfRecepientsToChangePasswords( recipientList );
-        logger.info( OpumConstants.SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS );
-
         return Response.status( Status.OK ).entity( "CSV Uploaded Successfully!" ).build();
     }
 
     /**
-     * Method to email list of addresses from the list uploaded by sys_admin/admin
+     * Validates the uploaded list of Users/Employees
      * 
-     * @param lstRecipients list of recipients
-     * @throws IOException exception
-     */
-    public void sendEmailsToListOfRecepientsToChangePasswords( List<String> lstRecipients ) throws IOException {
-        ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
-        Email email = new Email();
-        email.setRecipientAddresses( lstRecipients );
-        email.setSenderAddress( "onlinepumsender@gmail.com" );
-        email.setRecipientType( RecipientType.TO.toString() );
-        email.setSubject( OpumConstants.EMAIL_SUBJECT );
-        email.setText( OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s" );
-        resetPasswordBO.emailResetPasswordLink( email );
-    }
-
-    /**
-     * This method is used to validate uploaded list of Users/Employees
-     *
-     * @param uriInfo uri information
      * @param row represents row in csv file
      * @return Employee employee object
      * @throws Exception exception
      */
-    private Employee validateEmployee( List<String> row )
-        throws InvalidCSVException, SQLException, Exception {
+    private Employee validateEmployee( List<String> row ) throws InvalidCSVException, SQLException {
+
         if( row == null || row.isEmpty() ){
             throw new InvalidCSVException( null, OpumConstants.INVALID_CSV );
         }

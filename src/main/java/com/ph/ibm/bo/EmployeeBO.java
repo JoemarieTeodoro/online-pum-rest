@@ -1,22 +1,12 @@
 package com.ph.ibm.bo;
 
-import static java.lang.String.format;
-
-import java.net.URI;
 import java.sql.BatchUpdateException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Employee;
-import com.ph.ibm.model.EmployeeProject;
 import com.ph.ibm.model.EmployeeUpdate;
-import com.ph.ibm.model.Project;
-import com.ph.ibm.model.ProjectEngagement;
-import com.ph.ibm.model.Role;
-import com.ph.ibm.opum.exception.InvalidEmployeeException;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.ProjectEngagementRepository;
@@ -25,7 +15,6 @@ import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.util.MD5HashEncrypter;
-import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -59,52 +48,52 @@ public class EmployeeBO {
 
     private static Logger logger = Logger.getLogger(EmployeeBO.class);
 
-    /**
-     * This method is used to register user
-     *
-     * @param companyIDNumber
-     * @param projectName
-     * @param email
-     * @param password
-     * @return String
-     * @throws Exception
-     */
-    public String registerEmployee(String employeeIdNumber, String projectName, String email, String password)
-            throws Exception {
-        Employee validateEmployee = new Employee(employeeIdNumber, email, projectName, password);
-        validator.validate(validateEmployee);
-
-        String hashed = MD5HashEncrypter.computeMD5Digest(password);
-        EmployeeProject employeeProject = new EmployeeProject(employeeIdNumber, email, hashed, projectName);
-        List<Project> projects = new ArrayList<Project>();
-        projects = projectRepository.retrieveData();
-        ProjectEngagement projectEngagement = new ProjectEngagement();
-
-        // check if USAA Project exists
-        for (Project project : projects) {
-            if (!project.getProjectName().equals(employeeProject.getProjectName())) {
-                continue;
-            }
-            projectEngagement.setProjectId(project.getProjectId());
-        }
-        Employee employee = new Employee();
-        employee.setEmployeeSerial(employeeProject.getEmployeeIdNumber());
-        employee.setIntranetId(employeeProject.getEmail());
-        employee.setPassword(employeeProject.getPassword());
-        // Employee employee = new Employee(employeeProject.getEmployeeIdNumber(),
-        // employeeProject.getEmail(), employeeProject.getPassword());
-        if (!employeeRepository.registerEmployee(employee)) {
-            logger.info(format("Unsuccessful Registration for employee %s %s", employeeProject.getEmployeeIdNumber(),
-                    employeeProject.getEmail()));
-            throw new InvalidEmployeeException(OpumConstants.INVALID_COMPANY_ID);
-        }
-        projectEngagement.setEmployeeId(employeeRepository.viewEmployee(employeeProject.getEmployeeIdNumber()));
-        projectEngagementRepository.addProjectEngagement(projectEngagement);
-
-        logger.info(OpumConstants.SUCCESSFULLY_REGISTERED);
-        return "Employee " + employeeProject.getEmployeeIdNumber() + " - " + employeeProject.getEmail()
-                + " was successfully registered";
-    }
+//    /**
+//     * This method is used to register user
+//     *
+//     * @param companyIDNumber
+//     * @param projectName
+//     * @param email
+//     * @param password
+//     * @return String
+//     * @throws Exception
+//     */
+//    public String registerEmployee(String employeeIdNumber, String projectName, String email, String password)
+//            throws Exception {
+//        Employee validateEmployee = new Employee(employeeIdNumber, email, projectName, password);
+//        validator.validate(validateEmployee);
+//
+//        String hashed = MD5HashEncrypter.computeMD5Digest(password);
+//        EmployeeProject employeeProject = new EmployeeProject(employeeIdNumber, email, hashed, projectName);
+//        List<Project> projects = new ArrayList<Project>();
+//        projects = projectRepository.retrieveData();
+//        ProjectEngagement projectEngagement = new ProjectEngagement();
+//
+//        // check if USAA Project exists
+//        for (Project project : projects) {
+//            if (!project.getProjectName().equals(employeeProject.getProjectName())) {
+//                continue;
+//            }
+//            projectEngagement.setProjectId(project.getProjectId());
+//        }
+//        Employee employee = new Employee();
+//        employee.setEmployeeSerial(employeeProject.getEmployeeIdNumber());
+//        employee.setIntranetId(employeeProject.getEmail());
+//        employee.setPassword(employeeProject.getPassword());
+//        // Employee employee = new Employee(employeeProject.getEmployeeIdNumber(),
+//        // employeeProject.getEmail(), employeeProject.getPassword());
+//        if (!employeeRepository.registerEmployee(employee)) {
+//            logger.info(format("Unsuccessful Registration for employee %s %s", employeeProject.getEmployeeIdNumber(),
+//                    employeeProject.getEmail()));
+//            throw new InvalidEmployeeException(OpumConstants.INVALID_COMPANY_ID);
+//        }
+//        projectEngagement.setEmployeeId(employeeRepository.viewEmployee(employeeProject.getEmployeeIdNumber()));
+//        projectEngagementRepository.addProjectEngagement(projectEngagement);
+//
+//        logger.info(OpumConstants.SUCCESSFULLY_REGISTERED);
+//        return "Employee " + employeeProject.getEmployeeIdNumber() + " - " + employeeProject.getEmail()
+//                + " was successfully registered";
+//    }
 
     /**
      * This method is used to login user

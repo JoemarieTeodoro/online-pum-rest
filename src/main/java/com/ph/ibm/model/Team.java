@@ -10,6 +10,8 @@ public class Team extends BaseAuditBean{
 	private Long teamId;
 	private Long projectId;
 	private String teamName;
+
+    private String isRecoverable;
 	private String teamLeadSerial;
 	private List<Employee> members;
 	
@@ -65,4 +67,13 @@ public class Team extends BaseAuditBean{
 	public void setMembers(List<Employee> members) {
 		this.members = members;
 	}
+
+    public String getIsRecoverable() {
+        return isRecoverable;
+    }
+
+    public void setIsRecoverable( String isRecoverable ) {
+        this.isRecoverable = isRecoverable;
+    }
+
 }

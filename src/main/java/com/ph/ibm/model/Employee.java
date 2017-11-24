@@ -148,14 +148,6 @@ public class Employee extends BaseAuditBean {
         this.primaryProject = primaryProject;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin( boolean isAdmin ) {
-        this.isAdmin = isAdmin;
-    }
-
     public Boolean getIsActive() {
         return isActive;
     }

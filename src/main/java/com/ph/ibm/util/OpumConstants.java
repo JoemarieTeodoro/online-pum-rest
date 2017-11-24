@@ -15,6 +15,7 @@ public class OpumConstants {
 	public static final String ERROR = "ERROR";
 	public static final String ERROR_WHEN_SAVING = "ERROR WHEN SAVING";
 	public static final String INVALID_CSV = "INVALID CSV";
+    public static final String EMPTY_CSV = "CSV FILE SHOULD NOT BE EMPTY";
 	public static final String INVALID_NAME = "INVALID NAME";
 	public static final String INVALID_PROJECT_NAME = "INVALID PROJECT NAME";
 	public static final String INVALID_COMPANY_ID = "INVALID COMPANY ID";
@@ -25,10 +26,14 @@ public class OpumConstants {
 	public static final String INVALID_HOLIDAY = "INVALID HOLIDAY";
     public static final String INVALID_DATE = "INVALID DATE FORMAT ->MM/DD/YYYY";
 	public static final String INVALID_DATE_RANGE = "INVALID DATE RANGE";
+    public static final String INVALID_TEAM_NAME = "INVALID TEAM NAME";
+    public static final String INVALID_RECOVERABLE = "INVALID RECOVERABLE STATUS";
+    public static final String INVALID_TEAM_LEAD_SERIAL = "INVALID TEAM LEAD SERIAL NUMBER";
     public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
 	public static final String EMPLOYEE_ID_EMAIL_NOT_FOUND = "EMPLOYEE ID / EMAIL NOT FOUND";
 	public static final String EMPLOYEE_ID_EXISTS = "EMPLOYEE ID ALREADY EXISTS";
 	public static final String EMPLOYEE_ID_EMAIL_EXISTS = "EMPLOYEE ID / EMAIL ALREADY EXISTS";
+    public static final String TEAM_NAME_EXISTS = "TEAM ALREADY EXIST";
 	public static final String PEM_ID_EXISTS = "PEM ID ALREADY EXISTS";
 	public static final String PROJECT_ENGAGEMENT_NOT_FOUND = "PROJECT ENGAGEMENT NOT FOUND";
 	public static final String UNAUTHORIZED = "UNAUTHORIZED";

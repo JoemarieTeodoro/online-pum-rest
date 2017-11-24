@@ -45,8 +45,8 @@ public class EmployeeValidator implements Validator<Employee> {
     /**
      * Checks for empty values in Serial, Name, Email, Rollin/off Date
      *
-     * @param employee
-     * @return
+     * @param employee employee object
+     * @return 
      * @throws InvalidCSVException
      */
     protected boolean isEmployeeValueEmpty( Employee employee ) throws InvalidCSVException {

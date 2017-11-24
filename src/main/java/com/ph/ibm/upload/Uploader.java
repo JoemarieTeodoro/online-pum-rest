@@ -13,6 +13,8 @@ import javax.ws.rs.core.UriInfo;
 public interface Uploader {
 
     /**
+     * Inserts the raw data values into the database
+     * 
      * @param rawData raw data
      * @param uriInfo information of URI
      * @return Response

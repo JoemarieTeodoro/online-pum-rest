@@ -17,9 +17,9 @@ public class UploaderUtils {
      * @param rawData Data from the CSV file
      * @return Populated list of employee row data from CSV file
      */
-	public static Map<String, List<String>> populateList(String rawData) {
-		Map<String, List<String>> rawDataMap = new HashMap<String, List<String>>();
-		
+    public static Map<String, List<String>> populateList( String rawData ) {
+        Map<String, List<String>> rawDataMap = new HashMap<String, List<String>>();
+
         List<String> row;
         String delimiter = ",";
         Scanner sc = new Scanner( rawData );
@@ -28,13 +28,12 @@ public class UploaderUtils {
             String line = sc.nextLine();
             if( !isRowEmpty( line ) && !line.startsWith( "----" ) ){
                 row = Arrays.asList( line.split( delimiter ) );
-                
-                rawDataMap.put(row.get(0), row);
+                rawDataMap.put( row.get( 0 ), row );
             }
         }
         sc.close();
         return rawDataMap;
-	}
+    }
 
     /**
      * This method used to ignore the header of the CSV file
@@ -70,11 +69,8 @@ public class UploaderUtils {
      * @return Response response
      */
     public static Response invalidCsvResponseBuilder( UriInfo uriInfo, Object e, String errorMessage ) {
-        String invalidCsv;
-        invalidCsv = String.format(
-            "Invalid CSV for %s \n\nError message: %s",
-            e.toString(), errorMessage, uriInfo );
-        return Response.status( 206 ).entity(
-            invalidCsv ).build();
+        // String invalidCsv;
+        // invalidCsv = String.format( "Invalid CSV for %s \n\nError message: %s", e.toString(), errorMessage, uriInfo );
+        return Response.status( 406 ).entity( errorMessage ).build();
     }
 }
