@@ -54,11 +54,14 @@ public class TeamEmployeeUploader implements Uploader {
 	@Override
 	public Response upload(String rawData, UriInfo uriInfo) {
 		Map<String, List<String>> rows = UploaderUtils.populateList(rawData);
-		
 		List<TeamEmployee> validatedEmployee = new ArrayList<TeamEmployee>();
 		String currentEmployeeID = null;
-		
+
 		try {
+			if (rows.isEmpty()) {
+				throw new InvalidCSVException(null, "CSV contents should not be empty.");
+			}
+
 			for (List<String> row : rows.values()) {
 				TeamEmployee validateEmployee = new TeamEmployee();
 				validateEmployee = validateTeamEmployee(uriInfo, row);
@@ -120,14 +123,16 @@ public class TeamEmployeeUploader implements Uploader {
 	 *             when row value is not valid
 	 */
 	private void checkRowIntegrity(List<String> row, TeamEmployee teamEmployee) throws InvalidCSVException {
-		Pattern p = Pattern.compile("[^0-9]");
-		boolean isEmployeeIDValid = p.matcher(row.get(0)).matches();
-		boolean isTeamIDValid = p.matcher(row.get(1)).matches();
-		if (row.isEmpty() || row.size() != 2 || row.get(0).isEmpty() || row.get(1).isEmpty()) {
-			throw new InvalidCSVException(null, "CSV contents should not be empty.");
-		} else if (isEmployeeIDValid) {
-			throw new InvalidCSVException(null, "Employee ID must be a number.");
-		} else if (isTeamIDValid) {
+		if (row.get(0).isEmpty()) {
+			throw new InvalidCSVException(null, "Employee ID must be exist.");
+		}
+
+		if (row.size() < 2) {
+			throw new InvalidCSVException(null, "Team ID must not be empty");
+		}
+		Pattern teamIDPattern = Pattern.compile("\\d");
+		boolean isTeamIDValid = teamIDPattern.matcher(row.get(1)).matches();
+		if (!isTeamIDValid) {
 			throw new InvalidCSVException(null, "Team ID must be a number.");
 		}
 	}

@@ -19,10 +19,6 @@ public class ConnectionPool {
 
 	Logger logger = Logger.getLogger(ConnectionPool.class);
 
-	private String dbUrl = "jdbc:mysql://localhost:3306/opum";
-	private String userName = "root";
-	private String password = "root";
-
 	private static ConnectionPool connectionPool;
 
 	private ConnectionPool() {}
