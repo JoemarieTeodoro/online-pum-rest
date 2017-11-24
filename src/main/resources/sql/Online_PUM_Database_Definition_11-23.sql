@@ -76,10 +76,10 @@ CREATE TABLE `employee` (
 -- Dumping data for table `employee`
 --
 INSERT INTO `employee` VALUES 
-    ('123456PH1','admin@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,'Admin','47b82bd4ffff817f1ce3ffffa55bffffd52bffffb44cffffbc446c9348b77e81fffffa06ffff986848b71de237c8',0,'2017-08-08','2020-01-30','2017-08-08 14:19:52','ADMINISTRATOR','2017-08-08 19:27:13','ADMINISTRATOR'),
-    ('121212PH1','magdanc@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,'Claude Magdangal',NULL,0,'2017-08-08','2020-01-30','2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 08:42:23',NULL),
-    ('131313PH1','aumana@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,'Aldaina Auman','1fe02bd4ffffb947619effffac5458a7075aa5ffff966a4ab50714eb2cd322dd4ab56f90',0,'2017-08-08','2020-01-30','2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 13:36:15','ADMINISTRATOR'),
-    ('141414PH1', 'admin', '123456PH1', NULL,NULL,NULL,NULL,'admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-08-08','2020-01-30','2017-10-25 03:23:16','ADMINISTRATOR','2017-10-25 03:23:16','ADMINISTRATOR');
+    ('123456PH1','admin', '123456PH1', NULL,NULL,NULL,NULL,'Admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-08-08','2020-01-30','2017-08-08 14:19:52','ADMINISTRATOR','2017-08-08 19:27:13','ADMINISTRATOR');
+   -- ('121212PH1','magdanc@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,'Claude Magdangal',NULL,0,'2017-08-08','2020-01-30','2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 08:42:23',NULL),
+ --   ('131313PH1','aumana@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,'Aldaina Auman','1fe02bd4ffffb947619effffac5458a7075aa5ffff966a4ab50714eb2cd322dd4ab56f90',0,'2017-08-08','2020-01-30','2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 13:36:15','ADMINISTRATOR'),
+  --  ('141414PH1', 'admin', '123456PH1', NULL,NULL,NULL,NULL,'admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-08-08','2020-01-30','2017-10-25 03:23:16','ADMINISTRATOR','2017-10-25 03:23:16','ADMINISTRATOR');
   --  ('151515PH1','onlinepumsender@gmail.com', '123456PH1', NULL,NULL,NULL,NULL,'opum','ffff9b650366992dd24fb03ac543bc4eb1ffffbe42ffffbf4139c6fffff30dffffb8484fb0ffffb64affffa45c',0,'2017-08-08','2020-01-30','2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN'),
  --   ('161616PH1', 'onlinepumrecipient@gmail.com', '123456PH1', NULL,NULL,NULL,NULL,'opum','42bd39c6ffffae52ffff8c74ffffee12ffffd9270016e916e97887ffffa95752adffff847c40bf30cf42bd',0,'2017-08-08','2020-01-30','2017-08-08 14:19:52','ADMIN','2017-08-08 19:27:13','ADMIN');
 -- usr/pw as admin/admin credentials
@@ -112,11 +112,7 @@ CREATE TABLE `employee_role` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `employee_role` VALUES 
-    ('123456PH1', 1),
-    ('141414PH1', 2),
-    ('121212PH1', 4),
-    ('121212PH1', 5),
-    ('131313PH1', 5);
+    ('123456PH1', 1);
 
 --
 -- Table structure for mapping table `employee_team`
@@ -130,11 +126,7 @@ CREATE TABLE `employee_team` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `employee_team` VALUES 
-    ('123456PH1', 1),
-    ('141414PH1', 2),
-    ('121212PH1', 4),
-    ('121212PH1', 5),
-    ('131313PH1', 5);
+    ('123456PH1', 1);
 
 --
 -- Table structure for mapping table `employee_project`
@@ -148,11 +140,7 @@ CREATE TABLE `employee_project` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `employee_project` VALUES 
-    ('123456PH1', 1),
-    ('141414PH1', 2),
-    ('121212PH1', 4),
-    ('121212PH1', 5),
-    ('131313PH1', 5);
+    ('123456PH1', 1);
 
 --
 -- Table structure for table `team`
@@ -175,11 +163,7 @@ CREATE TABLE `team` (
 -- Dumping data for `team`
 --
 INSERT INTO `team` VALUES 
-    (1, 1, '123456PH1', 'Team A', 'Y', '2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 14:05:57','ADMINISTRATOR'),
-    (2, 1, '131313PH1', 'Team B', 'N', '2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 14:05:57','ADMINISTRATOR'),
-    (3, 1, '131313PH1', 'Team C', 'Y', '2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 14:05:57','ADMINISTRATOR'),
-    (4, 1, '1ASDASPH1', 'Team D', 'N','2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 14:05:57','ADMINISTRATOR'),
-    (5, 1, '121212PH1', 'Team E', 'N','2017-08-16 13:36:15','ADMINISTRATOR','2017-08-16 14:04:54','ADMINISTRATOR');
+    (1, 1, '123456PH1', 'Team A', 'Y', '2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 14:05:57','ADMINISTRATOR');
     
 --
 -- Table structure for table `holiday`
@@ -242,8 +226,7 @@ CREATE TABLE `project_engagement` (
 -- Dumping data for table `project_engagement`
 --
 INSERT INTO `project_engagement` VALUES 
-    (12,1,'123456PH1','2017-08-01','2018-09-27','2017-08-16 08:42:23','ADMIN','2017-08-16 14:05:57','ADMIN'),
-    (14,1,'121212PH1','2017-08-16','2017-08-31','2017-08-16 13:36:15','ADMIN','2017-08-16 14:04:54','ADMIN');
+    (12,1,'123456PH1','2017-08-01','2018-09-27','2017-08-16 08:42:23','ADMIN','2017-08-16 14:05:57','ADMIN');
 
 --
 -- Table structure for table `quarter`

@@ -1,16 +1,20 @@
 package com.ph.ibm.upload.upload.impl;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.Message.RecipientType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
 
+import com.ph.ibm.bo.ResetPasswordBO;
+import com.ph.ibm.model.Email;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.InvalidCSVException;
@@ -55,6 +59,7 @@ public class EmployeeListUploader implements Uploader {
         }
         List<Employee> validatedEmployee = new ArrayList<Employee>();
         String currentEmployeeID = null;
+        List<String> recipientList = new ArrayList<String>();
 
         try{
             for( List<String> row : rows.values() ){
@@ -62,6 +67,7 @@ public class EmployeeListUploader implements Uploader {
                 validateEmployee = validateEmployee( row );
                 currentEmployeeID = validateEmployee.getEmployeeId();
                 validatedEmployee.add( validateEmployee );
+                recipientList.add( validateEmployee.getIntranetId() );
             }
 
             employeeRepository.saveOrUpdate( validatedEmployee, Role.ADMIN );
@@ -80,9 +86,28 @@ public class EmployeeListUploader implements Uploader {
         }
 
         logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
+        sendEmailsToListOfRecepientsToChangePasswords( recipientList );
+
         return Response.status( Status.OK ).entity( "CSV Uploaded Successfully!" ).build();
     }
 
+    /**
+     * Method to email list of addresses from the list uploaded by sys_admin/admin
+     * 
+     * @param lstRecipients list of recipients
+     * @throws IOException exception
+     */
+    public void sendEmailsToListOfRecepientsToChangePasswords( List<String> lstRecipients ) throws IOException {
+        ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
+        Email email = new Email();
+        email.setRecipientAddresses( lstRecipients );
+        email.setSenderAddress( "onlinepumsender@gmail.com" );
+        email.setRecipientType( RecipientType.TO.toString() );
+        email.setSubject( OpumConstants.EMAIL_SUBJECT );
+        email.setText( OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s" );
+        resetPasswordBO.emailResetPasswordLink( email );
+    }
+    
     /**
      * Validates the uploaded list of Users/Employees
      * 
