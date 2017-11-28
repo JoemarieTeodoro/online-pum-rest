@@ -13,8 +13,6 @@ import java.util.List;
 import com.ph.ibm.model.PUMMonth;
 import com.ph.ibm.model.PUMQuarter;
 import com.ph.ibm.model.PUMYear;
-import com.ph.ibm.model.Project;
-import com.ph.ibm.model.Quarter;
 import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
@@ -24,7 +22,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
 	@Override
-	public boolean saveYear(PUMYear pumYear) throws SQLException, ParseException {
+	public void saveYear(PUMYear pumYear) throws SQLException, ParseException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 
@@ -42,15 +40,13 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 			connection.commit();
 
 			System.out.println(OpumConstants.UPDATED_SUCCESS);
-
-			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 
-		} finally {
+		}
+		finally {
 			connectionPool.closeConnection(connection, preparedStatement);
 		}
-		return false;
 	}
 
 	@Override 

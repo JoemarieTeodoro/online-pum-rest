@@ -19,7 +19,7 @@ public interface PUMYearRepository {
 	 * @throws SQLException
 	 * @throws ParseException
 	 */
-	public boolean saveYear(PUMYear pumYear) throws SQLException, ParseException;
+	public void saveYear(PUMYear pumYear) throws SQLException, ParseException;
 
 	/**
 	 * 

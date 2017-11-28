@@ -518,7 +518,8 @@ public class OnlinePUMResource {
     @POST
     @Path( "/savePUMYearDate" )
     @Consumes( MediaType.APPLICATION_JSON )
-    public String saveYear( PUMYear pumYear, @Context HttpHeaders header ) throws Exception {
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response saveYear(PUMYear pumYear) throws Exception {
         /*
          * MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
          * String email = headerParams.getFirst("username"); String password =
@@ -527,17 +528,17 @@ public class OnlinePUMResource {
          * Response.Status.UNAUTHORIZED.toString(); }
          */
         logger.info( "START saveYear" );
-        String message = null;
+		Response response = null;
         try{
             projectBO = new ProjectBO();
-            message = projectBO.saveYear( pumYear );
+			response = projectBO.saveYear(pumYear);
         }
         catch( Exception e ){
             logger.error( e );
-            throw new OpumException( e.getMessage(), e );
+			response = Response.status(Status.NOT_ACCEPTABLE).entity("Error in Saving!").build();
         }
         logger.info( "END saveYear" );
-        return message;
+		return response;
     }
 
     /**

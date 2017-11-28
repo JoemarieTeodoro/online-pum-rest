@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
@@ -100,17 +101,25 @@ public class ProjectBO {
      * @throws SQLException
      * @throws ParseException
      */
-    public String saveYear( PUMYear pumYear ) throws SQLException, ParseException {
-        if( isValueEmpty( pumYear.getStart() ) ){
-            return OpumConstants.YEAR_START_NOTFOUND;
-        }
-        if( isValueEmpty( pumYear.getEnd() ) ){
-            return OpumConstants.ERROR_END_DATE;
+	public Response saveYear(PUMYear pumYear) {
+		Response response = null;
+		if (isValueEmpty(pumYear.getStart()) || isValueEmpty(pumYear.getEnd())) {
+			return response = Response.status(Status.NOT_ACCEPTABLE).entity("Please fill all fields").build();
         }
 
-        logger.info( "saveYear" );
-        return pumYearRepository.saveYear( pumYear ) ? OpumConstants.SUCCESSFULLY_SAVED
-                        : OpumConstants.ERROR_WHEN_SAVING;
+		logger.info("Saving year...");
+		try {
+			pumYearRepository.saveYear(pumYear);
+			response = Response.status(Status.OK).entity("PUM fiscal year updated!").build();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			response = Response.status(Status.OK).entity("ERROR: Unable to update Fiscal Year").build();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			response = Response.status(Status.OK).entity("Invalid Input: Please fill fields correctly").build();
+		}
+
+		return response;
     }
 
     /**

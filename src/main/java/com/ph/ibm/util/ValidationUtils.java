@@ -42,7 +42,7 @@ public class ValidationUtils
     }
 
     public static boolean isValueEmpty( String value ) {
-        return ( value == null || value.isEmpty() || value.equals( "\n" ) );
+        return ( value == null || value.isEmpty() || value.equals( "\n" ) || value.equals("undefined--undefined"));
     }
     
     public static boolean isValidDate(Object object, String rollDate) throws InvalidCSVException {
