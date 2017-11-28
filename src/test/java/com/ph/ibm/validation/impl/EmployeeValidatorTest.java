@@ -19,221 +19,244 @@ import com.ph.ibm.repository.EmployeeRepository;
  *
  * @author Melvin Rabang
  * @author Jason Tan
- *
  */
 public class EmployeeValidatorTest {
 
-	public EmployeeValidator validator;
+    public EmployeeValidator validator;
 
-	Employee validEmployee;
+    Employee validEmployee;
 
-	Employee invalidEmployee;
+    Employee invalidEmployee;
 
-	private static EmployeeRepository employeeRepository;
+    private static EmployeeRepository employeeRepository;
 
-	@Before
-	public void setup(){
-		employeeRepository = Mockito.spy(EmployeeRepository.class);
-		validator = Mockito.spy( new EmployeeValidator( employeeRepository ) );
-		validEmployee = createValidEmployee();
-		invalidEmployee = createInvalidEmployee();
-	}
+    @Before
+    public void setup() {
+        employeeRepository = Mockito.spy( EmployeeRepository.class );
+        validator = Mockito.spy( new EmployeeValidator( employeeRepository ) );
+        validEmployee = createValidEmployee();
+        invalidEmployee = createInvalidEmployee();
+    }
 
-	@Test
-	public void testValidateWhenEmployeeIsNotExisting() throws SQLException, InvalidCSVException, InvalidCSVException{
-		Employee employee = createValidEmployee();
+    @Test
+    public void testValidateWhenEmployeeEmailIsNotExisting()
+        throws SQLException, InvalidCSVException, InvalidCSVException {
+        Employee employee = createValidEmployee();
 
-		Mockito.doReturn(false).when(validator).isEmployeeExisting(employee);
+        Mockito.doReturn( false ).when( validator ).isEmployeeEmailExisting( employee );
 
-		assertTrue( validator.validate(employee) );
-	}
+        assertTrue( validator.validate( employee ) );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testValidateWhenInvalidDateRangeIsPresent() throws SQLException, InvalidCSVException, InvalidCSVException{
-		Employee employee = new Employee();
-		employee.setEmployeeSerial("P100Y2");
-		employee.setFullName( "Jason Tan" );
-		employee.setIntranetId( "tanjs@ph.ibm.com" );
-		employee.setRollInDate( "9/18/2017" );
-		employee.setRollOffDate( "02/31/2017" );
+    @Test
+    public void testValidateWhenEmployeeIdIsNotExisting()
+        throws SQLException, InvalidCSVException, InvalidCSVException {
+        Employee employee = createValidEmployee();
 
-		Mockito.doReturn(false).when(validator).isEmployeeExisting(employee);
+        Mockito.doReturn( false ).when( validator ).isEmployeeIdExisting( employee );
 
-		validator.validate(employee);
-	}
+        assertTrue( validator.validate( employee ) );
+    }
 
-	@Test
-	public void testValidIsEmployeeValueEmpty() throws InvalidCSVException, InvalidCSVException {
-		Employee employee = createValidEmployee();
+    @Test( expected = InvalidCSVException.class )
+    public void testValidateWhenInvalidDateRangeIsPresent()
+        throws SQLException, InvalidCSVException, InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setEmployeeSerial( "P100Y2" );
+        employee.setFullName( "Jason Tan" );
+        employee.setIntranetId( "tanjs@ph.ibm.com" );
+        employee.setRollInDate( "9/18/2017" );
+        employee.setRollOffDate( "02/31/2017" );
 
-		assertFalse( validator.isEmployeeValueEmpty(employee) );
-	}
+        Mockito.doReturn( false ).when( validator ).isEmployeeEmailExisting( employee );
 
-	@Test(expected = InvalidCSVException.class)
-	public void testOneFieldEmptyIsEmployeeValueEmpty() throws InvalidCSVException, InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setEmployeeSerial("P100Y2");
-		employee.setFullName( "Jason Tan" );
-		employee.setIntranetId( "" );
-		employee.setRollInDate( "9/18/2017" );
-		employee.setRollOffDate( "12/31/2017" );
+        validator.validate( employee );
+    }
+    
+    @Test
+    public void testValidIsEmployeeValueEmpty() throws InvalidCSVException, InvalidCSVException {
+        Employee employee = createValidEmployee();
 
-		validator.isEmployeeValueEmpty(employee);
-	}
+        assertFalse( validator.isEmployeeValueEmpty( employee ) );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testEmptyIsEmployeeValueEmpty() throws InvalidCSVException, InvalidCSVException {
-		Employee employee = new Employee();
-		validator.isEmployeeValueEmpty(employee);
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testOneFieldEmptyIsEmployeeValueEmpty() throws InvalidCSVException, InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setEmployeeSerial( "P100Y2" );
+        employee.setFullName( "Jason Tan" );
+        employee.setIntranetId( "" );
+        employee.setRollInDate( "9/18/2017" );
+        employee.setRollOffDate( "12/31/2017" );
 
-	@Test
-	public void testValidIsValidEmailAddress() throws InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setIntranetId( "tanjs@ph.ibm.com" );
-		assertTrue( validator.isValidEmailAddress( employee ));
-	}
+        validator.isEmployeeValueEmpty( employee );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testSpecialCharacterIsValidEmailAddress() throws InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setIntranetId( "t@a||njs@ph.ibm.com" );
-		assertTrue(validator.isValidEmailAddress(employee));
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testEmptyIsEmployeeValueEmpty() throws InvalidCSVException, InvalidCSVException {
+        Employee employee = new Employee();
+        validator.isEmployeeValueEmpty( employee );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testSpecialCharacterIsValidEmailAddress2() throws InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setIntranetId( "tanjs@@ph.ibm.com" );
-		validator.isValidEmailAddress(employee);
-	}
+    @Test
+    public void testValidIsValidEmailAddress() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setIntranetId( "tanjs@ph.ibm.com" );
+        assertTrue( validator.isValidEmailAddress( employee ) );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testSpecialCharacterIsValidEmailAddress3() throws InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setIntranetId( "tanjs@ph.bim.mom" );
-		validator.isValidEmailAddress(employee);
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testSpecialCharacterIsValidEmailAddress() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setIntranetId( "t@a||njs@ph.ibm.com" );
+        assertTrue( validator.isValidEmailAddress( employee ) );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testSpecialCharacterIsValidEmailAddress4() throws InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setIntranetId( "tanjs@ph.ibm.com.com" );
-		validator.isValidEmailAddress(employee);
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testSpecialCharacterIsValidEmailAddress2() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setIntranetId( "tanjs@@ph.ibm.com" );
+        validator.isValidEmailAddress( employee );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testInvalidIsValidEmailAddress() throws InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setIntranetId( "ibm@ph.usaa.com" );
-		validator.isValidEmailAddress(employee);
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testSpecialCharacterIsValidEmailAddress3() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setIntranetId( "tanjs@ph.bim.mom" );
+        validator.isValidEmailAddress( employee );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testEmptyIsValidEmailAddress() throws InvalidCSVException {
-		Employee employee = new Employee();
-		employee.setIntranetId( "" );
-		validator.isValidEmailAddress(employee);
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testSpecialCharacterIsValidEmailAddress4() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setIntranetId( "tanjs@ph.ibm.com.com" );
+        validator.isValidEmailAddress( employee );
+    }
 
-	@Test
-	public void testValidIsValidEmployeeId() throws InvalidCSVException
-	{
-		Employee employee = new Employee();
-		employee.setEmployeeSerial( "P100Y2" );
-		assertTrue( validator.isValidEmployeeSerial(employee) );
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testInvalidIsValidEmailAddress() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setIntranetId( "ibm@ph.usaa.com" );
+        validator.isValidEmailAddress( employee );
+    }
 
-	@Test
-	public void testRandom6LetterValidIsValidEmployeeId() throws InvalidCSVException
-	{
-		Employee employee = new Employee();
-		employee.setEmployeeSerial( "RaBangBangBang" );
-		assertTrue( validator.isValidEmployeeSerial(employee));
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testEmptyIsValidEmailAddress() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setIntranetId( "" );
+        validator.isValidEmailAddress( employee );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testInvalidIsValidEmployeeId() throws InvalidCSVException
-	{
-		Employee employee = new Employee();
-		employee.setEmployeeSerial( "P100Y" );
-		validator.isValidEmployeeSerial(employee);
-	}
+    @Test
+    public void testValidIsValidEmployeeId() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setEmployeeSerial( "P100Y2" );
+        assertTrue( validator.isValidEmployeeSerial( employee ) );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testRandom6LetterWithSpecialCharacterInvalidIsValidEmployeeId() throws InvalidCSVException
-	{
-		Employee employee = new Employee();
-		employee.setEmployeeSerial( "M@l3No+" );
-		validator.isValidEmployeeSerial(employee);
-	}
+    @Test
+    public void testRandom6LetterValidIsValidEmployeeId() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setEmployeeSerial( "RaBangBangBang" );
+        assertTrue( validator.isValidEmployeeSerial( employee ) );
+    }
 
-	@Test
-	public void testIsValidEmployeeName() throws InvalidCSVException {
-		assertTrue(validator.isValidEmployeeName(validEmployee));
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testInvalidIsValidEmployeeId() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setEmployeeSerial( "P100Y" );
+        validator.isValidEmployeeSerial( employee );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testIsValidEmployeeNameException() throws InvalidCSVException {
-		validator.isValidEmployeeName(invalidEmployee);
-	}
+    @Test( expected = InvalidCSVException.class )
+    public void testRandom6LetterWithSpecialCharacterInvalidIsValidEmployeeId() throws InvalidCSVException {
+        Employee employee = new Employee();
+        employee.setEmployeeSerial( "M@l3No+" );
+        validator.isValidEmployeeSerial( employee );
+    }
 
-	@Test
-	public void testIsEmployeeExisting() throws SQLException, InvalidCSVException {
-		Employee nonExistingEmployee = createNonExistingEmployee();
-		Mockito.doReturn(false).when(employeeRepository).doesEmployeeExist(nonExistingEmployee.getEmployeeSerial(),
-				nonExistingEmployee.getIntranetId());
-		assertFalse(validator.isEmployeeExisting(nonExistingEmployee));
-	}
+    @Test
+    public void testIsValidEmployeeName() throws InvalidCSVException {
+        assertTrue( validator.isValidEmployeeName( validEmployee ) );
+    }
 
-	@Test(expected = InvalidCSVException.class)
-	public void testIsEmployeeExistingCSVException() throws SQLException, InvalidCSVException {
-		Employee nonExistingEmployee = createNonExistingEmployee();
+    @Test( expected = InvalidCSVException.class )
+    public void testIsValidEmployeeNameException() throws InvalidCSVException {
+        validator.isValidEmployeeName( invalidEmployee );
+    }
 
-		Mockito.doReturn(true).when(employeeRepository).doesEmployeeExist(nonExistingEmployee.getEmployeeSerial(),
-				nonExistingEmployee.getIntranetId());
+    @Test
+    public void testIsEmployeeExisting() throws SQLException, InvalidCSVException {
+        Employee nonExistingEmployee = createNonExistingEmployee();
+        Mockito.doReturn( false ).when( employeeRepository ).doesEmployeeIdExist(
+            nonExistingEmployee.getEmployeeSerial() );
+        assertFalse( validator.isEmployeeIdExisting( nonExistingEmployee ) );
+    }
 
-		validator.isEmployeeExisting(nonExistingEmployee);
-	}
+    @Test
+    public void testIsEmployeeEmailExisting() throws SQLException, InvalidCSVException {
+        Employee nonExistingEmployee = createNonExistingEmployee();
+        Mockito.doReturn( false ).when( employeeRepository ).doesEmployeeIdExist(
+            nonExistingEmployee.getEmployeeSerial() );
+        assertFalse( validator.isEmployeeEmailExisting( nonExistingEmployee ) );
+    }
 
-	private Employee createNonExistingEmployee() {
-		Employee nonExistingEmployee = new Employee();
+    @Test( expected = InvalidCSVException.class )
+    public void testIsEmployeeExistingCSVException() throws SQLException, InvalidCSVException {
+        Employee nonExistingEmployee = createNonExistingEmployee();
 
-		validEmployee.setEmployeeSerial("P100XX");
-		validEmployee.setFullName("Juan DelaCruz");
-		validEmployee.setIntranetId("delacruzj@ph.ibm.com");
-		validEmployee.setRollInDate("9/20/2017");
-		validEmployee.setRollOffDate("12/31/2017");
+        Mockito.doReturn( true ).when( employeeRepository ).doesEmailExist( nonExistingEmployee.getIntranetId() );
 
-		return nonExistingEmployee;
-	}
+        validator.isEmployeeEmailExisting( nonExistingEmployee );
+    }
+    
+    @Test( expected = InvalidCSVException.class )
+    public void testIsEmployeeIdCSVException() throws SQLException, InvalidCSVException {
+        Employee nonExistingEmployee = createNonExistingEmployee();
 
-	private Employee createValidEmployee() {
-		Employee validEmployee = new Employee();
+        Mockito.doReturn( true ).when( employeeRepository ).doesEmployeeIdExist( nonExistingEmployee.getEmployeeId() );
 
-		validEmployee.setEmployeeSerial("P100XJ");
-		validEmployee.setFullName("Melvin Rabang");
-		validEmployee.setIntranetId("rabangm@ph.ibm.com");
-		validEmployee.setRollInDate("9/20/2017");
-		validEmployee.setRollOffDate("12/31/2017");
+        validator.isEmployeeIdExisting( nonExistingEmployee );
+    }
 
-		return validEmployee;
-	}
+    private Employee createNonExistingEmployee() {
+        Employee nonExistingEmployee = new Employee();
 
-	private Employee createInvalidEmployee() {
-		Employee validEmployee = new Employee();
+        validEmployee.setEmployeeSerial( "P100XX" );
+        validEmployee.setFullName( "Juan DelaCruz" );
+        validEmployee.setIntranetId( "delacruzj@ph.ibm.com" );
+        validEmployee.setRollInDate( "9/20/2017" );
+        validEmployee.setRollOffDate( "12/31/2017" );
 
-		validEmployee.setEmployeeSerial("invalid&*)^123");
-		validEmployee.setFullName("invalid&*)^123");
-		validEmployee.setIntranetId("invalid&*)^123");
-		validEmployee.setRollInDate("invalid&*)^123");
-		validEmployee.setRollOffDate("invalid&*)^123");
+        return nonExistingEmployee;
+    }
 
-		return validEmployee;
-	}
+    private Employee createValidEmployee() {
+        Employee validEmployee = new Employee();
 
-	@After
-	public void teardown() {
-		validator = null;
-	}
+        validEmployee.setEmployeeSerial( "P100XJ" );
+        validEmployee.setFullName( "Melvin Rabang" );
+        validEmployee.setIntranetId( "rabangm@ph.ibm.com" );
+        validEmployee.setRollInDate( "9/20/2017" );
+        validEmployee.setRollOffDate( "12/31/2017" );
+
+        return validEmployee;
+    }
+
+    private Employee createInvalidEmployee() {
+        Employee validEmployee = new Employee();
+
+        validEmployee.setEmployeeSerial( "invalid&*)^123" );
+        validEmployee.setFullName( "invalid&*)^123" );
+        validEmployee.setIntranetId( "invalid&*)^123" );
+        validEmployee.setRollInDate( "invalid&*)^123" );
+        validEmployee.setRollOffDate( "invalid&*)^123" );
+
+        return validEmployee;
+    }
+
+    @After
+    public void teardown() {
+        validator = null;
+    }
 }

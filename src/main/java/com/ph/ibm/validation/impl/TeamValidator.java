@@ -38,8 +38,10 @@ public class TeamValidator implements Validator<Team> {
      */
     @Override
     public boolean validate( Team team ) throws Exception {
-        boolean isValid = !isTeamValueEmpty( team ) && isValidLeadSerial( team ) && isValidRecoverable( team ) &&
-            !isTeamExisting( team );
+        boolean isValid = !isTeamValueEmpty( team )
+                        && isValidLeadSerial( team )
+                        && isValidRecoverable( team )
+                        && !isTeamExisting( team );
 
         return isValid;
     }

@@ -24,8 +24,9 @@ public class EmployeeRoleValidator implements Validator<EmployeeRole> {
 
 	@Override
 	public boolean validate(EmployeeRole employeeRole) throws InvalidCSVException {
-		boolean isValid = !isEmployeeRoleValueEmpty( employeeRole ) && isValidEmployeeRoleSerialName( employeeRole ) &&
-				isValidEmployeeRoleIdString( employeeRole );
+		boolean isValid = !isEmployeeRoleValueEmpty( employeeRole )
+		                && isValidEmployeeRoleSerialName( employeeRole )
+		                && isValidEmployeeRoleIdString( employeeRole );
 		return isValid;
 	}
 

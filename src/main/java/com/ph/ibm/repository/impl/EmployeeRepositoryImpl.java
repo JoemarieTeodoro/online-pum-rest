@@ -64,7 +64,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.close();
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
         }
         finally{
             try{
@@ -101,7 +101,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             return true;
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
         }
         finally{
             connectionPool.closeConnection( connection, preparedStatement );
@@ -127,7 +127,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.close();
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
         }
         finally{
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
@@ -157,7 +157,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             }
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
         }
         finally{
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
@@ -185,7 +185,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             }
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
         }
         finally{
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
@@ -217,7 +217,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             return employee;
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
             return null;
         }
         finally{
@@ -226,25 +226,42 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     @Override
-    public boolean doesEmployeeExist( String employeeIdNumber, String email ) throws SQLException {
+    public boolean doesEmployeeIdExist( String employeeIdNumber ) throws SQLException {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try{
-            String query = "SELECT EMPLOYEE_ID FROM EMPLOYEE WHERE EMPLOYEE_ID = ? AND EMAIL = ?";
+            String query = "SELECT EMPLOYEE_ID FROM EMPLOYEE WHERE EMPLOYEE_ID = ?";
             preparedStatement = connection.prepareStatement( query );
             preparedStatement.setString( 1, employeeIdNumber );
-            preparedStatement.setString( 2, email );
             resultSet = preparedStatement.executeQuery();
-            if( resultSet.next() ){
-                return true;
-            }
-            else{
-                return false;
-            }
+            return resultSet.next();
+
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
+            return false;
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+    }
+
+    @Override
+    public boolean doesEmailExist( String email ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try{
+            String query = "SELECT EMAIL FROM EMPLOYEE WHERE EMAIL = ?";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, email );
+            resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
+            
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
             return false;
         }
         finally{
@@ -283,7 +300,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             return employee;
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
             return null;
         }
         finally{
@@ -318,7 +335,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             return true;
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
         }
         finally{
             connectionPool.closeConnection( connection, preparedStatement );
@@ -386,7 +403,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
             return null;
         }
         finally{
@@ -412,7 +429,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             return true;
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
         }
         finally{
             connectionPool.closeConnection( connection, preparedStatement );
@@ -444,7 +461,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             connection.commit();
         }
         catch( SQLException e ){
-            e.printStackTrace();
+            logger.error( e.getStackTrace() );
             return null;
         }
         finally{

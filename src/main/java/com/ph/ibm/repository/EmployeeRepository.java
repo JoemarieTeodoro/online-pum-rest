@@ -66,14 +66,22 @@ public interface EmployeeRepository {
     public String viewEmployee( String employeeIdNumber ) throws SQLException;
 
     /**
-     * This method is used to select field from employee table
+     * This method is used to check employee Id from employee table
      * 
-     * @param companyIDNumber
-     * @param email
-     * @return boolean
-     * @throws SQLException
+     * @param employeeIdNumber employee id number
+     * @return
+     * @throws SQLException sqlException
      */
-    public boolean doesEmployeeExist( String employeeIdNumber, String email ) throws SQLException;
+    public boolean doesEmployeeIdExist( String employeeIdNumber ) throws SQLException;
+
+    /**
+     * This method is used to email from from employee table
+     * 
+     * @param email employee email
+     * @return
+     * @throws SQLException sqlException
+     */
+    public boolean doesEmailExist( String email ) throws SQLException;
 
     /**
      * This method is used to select fields from employee table
