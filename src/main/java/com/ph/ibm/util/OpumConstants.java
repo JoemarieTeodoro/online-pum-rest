@@ -67,4 +67,9 @@ public class OpumConstants {
 	public static final String EMAIL_CLOSING = "Thank you,";
 	public static final String EMAIL_SIGNATURE = "Online PUM Support";
 
+    public static final String SYS_ADMIN ="system administrator";
+    public static final String ADMIN_FULL_FORM = "administrator";
+    public static final String USER = "user";
+    public static final String PEM = "people manager";
+    public static final String TEAM_LEAD = "team lead";
 }

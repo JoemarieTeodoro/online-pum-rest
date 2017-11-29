@@ -78,20 +78,21 @@ public class EmployeeRoleUploader implements Uploader {
 
     private Role changeRoleStringToEnum(String employeeRoleString) {
     	Role roleValue = null;
-    	switch (employeeRoleString) {
-            case "SYSTEM ADMINISTRATOR":
+    	String employeeRoleStringInLowerCase = employeeRoleString.toLowerCase();
+    	switch (employeeRoleStringInLowerCase) {
+            case OpumConstants.SYS_ADMIN:
     			roleValue = Role.SYS_ADMIN;
     			break;
-            case "ADMINISTRATOR":
+            case OpumConstants.ADMIN_FULL_FORM:
     			roleValue = Role.ADMIN;
     			break;
-            case "USER":
+            case OpumConstants.USER:
     			roleValue = Role.USER;
     			break;
-            case "PEOPLE MANAGER":
+            case OpumConstants.PEM:
     			roleValue = Role.PEM;
     			break;
-            case "TEAM LEAD":
+            case OpumConstants.TEAM_LEAD:
     			roleValue = Role.TEAM_LEAD;
     			break;
     	}

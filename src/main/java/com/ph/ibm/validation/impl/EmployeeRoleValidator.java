@@ -52,7 +52,7 @@ public class EmployeeRoleValidator implements Validator<EmployeeRole> {
 	protected boolean isValidEmployeeRoleIdString(EmployeeRole employeeRole) throws InvalidCSVException {
 		boolean isValidEmployeeRoleIdString = false;
 		for ( Role employeeRoleEnum: Role.values() ) {
-			if ( employeeRoleEnum.getRoleValue().equals( employeeRole.getEmployeeRoleString() ) ) {
+			if ( employeeRoleEnum.getRoleValue().equalsIgnoreCase( employeeRole.getEmployeeRoleString() ) ) {
 				isValidEmployeeRoleIdString = true;
 			}
 		}
