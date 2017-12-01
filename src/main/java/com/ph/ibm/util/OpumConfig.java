@@ -15,7 +15,7 @@ public class OpumConfig {
 	private OpumConfig() {
 	}
 
-	public static void initProperties() {
+	static {
 		if (props == null) {
 			props = new Properties();
 			ClassLoader classLoader = OpumConfig.class.getClassLoader();

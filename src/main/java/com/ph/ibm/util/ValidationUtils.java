@@ -5,10 +5,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import org.apache.log4j.Logger;
 
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.opum.exception.InvalidCSVException;
+import com.ph.ibm.opum.exception.OpumException;
 
 public class ValidationUtils 
 {
@@ -83,4 +86,38 @@ public class ValidationUtils
 	
 			return true;
 		}
+
+	public static void checkIfStartAndEndDateValid(PUMYear pumYear) throws OpumException {
+		LocalDate fromDate = null;
+		LocalDate toDate = null;
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+			fromDate = LocalDate.parse(pumYear.getStart(), formatter);
+			toDate = LocalDate.parse(pumYear.getEnd(), formatter);
+			if (fromDate.isAfter(toDate)) {
+				logger.error(fromDate + " is greater than " + toDate);
+				throw new OpumException("Error: " + OpumConstants.INVALID_DATE_RANGE);
+			}
+		} catch (DateTimeParseException e) {
+			logger.error(e);
+			throw new OpumException("Unable to parse Date!");
+		}
+	}
+
+	public static void checkIfValidFiscalYear(PUMYear pumYear) throws OpumException {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+		LocalDate toDate = LocalDate.parse(pumYear.getEnd(), formatter);
+		try {
+			if (toDate.getYear() != pumYear.getPumYear()) {
+				String errorMessage = "Fiscal year " + pumYear.getPumYear() + " mismatch to end date "
+						+ toDate.getYear();
+				logger.error(errorMessage);
+				throw new OpumException(errorMessage);
+			}
+		} catch (DateTimeParseException e) {
+			logger.error(e);
+			throw new OpumException("Unable to parse Date!");
+		}
+	}
+
 }

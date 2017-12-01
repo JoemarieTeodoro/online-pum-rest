@@ -48,7 +48,6 @@ import com.ph.ibm.upload.upload.impl.PEMListUploader;
 import com.ph.ibm.upload.upload.impl.TeamEmployeeUploader;
 import com.ph.ibm.upload.upload.impl.TeamListUploader;
 import com.ph.ibm.util.Authenticate;
-import com.ph.ibm.util.OpumConfig;
 import com.ph.ibm.util.OpumConstants;
 
 /**
@@ -345,7 +344,6 @@ public class OnlinePUMResource {
         Employee employee = null;
         try{
             employeeBO = new EmployeeBO();
-			OpumConfig.initProperties();
             employee = employeeBO.loginEmployee( username, password );
             logger.info( "END loginEmployee" );
             return Response.status( 201 ).entity( employee ).build();
@@ -533,7 +531,10 @@ public class OnlinePUMResource {
             projectBO = new ProjectBO();
 			response = projectBO.saveYear(pumYear);
         }
-        catch( Exception e ){
+		catch (OpumException e) {
+			logger.error(e.getMessage());
+			response = Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+		} catch( Exception e ){
             logger.error( e );
 			response = Response.status(Status.NOT_ACCEPTABLE).entity("Error in Saving!").build();
         }

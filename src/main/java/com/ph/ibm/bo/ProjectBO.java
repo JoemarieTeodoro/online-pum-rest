@@ -35,6 +35,7 @@ import com.ph.ibm.model.UtilizationJson;
 import com.ph.ibm.model.UtilizationYear;
 import com.ph.ibm.model.Week;
 import com.ph.ibm.model.Year;
+import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.repository.PUMYearRepository;
@@ -50,6 +51,7 @@ import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
 import com.ph.ibm.util.CalendarUtils;
 import com.ph.ibm.util.ObjectMapperAdapter;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.ValidationUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -96,27 +98,37 @@ public class ProjectBO {
     private HolidayEngagementRepository holidayEngagementRepository = new HolidayRepositoryImpl();
 
     /**
-     * @param pumYear
-     * @return String
-     * @throws SQLException
-     * @throws ParseException
-     */
-	public Response saveYear(PUMYear pumYear) {
+	 * @param pumYear
+	 * @return String
+	 * @throws Exception
+	 * @throws SQLException
+	 * @throws ParseException
+	 */
+	public Response saveYear(PUMYear pumYear) throws Exception {
 		Response response = null;
-		if (isValueEmpty(pumYear.getStart()) || isValueEmpty(pumYear.getEnd())) {
-			return response = Response.status(Status.NOT_ACCEPTABLE).entity("Please fill all fields").build();
-        }
-
-		logger.info("Saving year...");
 		try {
+			if (isValueEmpty(pumYear.getStart()) || isValueEmpty(pumYear.getEnd())) {
+				logger.error("Please fill Start Date and/or End Date");
+				return response = Response.status(Status.NOT_ACCEPTABLE).entity("Please fill Start Date and/or End Date").build();
+			}
+			
+			ValidationUtils.checkIfStartAndEndDateValid(pumYear);
+			ValidationUtils.checkIfValidFiscalYear(pumYear);
+			
+			logger.info("Saving year...");
+
 			pumYearRepository.saveYear(pumYear);
 			response = Response.status(Status.OK).entity("PUM fiscal year updated!").build();
+		} catch (OpumException e) {
+			logger.error(e.getMessage());
+			response = Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
 		} catch (SQLException e) {
-			e.printStackTrace();
-			response = Response.status(Status.OK).entity("ERROR: Unable to update Fiscal Year").build();
+			logger.error(e.getMessage());
+			response = Response.status(Status.NOT_ACCEPTABLE).entity("ERROR: Unable to update Fiscal Year").build();
 		} catch (ParseException e) {
-			e.printStackTrace();
-			response = Response.status(Status.OK).entity("Invalid Input: Please fill fields correctly").build();
+			logger.error(e.getMessage());
+			response = Response.status(Status.NOT_ACCEPTABLE).entity("Invalid Input: Please fill fields correctly")
+					.build();
 		}
 
 		return response;

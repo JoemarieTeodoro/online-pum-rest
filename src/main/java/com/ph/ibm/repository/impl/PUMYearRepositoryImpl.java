@@ -1,6 +1,7 @@
 package com.ph.ibm.repository.impl;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,41 +11,70 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.ph.ibm.model.PUMMonth;
 import com.ph.ibm.model.PUMQuarter;
 import com.ph.ibm.model.PUMYear;
+import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
 
 public class PUMYearRepositoryImpl implements PUMYearRepository {
+	Logger logger = Logger.getLogger(PUMYearRepositoryImpl.class);
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
+	private static final String DATE_FORMAT = "yyyy-MM-dd";
+
 	@Override
-	public void saveYear(PUMYear pumYear) throws SQLException, ParseException {
+	public void saveYear(PUMYear pumYear) throws SQLException, ParseException, OpumException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
-
 		try {
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			checkIfPUMCycleExisting(pumYear);
+
+			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 			connection.setAutoCommit(false);
 			String query = "INSERT INTO YEAR (" + "START,END,PUMYEAR) " + "VALUES (?,?,?); ";
 
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setDate(1, new java.sql.Date(df.parse(pumYear.getStart()).getTime()));
-			preparedStatement.setDate(2, new java.sql.Date(df.parse(pumYear.getEnd()).getTime()));
+			preparedStatement.setDate(1, new Date(df.parse(pumYear.getStart()).getTime()));
+			preparedStatement.setDate(2, new Date(df.parse(pumYear.getEnd()).getTime()));
 			preparedStatement.setInt(3, pumYear.getPumYear());
 
 			preparedStatement.executeUpdate();
 			connection.commit();
-
-			System.out.println(OpumConstants.UPDATED_SUCCESS);
-		} catch (SQLException e) {
-			e.printStackTrace();
-
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			throw new OpumException(e.getMessage());
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement);
 		}
-		finally {
+	}
+
+	private void checkIfPUMCycleExisting(PUMYear pumYear) throws ParseException, OpumException {
+		Connection connection = connectionPool.getConnection();
+		ResultSet rs = null;
+		PreparedStatement preparedStatement = null;
+
+		try {
+			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
+			String query = "select count(*) from opum.year where PUMYear = ? and start = ? and end = ?; ";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setInt(1, pumYear.getPumYear());
+			preparedStatement.setDate(2, new Date(df.parse(pumYear.getStart()).getTime()));
+			preparedStatement.setDate(3, new Date(df.parse(pumYear.getEnd()).getTime()));
+			rs = preparedStatement.executeQuery();
+			if (rs.next()) {
+				if (Integer.valueOf(rs.getString(1)) > 0) {
+					throw new OpumException("Existing PUM Year, Start Date, and End Date!");
+				}
+			}
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		} finally {
 			connectionPool.closeConnection(connection, preparedStatement);
 		}
 	}

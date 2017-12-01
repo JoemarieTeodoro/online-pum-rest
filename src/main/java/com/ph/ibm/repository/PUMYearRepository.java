@@ -7,7 +7,7 @@ import java.util.List;
 import com.ph.ibm.model.PUMMonth;
 import com.ph.ibm.model.PUMQuarter;
 import com.ph.ibm.model.PUMYear;
-import com.ph.ibm.model.Quarter;
+import com.ph.ibm.opum.exception.OpumException;
 
 public interface PUMYearRepository {
 
@@ -18,8 +18,9 @@ public interface PUMYearRepository {
 	 * @return boolean
 	 * @throws SQLException
 	 * @throws ParseException
+	 * @throws OpumException
 	 */
-	public void saveYear(PUMYear pumYear) throws SQLException, ParseException;
+	public void saveYear(PUMYear pumYear) throws SQLException, ParseException, OpumException;
 
 	/**
 	 * 
