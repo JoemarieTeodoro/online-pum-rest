@@ -3,20 +3,44 @@ package com.ph.ibm.bo;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.log4j.Logger;
+
 import com.ph.ibm.model.Holiday;
+import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.repository.impl.HolidayRepositoryImpl;
+import com.ph.ibm.util.ValidationUtils;
 
 public class HolidayBO {
+	private Logger logger = Logger.getLogger(HolidayBO.class);
 	
 	private HolidayEngagementRepository holidayEngagementRepository = new HolidayRepositoryImpl();
 
 	/**
-	 * return boolean
-	 * @throws SQLException 
+	 * @throws SQLException
+	 * @throws OpumException
 	 */
-	public boolean addHolidayEngagement(Holiday holiday) throws SQLException {
-		return holidayEngagementRepository.addHolidayEngagement(holiday);
+	public Response addHolidayEngagement(Holiday holiday) throws Exception {
+		Response response = null;
+		try {
+			if (ValidationUtils.isValueEmpty(holiday.getDate()) || ValidationUtils.isValueEmpty(holiday.getName())) {
+				throw new OpumException("Please fill Holiday Name and/or Holiday Date");
+			} else {
+				holidayEngagementRepository.addHolidayEngagement(holiday);
+				logger.info("Holiday Added!");
+				response = Response.status(Status.OK).entity("Holiday added!").build();
+			}
+		} catch (OpumException e) {
+			logger.error(e.getMessage());
+			response = Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+			response = Response.status(Status.NOT_ACCEPTABLE).entity("ERROR: Unable to add Holiday").build();
+		}
+		return response;
 	}
 	
 	/**

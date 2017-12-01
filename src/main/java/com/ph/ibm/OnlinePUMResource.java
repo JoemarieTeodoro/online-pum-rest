@@ -768,7 +768,7 @@ public class OnlinePUMResource {
     @Path( "/saveHolidays" )
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.TEXT_PLAIN )
-    public String addHolidayEngagement( Holiday holiday, @Context HttpHeaders header ) throws Exception {
+	public Response addHolidayEngagement(Holiday holiday) throws Exception {
         /*
          * MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
          * String email = headerParams.getFirst("username"); String password =
@@ -776,17 +776,18 @@ public class OnlinePUMResource {
          * { logger.error(OpumConstants.UNAUTHORIZED); return
          * Response.Status.UNAUTHORIZED.toString(); }
          */
-        logger.info( "START addHoliday" );
+		Response response = null;
         try{
             holidayBO = new HolidayBO();
-            logger.info( "END addHolidayEngagement" );
-            return holidayBO.addHolidayEngagement( holiday ) ? Response.Status.OK.toString()
-                            : Response.Status.INTERNAL_SERVER_ERROR.toString();
+
+			logger.info("Saving Holiday...");
+			response = holidayBO.addHolidayEngagement(holiday);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			response = Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
-        catch( Exception e ){
-            logger.error( e );
-            throw new OpumException( e.getMessage(), e );
-        }
+
+		return response;
     }
 
     /**

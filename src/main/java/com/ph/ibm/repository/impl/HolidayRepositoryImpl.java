@@ -1,44 +1,82 @@
 package com.ph.ibm.repository.impl;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.log4j.Logger;
+
 import com.ph.ibm.model.Holiday;
+import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
 
 public class HolidayRepositoryImpl implements HolidayEngagementRepository {
+	Logger logger = Logger.getLogger(HolidayRepositoryImpl.class);
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
 	@Override
-	public boolean addHolidayEngagement(Holiday holiday) throws SQLException {
+	public void addHolidayEngagement(Holiday holiday) throws SQLException, OpumException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		try {
+			checkIfHolidayExisting(holiday);
+
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			connection.setAutoCommit(false);
 			String query = "INSERT INTO HOLIDAY (" + "NAME,DATE ) " + "VALUES (?,?); ";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, holiday.getName());
-			preparedStatement.setDate(2, new java.sql.Date(df.parse(holiday.getDate()).getTime()));
-			preparedStatement.addBatch();
-			preparedStatement.executeBatch();
+			preparedStatement.setDate(2, new Date(df.parse(holiday.getDate()).getTime()));
+			preparedStatement.executeUpdate();
 			connection.commit();
-			System.out.println(OpumConstants.INSERTED_SUCCESS);
-			return true;
+		} catch (ParseException e) {
+			logger.error(e.getMessage());
+			throw new OpumException("Unable to parse Date!");
+		} catch (DateTimeParseException e) {
+			logger.error(e.getMessage());
+			throw new OpumException("Unable to parse Date!");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new OpumException(e.getMessage());
 		} finally {
 			connectionPool.closeConnection(connection, preparedStatement);
 		}
-		return false;
+	}
+
+	private void checkIfHolidayExisting(Holiday holiday) throws ParseException, OpumException {
+		Connection connection = connectionPool.getConnection();
+		ResultSet rs = null;
+		PreparedStatement preparedStatement = null;
+
+		try {
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			String query = "SELECT count(*) FROM opum.holiday WHERE name = ? OR date = ?; ";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, holiday.getName());
+			preparedStatement.setDate(2, new Date(df.parse(holiday.getDate()).getTime()));
+			rs = preparedStatement.executeQuery();
+			if (rs.next()) {
+				if (Integer.valueOf(rs.getString(1)) > 0) {
+					throw new OpumException("Existing Holiday!");
+				}
+			}
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+			throw new OpumException(e.getMessage());
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement, rs);
+		}
 	}
 
 	@Override
