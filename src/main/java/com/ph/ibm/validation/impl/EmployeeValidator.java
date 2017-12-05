@@ -31,12 +31,15 @@ public class EmployeeValidator implements Validator<Employee> {
     public boolean validate( Employee employee ) throws InvalidCSVException, SQLException {
 
         boolean isValid =
-            !isEmployeeValueEmpty( employee ) && isValidEmailAddress( employee ) && isValidEmployeeSerial( employee ) &&
-                !isEmployeeEmailExisting( employee ) && !isEmployeeIdExisting( employee ) &&
-                isValidEmployeeName( employee ) && ValidationUtils.isValidDate( employee, employee.getRollInDate() ) &&
-                ValidationUtils.isValidDate( employee, employee.getRollOffDate() ) &&
-                ValidationUtils.isValidDateRange( employee, employee.getRollInDate(), employee.getRollOffDate() );
-
+            !isEmployeeValueEmpty( employee ) &&
+            isValidEmailAddress( employee ) &&
+            isValidEmployeeSerial( employee ) &&
+            !isEmployeeEmailExisting( employee ) &&
+            !isEmployeeIdExisting( employee ) &&
+            isValidEmployeeName( employee ) &&
+            ValidationUtils.isValidDate( employee, employee.getRollInDate() ) &&
+            ValidationUtils.isValidDate( employee, employee.getRollOffDate() ) &&
+            ValidationUtils.isValidDateRange( employee, employee.getRollInDate(), employee.getRollOffDate() );
         return isValid;
     }
 
@@ -51,8 +54,8 @@ public class EmployeeValidator implements Validator<Employee> {
         if( isValueEmpty( employee.getEmployeeSerial() ) || isValueEmpty( employee.getFullName() ) ||
             isValueEmpty( employee.getIntranetId() ) || isValueEmpty( employee.getRollInDate() ) ||
             isValueEmpty( employee.getRollOffDate() ) ){
-            logger.info( ValidationUtils.CAUSE_OF_ERROR + " " + OpumConstants.EMPTY_CSV_VALUE );
-            throw new InvalidCSVException( employee, OpumConstants.EMPTY_CSV_VALUE );
+            logger.info( ValidationUtils.CAUSE_OF_ERROR + " " + OpumConstants.EMPTY_CSV_ERROR );
+            throw new InvalidCSVException( employee, OpumConstants.EMPTY_CSV_ERROR );
         }
         return false;
     }
@@ -92,8 +95,8 @@ public class EmployeeValidator implements Validator<Employee> {
     protected boolean isEmployeeEmailExisting( Employee employee ) throws SQLException, InvalidCSVException {
         boolean isExisting = employeeRepository.doesEmailExist( employee.getIntranetId() );
         if( isExisting ){
-            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_ID_EXISTS );
-            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_ID_EXISTS );
+            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_EMAIL_EXISTS );
+            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_EMAIL_EXISTS );
         }
         return isExisting;
     }
@@ -109,8 +112,8 @@ public class EmployeeValidator implements Validator<Employee> {
     protected boolean isEmployeeIdExisting( Employee employee ) throws SQLException, InvalidCSVException {
         boolean isExisting = employeeRepository.doesEmployeeIdExist( employee.getEmployeeSerial() );
         if( isExisting ){
-            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_EMAIL_EXISTS );
-            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_EMAIL_EXISTS );
+            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_ID_EXISTS );
+            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_ID_EXISTS );
         }
         return isExisting;
     }

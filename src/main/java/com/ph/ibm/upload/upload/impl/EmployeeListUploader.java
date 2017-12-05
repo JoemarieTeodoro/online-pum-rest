@@ -1,26 +1,22 @@
 package com.ph.ibm.upload.upload.impl;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.mail.Message.RecipientType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
 
-import com.ph.ibm.bo.ResetPasswordBO;
-import com.ph.ibm.model.Email;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
-import com.ph.ibm.upload.Uploader;
+import com.ph.ibm.upload.CsvUploaderBase;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.impl.EmployeeValidator;
@@ -31,7 +27,7 @@ import com.ph.ibm.validation.impl.EmployeeValidator;
  * @author <a HREF="teodorj@ph.ibm.com">Joemarie Teodoro</a>
  * @author <a HREF="dacanam@ph.ibm.com">Marjay Dacanay</a>
  */
-public class EmployeeListUploader implements Uploader {
+public class EmployeeListUploader extends CsvUploaderBase {
 
     /** Data Access Object to employee table */
     private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
@@ -41,6 +37,9 @@ public class EmployeeListUploader implements Uploader {
 
     /** Logger instance */
     private Logger logger = Logger.getLogger( EmployeeListUploader.class );
+
+    /** Size of header column */
+    private static final int ROW_HEADER_COLUMN_SIZE = 5;
 
     /**
      * Used when Super Administrator uploads the list of Admin Users
@@ -52,34 +51,35 @@ public class EmployeeListUploader implements Uploader {
      */
     @Override
     public Response upload( String rawData, UriInfo uriInfo ) throws Exception {
-
-        Map<String, List<String>> rows = UploaderUtils.populateList( rawData );
-        if( rows.isEmpty() ){
-            return UploaderUtils.invalidCsvResponseBuilder( uriInfo, null, OpumConstants.EMPTY_CSV );
-        }
         List<Employee> validatedEmployee = new ArrayList<Employee>();
-        String currentEmployeeID = null;
         List<String> recipientList = new ArrayList<String>();
+        List<String> errorList = new ArrayList<String>();
 
         try{
-            for( List<String> row : rows.values() ){
-                Employee validateEmployee = new Employee();
-                validateEmployee = validateEmployee( row );
-                currentEmployeeID = validateEmployee.getEmployeeId();
-                validatedEmployee.add( validateEmployee );
-                recipientList.add( validateEmployee.getIntranetId() );
+            for( Map.Entry<String, List<String>> row : parseCSV( rawData ).entrySet() ){
+                try{
+                    Employee employee = new Employee();
+                    employee = validateEmployee( row.getValue() );
+                    validatedEmployee.add( employee );
+                    recipientList.add( employee.getIntranetId() );
+                }
+                catch( InvalidCSVException e ){
+                    errorList.add( "Line " + row.getKey() + " - Error: " + e.getError() );
+                    continue;
+                }
             }
-
-            employeeRepository.saveOrUpdate( validatedEmployee, Role.ADMIN );
-            logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
+            if( !errorList.isEmpty() ){
+                return InvalidCsvErrors( uriInfo, errorList );
+            }
+            else{
+                employeeRepository.saveOrUpdate( validatedEmployee, Role.ADMIN );
+            }
         }
         catch( InvalidCSVException e ){
             logger.error( e.getError() );
             return UploaderUtils.invalidCsvResponseBuilder( uriInfo, e.getObject(), e.getError() );
         }
-        catch(
-
-        SQLException e ){
+        catch( SQLException e ){
             logger.error( "SQL Exception due to " + e.getMessage() );
             e.printStackTrace();
             return Response.status( 406 ).entity( OpumConstants.SQL_ERROR ).build();
@@ -87,39 +87,19 @@ public class EmployeeListUploader implements Uploader {
 
         logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
         sendEmailsToListOfRecepientsToChangePasswords( recipientList );
-
-        return Response.status( Status.OK ).entity( "CSV Uploaded Successfully!" ).build();
+        logger.info( OpumConstants.SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS + recipientList.toString() );
+        return Response.status( Status.OK ).entity( OpumConstants.SUCCESS_UPLOAD ).build();
     }
 
-    /**
-     * Method to email list of addresses from the list uploaded by sys_admin/admin
-     * 
-     * @param lstRecipients list of recipients
-     * @throws IOException exception
-     */
-    public void sendEmailsToListOfRecepientsToChangePasswords( List<String> lstRecipients ) throws IOException {
-        ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
-        Email email = new Email();
-        email.setRecipientAddresses( lstRecipients );
-        email.setSenderAddress( "onlinepumsender@gmail.com" );
-        email.setRecipientType( RecipientType.TO.toString() );
-        email.setSubject( OpumConstants.EMAIL_SUBJECT );
-        email.setText( OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s" );
-        resetPasswordBO.emailResetPasswordLink( email );
-    }
-    
     /**
      * Validates the uploaded list of Users/Employees
      * 
-     * @param row represents row in csv file
+     * @param row represents row in CSV file
      * @return Employee employee object
-     * @throws Exception exception
+     * @throws InvalidCSVException custom exception for invalid CSV file values
+     * @throws SQLException SQL related exception
      */
     private Employee validateEmployee( List<String> row ) throws InvalidCSVException, SQLException {
-
-        if( row == null || row.isEmpty() ){
-            throw new InvalidCSVException( null, OpumConstants.INVALID_CSV );
-        }
         checkRowIntegrity( row );
         Employee employee = null;
         employee = new Employee();
@@ -135,16 +115,25 @@ public class EmployeeListUploader implements Uploader {
     /**
      * Checks basic row validation like row item must not be empty.
      * 
-     * @param row
-     * @param employee
-     * @return boolean
+     * @param rows list of row CSV values
      * @throws InvalidCSVException when row value is not valid
      */
-    private void checkRowIntegrity( List<String> row ) throws InvalidCSVException {
-        if( row.isEmpty() || row.size() != 5 || row.get( 0 ).isEmpty() || row.get( 1 ).isEmpty() ||
-            row.get( 2 ).isEmpty() || row.get( 3 ).isEmpty() || row.get( 4 ).isEmpty() ){
-            throw new InvalidCSVException( null, "CSV contents should not be empty." );
+    private void checkRowIntegrity( List<String> rows ) throws InvalidCSVException {
+        if( rows == null || rows.isEmpty() || rows.size() != 5 || rows.get( 0 ).isEmpty() || rows.get( 1 ).isEmpty() ||
+            rows.get( 2 ).isEmpty() || rows.get( 3 ).isEmpty() || rows.get( 4 ).isEmpty() ){
+            throw new InvalidCSVException( null, OpumConstants.EMPTY_CSV_ERROR );
         }
+    }
+
+    /**
+     * @param row 1st line in CSV file
+     * @return true if file contains header otherwise return false
+     */
+    @Override
+    protected boolean doesContainsHeader( List<String> row ) {
+        return ( row.get( 0 ).toLowerCase().contains( "serial" ) && row.get( 1 ).toLowerCase().contains( "employee" ) &&
+            row.get( 2 ).toLowerCase().contains( "email" ) && row.get( 3 ).toLowerCase().contains( "roll-in date" ) &&
+            row.get( 4 ).toLowerCase().contains( "roll-off date" ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
     }
 
 }

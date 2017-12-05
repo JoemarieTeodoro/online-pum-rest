@@ -24,12 +24,11 @@ public class OpumConstants {
 	public static final String INVALID_EMPLOYEE_ID = "INVALID EMPLOYEE ID";
 	public static final String INVALID_PEM_ID = "INVALID PEM ID";
 	public static final String INVALID_HOLIDAY = "INVALID HOLIDAY";
-    public static final String INVALID_DATE = "INVALID DATE FORMAT ->MM/DD/YYYY";
+    public static final String INVALID_DATE = "INVALID DATE FORMAT";
 	public static final String INVALID_DATE_RANGE = "INVALID DATE RANGE";
     public static final String INVALID_TEAM_NAME = "INVALID TEAM NAME";
     public static final String INVALID_RECOVERABLE = "INVALID RECOVERABLE STATUS";
     public static final String INVALID_TEAM_LEAD_SERIAL = "INVALID TEAM LEAD SERIAL NUMBER";
-    public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
     public static final String EMPLOYEE_ID_EXISTS = "EMPLOYEE ID ALREADY EXISTS";
     public static final String EMPLOYEE_EMAIL_EXISTS = "EMPLOYEE EMAIL ALREADY EXISTS";
     public static final String TEAM_NAME_EXISTS = "TEAM ALREADY EXIST";
@@ -38,10 +37,11 @@ public class OpumConstants {
 	public static final String UNAUTHORIZED = "UNAUTHORIZED";
 	public static final String ERROR_START_DATE = "ERROR START DATE";
 	public static final String ERROR_END_DATE = "ERROR END DATE";
-	public static final String YEAR_START_NOTFOUND = "YEAR START NOT FOUND";
+    public static final String YEAR_START_NOT_FOUND = "YEAR START NOT FOUND";
 	public static final String YEAR_END_NOT_FOUND = "YEAR END NOT FOUND";
 	public static final String INVALID_EMPLOYEE_ROLE = "INVALID EMPLOYEE ROLE";
-	public static final String EMPTY_CSV_ENTRIES_EMPLOYEE_ROLE = "EMPTY ENTRY EMPLOYEE ROLE CSV";
+    public static final String EMPTY_CSV_ERROR = "CSV CONTENTS SHOULD NOT BE EMPTY";
+    public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
 
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";
@@ -49,6 +49,7 @@ public class OpumConstants {
 	public static final String SUCCESSFULLY_REGISTERED = "SUCCESSFULLY REGISTERED";
 	public static final String SUCCESSFULLY_UPLOADED_FILE = "SUCCESSFULLY UPLOADED FILE";
 	public static final String SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS = "SUCCESSFULLY EMAILED LIST OF EMAIL ADDRESS";
+    public static final String NO_HEADER_FOUND = "NO HEADER FOUND IN CSV";
 	public static final String LOGGED_IN = "LOGGED IN";
 	public static final String ENTERING_USER_PAGE = "ENTERING USER PAGE";
 	public static final String ENTERING_SYS_ADMIN_PAGE = "ENTERING SYSTEM ADMIN PAGE";
@@ -72,4 +73,7 @@ public class OpumConstants {
     public static final String USER = "user";
     public static final String PEM = "people manager";
     public static final String TEAM_LEAD = "team lead";
+
+    public static final String SUCCESS_UPLOAD = "CSV Uploaded Successfully!";
+
 }

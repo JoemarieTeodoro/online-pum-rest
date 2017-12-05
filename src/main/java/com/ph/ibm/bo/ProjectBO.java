@@ -17,6 +17,7 @@ import java.util.Scanner;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
 
@@ -48,6 +49,13 @@ import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
+import com.ph.ibm.upload.CsvUploaderBase;
+import com.ph.ibm.upload.upload.impl.AdminListUploader;
+import com.ph.ibm.upload.upload.impl.EmployeeListUploader;
+import com.ph.ibm.upload.upload.impl.EmployeeRoleUploader;
+import com.ph.ibm.upload.upload.impl.PEMListUploader;
+import com.ph.ibm.upload.upload.impl.TeamEmployeeUploader;
+import com.ph.ibm.upload.upload.impl.TeamListUploader;
 import com.ph.ibm.util.CalendarUtils;
 import com.ph.ibm.util.ObjectMapperAdapter;
 import com.ph.ibm.util.OpumConstants;
@@ -95,43 +103,124 @@ public class ProjectBO {
 
     private PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
 
+    /** Base class used for uploading project information in Csv format */
+    private CsvUploaderBase uploader;
+
     private HolidayEngagementRepository holidayEngagementRepository = new HolidayRepositoryImpl();
 
     /**
-	 * @param pumYear
-	 * @return String
-	 * @throws Exception
-	 * @throws SQLException
-	 * @throws ParseException
-	 */
-	public Response saveYear(PUMYear pumYear) throws Exception {
-		Response response = null;
-		try {
-			if (isValueEmpty(pumYear.getStart()) || isValueEmpty(pumYear.getEnd())) {
-				logger.error("Please fill Start Date and/or End Date");
-				return response = Response.status(Status.NOT_ACCEPTABLE).entity("Please fill Start Date and/or End Date").build();
-			}
-			
-			ValidationUtils.checkIfStartAndEndDateValid(pumYear);
-			ValidationUtils.checkIfValidFiscalYear(pumYear);
-			
-			logger.info("Saving year...");
+     * @param pumYear
+     * @return String
+     * @throws Exception
+     * @throws SQLException
+     * @throws ParseException
+     */
+    public Response saveYear(PUMYear pumYear) throws Exception {
+        Response response = null;
+        try {
+            if (isValueEmpty(pumYear.getStart()) || isValueEmpty(pumYear.getEnd())) {
+                logger.error("Please fill Start Date and/or End Date");
+                return response = Response.status(Status.NOT_ACCEPTABLE).entity("Please fill Start Date and/or End Date").build();
+            }
+            
+            ValidationUtils.checkIfStartAndEndDateValid(pumYear);
+            ValidationUtils.checkIfValidFiscalYear(pumYear);
+            
+            logger.info("Saving year...");
 
-			pumYearRepository.saveYear(pumYear);
-			response = Response.status(Status.OK).entity("PUM fiscal year updated!").build();
-		} catch (OpumException e) {
-			logger.error(e.getMessage());
-			response = Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
-		} catch (SQLException e) {
-			logger.error(e.getMessage());
-			response = Response.status(Status.NOT_ACCEPTABLE).entity("ERROR: Unable to update Fiscal Year").build();
-		} catch (ParseException e) {
-			logger.error(e.getMessage());
-			response = Response.status(Status.NOT_ACCEPTABLE).entity("Invalid Input: Please fill fields correctly")
-					.build();
-		}
+            pumYearRepository.saveYear(pumYear);
+            response = Response.status(Status.OK).entity("PUM fiscal year updated!").build();
+        } catch (OpumException e) {
+            logger.error(e.getMessage());
+            response = Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+            response = Response.status(Status.NOT_ACCEPTABLE).entity("ERROR: Unable to update Fiscal Year").build();
+        } catch (ParseException e) {
+            logger.error(e.getMessage());
+            response = Response.status(Status.NOT_ACCEPTABLE).entity("Invalid Input: Please fill fields correctly")
+                    .build();
+        }
 
-		return response;
+        return response;
+    }
+    
+    /*
+     * Uploads list of user administrator
+     * 
+     * @param rawData data from the CSV file
+     * @param uriInfo URI information
+     * @return Status.OK if successful otherwise return invalid response
+     * @throws Exception exception
+     */
+    public Response uploadAdminEmployeeList( String rawData, UriInfo uriInfo ) throws Exception {
+        uploader = new AdminListUploader();
+        return uploader.upload( rawData, uriInfo );
+    }
+
+    /**
+     * Uploads list of user
+     * 
+     * @param rawData data from the CSV file
+     * @param uriInfo URI information
+     * @return Status.OK if successful otherwise return invalid response
+     * @throws Exception exception
+     */
+    public Response uploadEmployeeList( String rawData, UriInfo uriInfo ) throws Exception {
+        uploader = new EmployeeListUploader();
+        return uploader.upload( rawData, uriInfo );
+    }
+
+    /**
+     * Uploads list of teams in project
+     * 
+     * @param rawData data from the CSV file
+     * @param uriInfo URI information
+     * @return Status.OK if successful otherwise return invalid response
+     * @throws Exception exception
+     */
+    public Response uploadTeamList( String rawData, UriInfo uriInfo ) throws Exception {
+        uploader = new TeamListUploader();
+        return uploader.upload( rawData, uriInfo );
+    }
+
+    /**
+     * Uploads list of user and respective team
+     * 
+     * @param rawData data from the CSV file
+     * @param uriInfo URI information
+     * @return Status.OK if successful otherwise return invalid response
+     * @throws Exception exception
+     */
+    public Response uploadTeamEmployeeList( String rawData, UriInfo uriInfo ) throws Exception {
+        uploader = new TeamEmployeeUploader();
+        return uploader.upload( rawData, uriInfo );
+    }
+
+    /**
+     * Uploads list of People Manager
+     * 
+     * @param rawData data from the CSV file
+     * @param uriInfo URI information
+     * @return Status.OK if successful otherwise return invalid response
+     * @throws Exception exception
+     */
+    public Response uploadPEMList( String rawData, UriInfo uriInfo ) throws Exception {
+        uploader = new PEMListUploader();
+        return uploader.upload( rawData, uriInfo );
+    }
+
+    /**
+     * Uploads list of user/employee roles in project
+     * 
+     * @param rawData data from the CSV file
+     * @param uriInfo URI information
+     * @return Status.OK if successful otherwise return invalid response
+     * @throws Exception exception
+     */
+    public Response uploadEmployeeRoleList( String rawData, UriInfo uriInfo ) throws Exception {
+        uploader = new EmployeeRoleUploader();
+        return uploader.upload( rawData, uriInfo );
     }
 
     /**
@@ -142,7 +231,7 @@ public class ProjectBO {
      */
     public String editYear( PUMYear pumYear ) throws SQLException, ParseException {
         if( isValueEmpty( pumYear.getStart() ) ){
-            return OpumConstants.YEAR_START_NOTFOUND;
+            return OpumConstants.YEAR_START_NOT_FOUND;
         }
         if( isValueEmpty( pumYear.getEnd() ) ){
             return OpumConstants.ERROR_END_DATE;
@@ -154,7 +243,7 @@ public class ProjectBO {
 
     public String updateHoliday( Holiday holiday ) throws SQLException, ParseException {
         if( isValueEmpty( holiday.getName() ) ){
-            return OpumConstants.YEAR_START_NOTFOUND;
+            return OpumConstants.YEAR_START_NOT_FOUND;
         }
         if( isValueEmpty( holiday.getDate() ) ){
             return OpumConstants.ERROR_END_DATE;
@@ -243,7 +332,6 @@ public class ProjectBO {
         }
     }
 
-
     /**
      * This method used to validate if CSV row data is Empty
      *
@@ -253,7 +341,7 @@ public class ProjectBO {
     private boolean isRowEmpty( String line ) {
         return line == null || line.equals( "\\n" ) || line.equals( "" );
     }
-    
+
     public Year getComputation( String employeeId, int year ) throws SQLException, ParseException {
         Utilization utilization = utilizationEngagementRepository.getComputation( employeeId, year );
         UtilizationYear utilization_Year =
@@ -492,7 +580,7 @@ public class ProjectBO {
 
     public String saveMonth( PUMMonth pumMonth ) throws SQLException, ParseException {
         if( isValueEmpty( pumMonth.getStart() ) ){
-            return OpumConstants.YEAR_START_NOTFOUND;
+            return OpumConstants.YEAR_START_NOT_FOUND;
         }
         if( isValueEmpty( pumMonth.getEnd() ) ){
             return OpumConstants.ERROR_END_DATE;

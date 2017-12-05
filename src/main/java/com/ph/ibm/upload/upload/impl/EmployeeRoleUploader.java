@@ -3,7 +3,6 @@ package com.ph.ibm.upload.upload.impl;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -13,57 +12,59 @@ import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.EmployeeRole;
 import com.ph.ibm.model.Role;
-import com.ph.ibm.opum.exception.EmptyEmployeeRoleException;
 import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.repository.EmployeeRoleRepository;
 import com.ph.ibm.repository.impl.EmployeeRoleRepositoryImpl;
-import com.ph.ibm.upload.Uploader;
+import com.ph.ibm.upload.CsvUploaderBase;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeRoleValidator;
 
-public class EmployeeRoleUploader implements Uploader {
+public class EmployeeRoleUploader extends CsvUploaderBase {
 
     private EmployeeRoleRepository employeeRoleRepository = EmployeeRoleRepositoryImpl.getInstance();
-    private Validator<EmployeeRole> employeeRoleValidator = new EmployeeRoleValidator(employeeRoleRepository);
+
+    private Validator<EmployeeRole> employeeRoleValidator = new EmployeeRoleValidator( employeeRoleRepository );
+
     private Logger logger = Logger.getLogger( EmployeeRoleUploader.class );
 
-	@Override
-	public Response upload( String rawData, UriInfo uriInfo ) throws Exception {
-		Map<String, List<String>> rows = UploaderUtils.populateList( rawData );
-		List<EmployeeRole> validatedEmployeeRoles = new ArrayList<EmployeeRole>();
+    /** Size of header column */
+    private static final int ROW_HEADER_COLUMN_SIZE = 5;
+
+    @Override
+    public Response upload( String rawData, UriInfo uriInfo ) throws Exception {
+        List<EmployeeRole> validatedEmployeeRoles = new ArrayList<EmployeeRole>();
         EmployeeRole validateEmployeeRole = new EmployeeRole();
-        try {
-            for ( List<String> row : rows.values() ) {
-            	validateEmployeeRole = validateEmployeeRoles( uriInfo, row );
-            	validatedEmployeeRoles.add( validateEmployeeRole );
+        try{
+            for( List<String> row : parseCSV( rawData ).values() ){
+                validateEmployeeRole = validateEmployeeRoles( row );
+                validatedEmployeeRoles.add( validateEmployeeRole );
             }
-            for ( EmployeeRole employeeRole : validatedEmployeeRoles ) {
-            	employeeRole = setRoleEnumsForEmployeeRole( employeeRole );
-            	boolean isEmployeeRoleExist = employeeRoleRepository.isEmployeeRoleExists( employeeRole );
-            	if (!isEmployeeRoleExist) {
-            		employeeRoleRepository.saveEmployeeRole( employeeRole );
-            	}
+            for( EmployeeRole employeeRole : validatedEmployeeRoles ){
+                employeeRole = setRoleEnumsForEmployeeRole( employeeRole );
+                boolean isEmployeeRoleExist = employeeRoleRepository.isEmployeeRoleExists( employeeRole );
+                if( !isEmployeeRoleExist ){
+                    employeeRoleRepository.saveEmployeeRole( employeeRole );
+                }
             }
             logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
-        } catch ( InvalidCSVException e ) {
+        }
+        catch( InvalidCSVException e ){
             logger.error( e.getError() );
             return UploaderUtils.invalidCsvResponseBuilder( uriInfo, e.getObject(), e.getError() );
-        } catch ( SQLException e ) {
+        }
+        catch( SQLException e ){
             logger.error( "SQL Exception due to " + e.getMessage() );
             e.printStackTrace();
             return Response.status( 206 ).header( "Location", uriInfo.getBaseUri() + "employeerole/" ).entity(
                 OpumConstants.SQL_ERROR ).build();
         }
         return Response.status( Status.OK ).header( "Location", uriInfo.getBaseUri() + "employeerole/" ).entity(
-            "uploaded successfully" ).build();
-	}
+            OpumConstants.SUCCESS_UPLOAD ).build();
+    }
 
-    private EmployeeRole validateEmployeeRoles( UriInfo uriInfo, List<String> row ) throws Exception {
-        if ( row == null || row.isEmpty() ) {
-            throw new EmptyEmployeeRoleException( OpumConstants.EMPTY_CSV_ENTRIES_EMPLOYEE_ROLE );
-        }
+    private EmployeeRole validateEmployeeRoles( List<String> row ) throws Exception {
         EmployeeRole validateEmployeeRole = new EmployeeRole();
         validateEmployeeRole.setEmployeeSerial( row.get( 0 ) );
         validateEmployeeRole.setEmployeeRoleString( row.get( 1 ) );
@@ -72,30 +73,40 @@ public class EmployeeRoleUploader implements Uploader {
     }
 
     private EmployeeRole setRoleEnumsForEmployeeRole( EmployeeRole employeeRole ) {
-    	employeeRole.setEmployeeRoleEnum( changeRoleStringToEnum(employeeRole.getEmployeeRoleString() ) );
-    	return employeeRole;
+        employeeRole.setEmployeeRoleEnum( changeRoleStringToEnum( employeeRole.getEmployeeRoleString() ) );
+        return employeeRole;
     }
 
-    private Role changeRoleStringToEnum(String employeeRoleString) {
-    	Role roleValue = null;
-    	String employeeRoleStringInLowerCase = employeeRoleString.toLowerCase();
-    	switch (employeeRoleStringInLowerCase) {
+    private Role changeRoleStringToEnum( String employeeRoleString ) {
+        Role roleValue = null;
+        String employeeRoleStringInLowerCase = employeeRoleString.toLowerCase();
+        switch( employeeRoleStringInLowerCase ){
             case OpumConstants.SYS_ADMIN:
-    			roleValue = Role.SYS_ADMIN;
-    			break;
+                roleValue = Role.SYS_ADMIN;
+                break;
             case OpumConstants.ADMIN_FULL_FORM:
-    			roleValue = Role.ADMIN;
-    			break;
+                roleValue = Role.ADMIN;
+                break;
             case OpumConstants.USER:
-    			roleValue = Role.USER;
-    			break;
+                roleValue = Role.USER;
+                break;
             case OpumConstants.PEM:
-    			roleValue = Role.PEM;
-    			break;
+                roleValue = Role.PEM;
+                break;
             case OpumConstants.TEAM_LEAD:
-    			roleValue = Role.TEAM_LEAD;
-    			break;
-    	}
-    	return roleValue;
+                roleValue = Role.TEAM_LEAD;
+                break;
+        }
+        return roleValue;
+    }
+
+    /**
+     * @param row 1st line in CSV file
+     * @return true if file contains header otherwise return false
+     */
+    @Override
+    protected boolean doesContainsHeader( List<String> row ) {
+        return ( row.get( 0 ).toLowerCase().contains( "employee serial" ) &&
+            row.get( 1 ).toLowerCase().contains( "role" ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
     }
 }

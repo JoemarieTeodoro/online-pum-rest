@@ -36,7 +36,7 @@ public class PEMValidator implements Validator<PEM> {
 		   ValidationUtils.isValueEmpty( pem.getStartDate() ) ||
 		   ValidationUtils.isValueEmpty( pem.getEndDate() ))
 		{
-            throw new InvalidCSVException( pem, OpumConstants.EMPTY_CSV_VALUE );
+            throw new InvalidCSVException( pem, OpumConstants.EMPTY_CSV_ERROR );
 		}
 		return false;
 	}

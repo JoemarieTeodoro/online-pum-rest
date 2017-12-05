@@ -39,6 +39,7 @@ public class TeamValidator implements Validator<Team> {
     @Override
     public boolean validate( Team team ) throws Exception {
         boolean isValid = !isTeamValueEmpty( team )
+                        && isValidTeamName( team )
                         && isValidLeadSerial( team )
                         && isValidRecoverable( team )
                         && !isTeamExisting( team );
@@ -56,8 +57,8 @@ public class TeamValidator implements Validator<Team> {
     protected boolean isTeamValueEmpty( Team team ) throws InvalidCSVException {
         if( isValueEmpty( team.getTeamName() ) || isValueEmpty( team.getIsRecoverable() ) ||
             isValueEmpty( team.getTeamLeadSerial() ) ){
-            logger.info( ValidationUtils.CAUSE_OF_ERROR + " " + OpumConstants.EMPTY_CSV_VALUE );
-            throw new InvalidCSVException( team, OpumConstants.EMPTY_CSV_VALUE );
+            logger.info( ValidationUtils.CAUSE_OF_ERROR + " " + OpumConstants.EMPTY_CSV_ERROR );
+            throw new InvalidCSVException( team, OpumConstants.EMPTY_CSV_ERROR );
         }
         return false;
     }

@@ -54,7 +54,7 @@ public class ValidationUtils
             format.setLenient(false);
             format.parse(rollDate);
 
-            return ValidationUtils.regexValidator( object, rollDate, VALID_DATE_REGEX, OpumConstants.INVALID_NAME );
+            return ValidationUtils.regexValidator( object, rollDate, VALID_DATE_REGEX, OpumConstants.INVALID_DATE );
         } catch (ParseException e) {
             logger.info( CAUSE_OF_ERROR + OpumConstants.INVALID_DATE );
             throw new InvalidCSVException(object, OpumConstants.INVALID_DATE);

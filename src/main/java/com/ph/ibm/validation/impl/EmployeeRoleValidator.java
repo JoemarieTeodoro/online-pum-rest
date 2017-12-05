@@ -33,8 +33,8 @@ public class EmployeeRoleValidator implements Validator<EmployeeRole> {
 	protected boolean isEmployeeRoleValueEmpty(EmployeeRole employeeRole) throws InvalidCSVException {
 		if ( isValueEmpty( employeeRole.getEmployeeSerial() ) ||
 				isValueEmpty( employeeRole.getEmployeeRoleString() ) ) {
-			logger.info( "CAUSE OF ERROR: " + OpumConstants.EMPTY_CSV_VALUE );
-            throw new InvalidCSVException( employeeRole, OpumConstants.EMPTY_CSV_VALUE );
+            logger.info( "CAUSE OF ERROR: " + OpumConstants.EMPTY_CSV_ERROR );
+            throw new InvalidCSVException( employeeRole, OpumConstants.EMPTY_CSV_ERROR );
 		}
 		return false;
 	}

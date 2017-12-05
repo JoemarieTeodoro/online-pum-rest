@@ -20,11 +20,10 @@ import com.ph.ibm.repository.TeamRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamEmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamRepositoryImpl;
-import com.ph.ibm.upload.Uploader;
+import com.ph.ibm.upload.CsvUploaderBase;
 import com.ph.ibm.util.OpumConstants;
-import com.ph.ibm.util.UploaderUtils;
 
-public class TeamEmployeeUploader implements Uploader {
+public class TeamEmployeeUploader extends CsvUploaderBase {
 
 	/**
 	 * EmployeeRepository is a Data Access Object which contain methods to add,
@@ -51,26 +50,34 @@ public class TeamEmployeeUploader implements Uploader {
 	 */
 	private Logger logger = Logger.getLogger(TeamEmployeeUploader.class);
 
+    /** Size of header column */
+    private static final int ROW_HEADER_COLUMN_SIZE = 3;
+
 	@Override
 	public Response upload(String rawData, UriInfo uriInfo) {
-		Map<String, List<String>> rows = UploaderUtils.populateList(rawData);
 		List<TeamEmployee> validatedEmployee = new ArrayList<TeamEmployee>();
 		String currentEmployeeID = null;
-
+        List<String> errorList = new ArrayList<String>();
 		try {
-			if (rows.isEmpty()) {
-				throw new InvalidCSVException(null, "CSV contents should not be empty.");
+            for( Map.Entry<String, List<String>> row : parseCSV( rawData ).entrySet() ){
+                try{
+                    TeamEmployee validateEmployee = new TeamEmployee();
+                    validateEmployee = validateTeamEmployee( uriInfo, row.getValue() );
+                    currentEmployeeID = validateEmployee.getEmployeeId();
+                    validatedEmployee.add( validateEmployee );
+                }
+                catch( InvalidCSVException e ){
+                    errorList.add( "Line " + row.getKey() + " - Error: " + e.getError() );
+                    continue;
+                }
 			}
-
-			for (List<String> row : rows.values()) {
-				TeamEmployee validateEmployee = new TeamEmployee();
-				validateEmployee = validateTeamEmployee(uriInfo, row);
-				currentEmployeeID = validateEmployee.getEmployeeId();
-				validatedEmployee.add(validateEmployee);
-			}
-
-			teamEmployeeRepository.addTeamEmployee(validatedEmployee);
-			logger.info(OpumConstants.SUCCESSFULLY_UPLOADED_FILE);
+            if( !errorList.isEmpty() ){
+                return InvalidCsvErrors( uriInfo, errorList );
+            }
+            else{
+                teamEmployeeRepository.addTeamEmployee( validatedEmployee );
+                logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
+            }
 		} catch (InvalidCSVException e) {
 			logger.error(e.getError());
 			return Response.status(406).entity(e.getError()).build();
@@ -79,26 +86,25 @@ public class TeamEmployeeUploader implements Uploader {
 			String msg = OpumConstants.DUPLICATE_ENTRY + ": " + currentEmployeeID;
 			return Response.status(406).entity(msg).build();
 		}
-		return Response.status(Status.OK).header("Location", uriInfo.getBaseUri() + "employee/")
-				.entity("uploaded successfully").build();
+
+        return Response.status( Status.OK ).header( "Location", uriInfo.getBaseUri() + "employee/" ).entity(
+            OpumConstants.SUCCESS_UPLOAD ).build();
 	}
 
 	/**
-	 * This method is used to validate uploaded list of Users/Employees
-	 * 
-	 * @param uriInfo
-	 * @param row
-	 * @return Employee
-	 * @throws InvalidCSVException
-	 *             when row value is not valid
-	 * @throws SQLException
-	 * @throws NumberFormatException
-	 * @throws Exception
-	 */
+     * This method is used to validate uploaded list of Users/Employees
+     * 
+     * @param uriInfo
+     * @param row
+     * @return TeamEmployee team employee instance
+     * @throws InvalidCSVException when row value is not valid
+     * @throws SQLException
+     * @throws NumberFormatException
+     * @throws Exception
+     */
 	private TeamEmployee validateTeamEmployee(UriInfo uriInfo, List<String> row)
 			throws InvalidCSVException, NumberFormatException, SQLException {
 		TeamEmployee teamEmployee = null;
-
 		checkRowIntegrity(row, teamEmployee);
 		if (employeeRepository.viewEmployee(row.get(0)) == null) {
 			throw new InvalidCSVException(null, "No existing employee with Employee Serial: " + row.get(0));
@@ -136,4 +142,14 @@ public class TeamEmployeeUploader implements Uploader {
 			throw new InvalidCSVException(null, "Team ID must be a number.");
 		}
 	}
+
+    /**
+     * @param row 1st line in CSV file
+     * @return true if file contains header otherwise return false
+     */
+    @Override
+    protected boolean doesContainsHeader( List<String> row ) {
+        return (row.get( 0 ).toLowerCase().contains( "employee serial" ) &&
+            row.get( 1 ).toLowerCase().contains( "team" ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
+    }
 }

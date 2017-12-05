@@ -41,12 +41,6 @@ import com.ph.ibm.model.Utilization;
 import com.ph.ibm.model.Year;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.upload.Uploader;
-import com.ph.ibm.upload.upload.impl.AdminListUploader;
-import com.ph.ibm.upload.upload.impl.EmployeeListUploader;
-import com.ph.ibm.upload.upload.impl.EmployeeRoleUploader;
-import com.ph.ibm.upload.upload.impl.PEMListUploader;
-import com.ph.ibm.upload.upload.impl.TeamEmployeeUploader;
-import com.ph.ibm.upload.upload.impl.TeamListUploader;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConstants;
 
@@ -128,39 +122,6 @@ public class OnlinePUMResource {
         return new Authenticate().check( email, password );
     }
 
-/*    *//**
-         * This service is invoked when a user register <br>
-         * Exposed at "opum/registration" path
-         *
-         * @param employeeIdNumber - this is the user employee serial number
-         * @param projectName - this is the project name of the user
-         * @param email - the is the email address of the user
-         * @param password - this is the password of the user
-         * @return <b>String</b> - holds a message if a user registration succeed or not
-         * @throws Exception
-         *//*
-           @Path( "/registration" )
-           @POST
-           @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
-           @Produces( MediaType.TEXT_PLAIN )
-           public String registerEmployee( @FormParam( "employeeIdNumber" ) String employeeIdNumber,
-                                        @FormParam( "projectName" ) String projectName, @FormParam( "email" ) String email,
-                                        @FormParam( "password" ) String password )
-            throws Exception {
-            logger.info( "START registerEmployee" );
-            String message = null;
-            try{
-                employeeBO = new EmployeeBO();
-                message = employeeBO.registerEmployee( employeeIdNumber, projectName, email, password );
-            }
-            catch( Exception e ){
-                logger.error( e );
-                throw new OpumException( e.getMessage(), e );
-            }
-            logger.info( "END registerEmployee" );
-            return message;
-           }*/
-
     /**
      * This service is invoked when administrator upload file <br>
      * <br>
@@ -177,8 +138,8 @@ public class OnlinePUMResource {
     	logger.info( "START uploadEmployeeList" );
     	Response response;
         try{
-            uploader = new EmployeeListUploader();
-            response = uploader.upload( rawData, uriInfo );
+            projectBO = new ProjectBO();
+            response = projectBO.uploadEmployeeList( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );
@@ -203,8 +164,8 @@ public class OnlinePUMResource {
     public Response uploadTeamEmployeeList( String rawData, @Context UriInfo uriInfo ) throws SQLException, OpumException {
         Response response;
         try{
-            uploader = new TeamEmployeeUploader();
-            response = uploader.upload( rawData, uriInfo );
+            projectBO = new ProjectBO();
+            response = projectBO.uploadTeamEmployeeList( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );
@@ -229,8 +190,8 @@ public class OnlinePUMResource {
         logger.info( "START uploadEmployeeList" );
         Response response;
         try{
-            uploader = new TeamListUploader();
-            response = uploader.upload( rawData, uriInfo );
+            projectBO = new ProjectBO();
+            response = projectBO.uploadTeamList( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );
@@ -256,8 +217,8 @@ public class OnlinePUMResource {
         logger.info( "START uploadPEMList" );
         Response response;
         try{
-            uploader = new PEMListUploader();
-            response = uploader.upload( rawData, uriInfo );
+            projectBO = new ProjectBO();
+            response = projectBO.uploadPEMList( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );
@@ -283,8 +244,8 @@ public class OnlinePUMResource {
         logger.info( "START employeeRoleList" );
         Response response;
         try{
-            uploader = new EmployeeRoleUploader();
-            response = uploader.upload( rawData, uriInfo );
+            projectBO = new ProjectBO();
+            response = projectBO.uploadEmployeeRoleList( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );
@@ -313,8 +274,8 @@ public class OnlinePUMResource {
         logger.info( "START uploadAdminEmployeeList" );
         Response response;
         try{
-            uploader = new AdminListUploader();
-            response = uploader.upload( rawData, uriInfo );
+            projectBO = new ProjectBO();
+            response = projectBO.uploadAdminEmployeeList( rawData, uriInfo );
         }
         catch( Exception e ){
             logger.error( e );
