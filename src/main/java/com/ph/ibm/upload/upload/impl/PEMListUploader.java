@@ -23,6 +23,14 @@ import com.ph.ibm.validation.impl.PEMValidator;
 
 public class PEMListUploader extends CsvUploaderBase {
 
+    private static final String END_DATE_COLUMN_HEADER = "end date";
+
+    private static final String START_DATE_COLUMN_HEADER = "start date";
+
+    private static final String EMPLOYEE_SERIAL_COLUMN_HEADER = "employee serial";
+
+    private static final String PEM_SERIAL_COLUMN_HEADER = "pem serial";
+
     private PEMRepository pemRepository = new PEMRepositoryImpl();
 
     private PEMValidator pemValidator = new PEMValidator( pemRepository );
@@ -90,9 +98,20 @@ public class PEMListUploader extends CsvUploaderBase {
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).toLowerCase().contains( "pem serial" ) &&
-            row.get( 1 ).toLowerCase().contains( "employee serial" ) &&
-            row.get( 2 ).toLowerCase().contains( "start date" ) &&
-            row.get( 3 ).toLowerCase().contains( "end date" ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
+        return ( row.get( 0 ).toLowerCase().contains( PEM_SERIAL_COLUMN_HEADER ) &&
+            row.get( 1 ).toLowerCase().contains( EMPLOYEE_SERIAL_COLUMN_HEADER ) &&
+            row.get( 2 ).toLowerCase().contains( START_DATE_COLUMN_HEADER ) &&
+            row.get( 3 ).toLowerCase().contains( END_DATE_COLUMN_HEADER ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
+    }
+
+    /**
+     * @return valid headers
+     * @see com.ph.ibm.upload.CsvUploaderBase#getHeaders()
+     */
+    @Override
+    protected String getHeaders() {
+        String header = String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s",
+            PEM_SERIAL_COLUMN_HEADER, EMPLOYEE_SERIAL_COLUMN_HEADER, START_DATE_COLUMN_HEADER, END_DATE_COLUMN_HEADER );
+        return header;
     }
 }

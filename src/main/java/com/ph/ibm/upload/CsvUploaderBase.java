@@ -44,6 +44,7 @@ public abstract class CsvUploaderBase implements Uploader {
     /**
      * @param rawDataMap contains CSV file values
      * @param sc Scanner instance
+     * @param headers
      * @throws InvalidCSVException custom exception of invalid CSV
      */
     private void populateRawDataMap( Map<String, List<String>> rawDataMap, Scanner sc ) throws InvalidCSVException {
@@ -54,18 +55,21 @@ public abstract class CsvUploaderBase implements Uploader {
         int headerLineNumber = 1;
         while( sc.hasNextLine() ){
             String line = sc.nextLine();
-            if( isEmpty( line ) || line.startsWith( "----" ) ){
-                continue;
+
+            if( lineNumber == 1 && isEmpty( line ) ){
+                throw new InvalidCSVException( null, OpumConstants.NO_HEADER_FOUND );
             }
+
             row = Arrays.asList( line.split( delimiter ) );
             if( headerLineNumber == lineNumber && !doesContainsHeader( row ) ){
-                throw new InvalidCSVException( null, OpumConstants.NO_HEADER_FOUND );
+                throw new InvalidCSVException( null, getHeaders() );
             }
             else if( lineNumber == 1 ){
                 lineNumber++;
                 continue;
             }
-            if( !isLineEmpty( row ) ){
+
+            if( !isLineEmpty( row ) && !line.contains( "----" ) ){
                 rawDataMap.put( String.valueOf( lineNumber ), row );
             }
             lineNumber++;
@@ -144,6 +148,14 @@ public abstract class CsvUploaderBase implements Uploader {
     protected abstract boolean doesContainsHeader( List<String> row );
 
     /**
+     * Check row in CSV file if contains header i.e Serial, Employee, Email, Roll-In-Date, Roll-Off-Date
+     * 
+     * @param row row in CSV
+     * @return true if row contains header otherwise return false;
+     */
+    protected abstract String getHeaders();
+
+    /**
      * This method used to validate if CSV row data cell value is empty
      *
      * @param value cell value to check
@@ -154,10 +166,25 @@ public abstract class CsvUploaderBase implements Uploader {
     }
 
     /**
-     * @param row CSV row values
+     * @param row CSV row valuesW
      * @return true if row values is empty otherwise false
      */
-    protected boolean isLineEmpty( List<String> row ) {
-        return row == null || row.isEmpty();
+    private boolean isLineEmpty( List<String> row ) {
+        return ( row == null || row.isEmpty() || isRowEmpty( row ) );
     }
+
+    /**
+     * @param row
+     * @return
+     */
+    private boolean isRowEmpty( List<String> row ) {
+        for( String cell : row ){
+            if( cell != null && !cell.isEmpty() ){
+                return false;
+            }
+
+        }
+        return true;
+    }
+
 }

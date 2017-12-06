@@ -40,10 +40,9 @@ public class TeamValidator implements Validator<Team> {
     public boolean validate( Team team ) throws Exception {
         boolean isValid = !isTeamValueEmpty( team )
                         && isValidTeamName( team )
-                        && isValidLeadSerial( team )
+                        && !isTeamExisting( team )                    
                         && isValidRecoverable( team )
-                        && !isTeamExisting( team );
-
+                        && isValidLeadSerial( team );
         return isValid;
     }
 

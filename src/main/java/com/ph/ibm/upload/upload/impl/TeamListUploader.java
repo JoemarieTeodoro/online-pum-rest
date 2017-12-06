@@ -29,6 +29,12 @@ import com.ph.ibm.validation.impl.TeamValidator;
  */
 public class TeamListUploader extends CsvUploaderBase {
 
+    private static final String LEAD_COLUMN_HEADER = "Lead (Serial)";
+
+    private static final String RECOVERABLE_COLUMN_HEADER = "Recoverable(Y/N)";
+
+    private static final String TEAM_COLUMN_HEADER = "Team";
+
     /** Data Access Object to team table */
     private TeamRepository teamRepository = new TeamRepositoryImpl();
 
@@ -123,9 +129,20 @@ public class TeamListUploader extends CsvUploaderBase {
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).toLowerCase().contains( "team" ) &&
-            row.get( 1 ).toLowerCase().contains( "recoverable" ) &&
-            row.get( 2 ).toLowerCase().contains( "lead" ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
+        return ( row.get( 0 ).equalsIgnoreCase( TEAM_COLUMN_HEADER ) &&
+            row.get( 1 ).equalsIgnoreCase( RECOVERABLE_COLUMN_HEADER ) &&
+            row.get( 2 ).equalsIgnoreCase( LEAD_COLUMN_HEADER ) ) && row.size() == ROW_HEADER_COLUMN_SIZE;
+    }
+
+    /**
+     * @return valid header
+     * @see com.ph.ibm.upload.CsvUploaderBase#getHeaders()
+     */
+    @Override
+    protected String getHeaders() {
+        String header = String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s", TEAM_COLUMN_HEADER,
+            RECOVERABLE_COLUMN_HEADER, LEAD_COLUMN_HEADER );
+        return header;
     }
 
 }

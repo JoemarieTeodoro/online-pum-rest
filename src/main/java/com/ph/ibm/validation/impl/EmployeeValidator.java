@@ -32,11 +32,11 @@ public class EmployeeValidator implements Validator<Employee> {
 
         boolean isValid =
             !isEmployeeValueEmpty( employee ) &&
-            isValidEmailAddress( employee ) &&
             isValidEmployeeSerial( employee ) &&
-            !isEmployeeEmailExisting( employee ) &&
             !isEmployeeIdExisting( employee ) &&
             isValidEmployeeName( employee ) &&
+            isValidEmailAddress( employee ) &&
+            !isEmployeeEmailExisting( employee ) &&
             ValidationUtils.isValidDate( employee, employee.getRollInDate() ) &&
             ValidationUtils.isValidDate( employee, employee.getRollOffDate() ) &&
             ValidationUtils.isValidDateRange( employee, employee.getRollInDate(), employee.getRollOffDate() );

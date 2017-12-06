@@ -120,16 +120,16 @@ public class TeamRepositoryImpl implements TeamRepository {
     }
 
     @Override
-    public boolean teamExists( int teamId ) {
+    public boolean teamExists( String teamName ) {
         boolean exists = false;
 
         try{
             Connection connection = connectionPool.getConnection();
             PreparedStatement preparedStatement = null;
             ResultSet resultSet = null;
-            String query = "SELECT TEAM_ID FROM TEAM WHERE TEAM_ID = ?";
+            String query = "SELECT TEAM_ID FROM TEAM WHERE NAME = ?";
             preparedStatement = connection.prepareStatement( query );
-            preparedStatement.setInt( 1, teamId );
+            preparedStatement.setString( 1, teamName );
             resultSet = preparedStatement.executeQuery();
             exists = resultSet.next();
             resultSet.close();

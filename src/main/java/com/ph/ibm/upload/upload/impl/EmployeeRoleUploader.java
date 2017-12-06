@@ -23,6 +23,10 @@ import com.ph.ibm.validation.impl.EmployeeRoleValidator;
 
 public class EmployeeRoleUploader extends CsvUploaderBase {
 
+    private static final String ROLE_COLUMN_HEADER = "Role";
+
+    private static final String EMPLOYEE_SERIAL_COLUMN_HEADER = "Employee Serial";
+
     private EmployeeRoleRepository employeeRoleRepository = EmployeeRoleRepositoryImpl.getInstance();
 
     private Validator<EmployeeRole> employeeRoleValidator = new EmployeeRoleValidator( employeeRoleRepository );
@@ -101,12 +105,35 @@ public class EmployeeRoleUploader extends CsvUploaderBase {
     }
 
     /**
+     * Checks basic row validation i.e row item must not be empty.
+     * 
+     * @param row row in CSV file
+     * @throws InvalidCSVException when row value is not valid
+     */
+    private void checkRowIntegrity( List<String> row ) throws InvalidCSVException {
+        if( row == null || row.isEmpty() || row.size() != 2 || row.get( 0 ).isEmpty() || row.get( 1 ).isEmpty() ){
+            throw new InvalidCSVException( null, OpumConstants.EMPTY_CSV_ERROR );
+        }
+    }
+
+    /**
      * @param row 1st line in CSV file
      * @return true if file contains header otherwise return false
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).toLowerCase().contains( "employee serial" ) &&
-            row.get( 1 ).toLowerCase().contains( "role" ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
+        return ( row.get( 0 ).equalsIgnoreCase( EMPLOYEE_SERIAL_COLUMN_HEADER ) &&
+            row.get( 1 ).equalsIgnoreCase( ROLE_COLUMN_HEADER ) ) && row.size() == ROW_HEADER_COLUMN_SIZE;
+    }
+
+    /**
+     * @return valid header
+     * @see com.ph.ibm.upload.CsvUploaderBase#getHeaders()
+     */
+    @Override
+    protected String getHeaders() {
+        String header = String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s", EMPLOYEE_SERIAL_COLUMN_HEADER,
+            ROLE_COLUMN_HEADER );
+        return header;
     }
 }

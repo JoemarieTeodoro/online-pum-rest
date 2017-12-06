@@ -16,7 +16,7 @@ import com.ph.ibm.model.Team;
 public interface TeamRepository {
     
     /** Checks in the db if a certain team exists based on its teamID**/
-    boolean teamExists(int teamID);
+    boolean teamExists( String teamName );
 
     public boolean getTeam( Team team ) throws SQLException;
     

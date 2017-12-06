@@ -29,6 +29,16 @@ import com.ph.ibm.validation.impl.EmployeeValidator;
  */
 public class EmployeeListUploader extends CsvUploaderBase {
 
+    private static final String ROLL_OFF_DATE_COLUMN_HEADER = "Roll-off Date";
+
+    private static final String ROLL_IN_DATE_COLUMN_HEADER = "Roll-in Date";
+
+    private static final String EMAIL_COLUMN_HEADER = "Email";
+
+    private static final String EMPLOYEE_COLUMN_HEADER = "Employee";
+
+    private static final String SERIAL_COLUMN_HEADER = "Serial";
+
     /** Data Access Object to employee table */
     private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
@@ -131,9 +141,23 @@ public class EmployeeListUploader extends CsvUploaderBase {
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).toLowerCase().contains( "serial" ) && row.get( 1 ).toLowerCase().contains( "employee" ) &&
-            row.get( 2 ).toLowerCase().contains( "email" ) && row.get( 3 ).toLowerCase().contains( "roll-in date" ) &&
-            row.get( 4 ).toLowerCase().contains( "roll-off date" ) ) || row.size() == ROW_HEADER_COLUMN_SIZE;
+        return ( row.get( 0 ).equalsIgnoreCase( SERIAL_COLUMN_HEADER ) &&
+            row.get( 1 ).equalsIgnoreCase( EMPLOYEE_COLUMN_HEADER ) &&
+            row.get( 2 ).equalsIgnoreCase( EMAIL_COLUMN_HEADER ) &&
+            row.get( 3 ).equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
+            row.get( 4 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) &&
+            row.size() == ROW_HEADER_COLUMN_SIZE );
+    }
+
+    /**
+     * @return valid headers
+     * @see com.ph.ibm.upload.CsvUploaderBase#getHeaders()
+     */
+    @Override
+    protected String getHeaders() {
+        String header = String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s | %s", SERIAL_COLUMN_HEADER,
+            EMPLOYEE_COLUMN_HEADER, EMAIL_COLUMN_HEADER, ROLL_IN_DATE_COLUMN_HEADER, ROLL_OFF_DATE_COLUMN_HEADER );
+        return header;
     }
 
 }
