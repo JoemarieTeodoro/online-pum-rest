@@ -258,7 +258,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString( 1, email );
             resultSet = preparedStatement.executeQuery();
             return resultSet.next();
-            
+
         }
         catch( SQLException e ){
             logger.error( e.getStackTrace() );
@@ -343,7 +343,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         return false;
     }
 
-    public boolean saveOrUpdate( List<Employee> employees, Role role ) throws Exception {
+    @Override
+	public boolean saveOrUpdate( List<Employee> employees, Role role ) throws Exception {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         Boolean isActive = true;
@@ -468,6 +469,29 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             connectionPool.closeConnection( connection, preparedStatement );
         }
         return null;
+    }
+
+    @Override
+    public boolean doesEmployeeRoleIdExist(int roleId) {
+    	Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try{
+            String query = "SELECT ROLE_ID FROM ROLE WHERE ROLE_ID = ?";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setInt( 1, roleId );
+            resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
+
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+            return false;
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+
     }
 
 }

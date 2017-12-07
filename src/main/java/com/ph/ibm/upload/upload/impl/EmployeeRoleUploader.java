@@ -2,6 +2,7 @@ package com.ph.ibm.upload.upload.impl;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -13,7 +14,9 @@ import org.apache.log4j.Logger;
 import com.ph.ibm.model.EmployeeRole;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.InvalidCSVException;
+import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.EmployeeRoleRepository;
+import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.EmployeeRoleRepositoryImpl;
 import com.ph.ibm.upload.CsvUploaderBase;
 import com.ph.ibm.util.OpumConstants;
@@ -29,6 +32,8 @@ public class EmployeeRoleUploader extends CsvUploaderBase {
 
     private EmployeeRoleRepository employeeRoleRepository = EmployeeRoleRepositoryImpl.getInstance();
 
+    private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
+
     private Validator<EmployeeRole> employeeRoleValidator = new EmployeeRoleValidator( employeeRoleRepository );
 
     private Logger logger = Logger.getLogger( EmployeeRoleUploader.class );
@@ -40,17 +45,16 @@ public class EmployeeRoleUploader extends CsvUploaderBase {
     public Response upload( String rawData, UriInfo uriInfo ) throws Exception {
         List<EmployeeRole> validatedEmployeeRoles = new ArrayList<EmployeeRole>();
         EmployeeRole validateEmployeeRole = new EmployeeRole();
-        try{
-            for( List<String> row : parseCSV( rawData ).values() ){
+
+        try {
+        	Collection<List<String>> csvRowValues = parseCSV( rawData ).values();
+            for( List<String> row : csvRowValues ){
                 validateEmployeeRole = validateEmployeeRoles( row );
                 validatedEmployeeRoles.add( validateEmployeeRole );
             }
             for( EmployeeRole employeeRole : validatedEmployeeRoles ){
                 employeeRole = setRoleEnumsForEmployeeRole( employeeRole );
-                boolean isEmployeeRoleExist = employeeRoleRepository.isEmployeeRoleExists( employeeRole );
-                if( !isEmployeeRoleExist ){
-                    employeeRoleRepository.saveEmployeeRole( employeeRole );
-                }
+                validateEmployeeRolesInDB(employeeRole);
             }
             logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
         }
@@ -68,7 +72,22 @@ public class EmployeeRoleUploader extends CsvUploaderBase {
             OpumConstants.SUCCESS_UPLOAD ).build();
     }
 
+	private void validateEmployeeRolesInDB(EmployeeRole employeeRole) throws SQLException, InvalidCSVException {
+		boolean isEmployeeRoleExist = employeeRoleRepository.isEmployeeRoleExists( employeeRole );
+		boolean isEmployeeExist = employeeRepository.doesEmployeeIdExist(employeeRole.getEmployeeSerial());
+		boolean isRoleExist = employeeRepository.doesEmployeeRoleIdExist(
+				employeeRole.getEmployeeRoleEnum().getRoleId());
+		if ( isRoleExist && isEmployeeExist && !isEmployeeRoleExist ) {
+		    employeeRoleRepository.saveEmployeeRole( employeeRole );
+		} else if (isEmployeeRoleExist) {
+			throw new InvalidCSVException(employeeRole, OpumConstants.EMPLOYEE_ROLE_EXISTS);
+		}
+	}
+
     private EmployeeRole validateEmployeeRoles( List<String> row ) throws Exception {
+    	if (rowSizeLessThanTwoOrEmpty(row)) {
+    		throw new InvalidCSVException( null, OpumConstants.EMPTY_EMPLOYEE_ROLE );
+    	}
         EmployeeRole validateEmployeeRole = new EmployeeRole();
         validateEmployeeRole.setEmployeeSerial( row.get( 0 ) );
         validateEmployeeRole.setEmployeeRoleString( row.get( 1 ) );
@@ -119,9 +138,13 @@ public class EmployeeRoleUploader extends CsvUploaderBase {
     /**
      * @param row 1st line in CSV file
      * @return true if file contains header otherwise return false
+     * @throws InvalidCSVException if any exception occurs
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
+      if (rowSizeLessThanTwoOrEmpty(row)) {
+    		throw new InvalidCSVException( null, OpumConstants.EMPTY_CSV_VALUE );
+    	}
         return ( row.get( 0 ).equalsIgnoreCase( EMPLOYEE_SERIAL_COLUMN_HEADER ) &&
             row.get( 1 ).equalsIgnoreCase( ROLE_COLUMN_HEADER ) ) && row.size() == ROW_HEADER_COLUMN_SIZE;
     }
@@ -135,5 +158,9 @@ public class EmployeeRoleUploader extends CsvUploaderBase {
         String header = String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s", EMPLOYEE_SERIAL_COLUMN_HEADER,
             ROLE_COLUMN_HEADER );
         return header;
+    }
+
+    private boolean rowSizeLessThanTwoOrEmpty(List<String> row) {
+    	return row == null || row.isEmpty() || row.size() < 2;
     }
 }

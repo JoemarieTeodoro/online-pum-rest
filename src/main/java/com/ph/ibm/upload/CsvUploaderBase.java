@@ -20,7 +20,7 @@ import com.ph.ibm.util.UploaderUtils;
 /**
  * Base class for CSV file upload functionality. Contains method for initialization of file values and common
  * validations.
- * 
+ *
  * @author <a HREF="teodorj@ph.ibm.com">Joemarie Teodoro</a>
  * @author <a HREF="dacanam@ph.ibm.com">Marjay Dacanay</a>
  */
@@ -79,7 +79,7 @@ public abstract class CsvUploaderBase implements Uploader {
 
     /**
      * Validates the CSV file
-     * 
+     *
      * @param rawDataMap map which consists of CSV row values
      * @throws InvalidCSVException custom exception of invalid CSV
      */
@@ -91,7 +91,7 @@ public abstract class CsvUploaderBase implements Uploader {
 
     /**
      * Method to email list of addresses from the list uploaded by sys_admin/admin
-     * 
+     *
      * @param lstRecipients list of recipients
      * @throws IOException exception
      */
@@ -109,7 +109,7 @@ public abstract class CsvUploaderBase implements Uploader {
 
     /**
      * Generate message with the corresponding line number/s and error/s and return invalid response.
-     * 
+     *
      * @param uriInfo URI information
      * @param errorList list of errors
      * @return invalid response
@@ -141,11 +141,12 @@ public abstract class CsvUploaderBase implements Uploader {
 
     /**
      * Check row in CSV file if contains header i.e Serial, Employee, Email, Roll-In-Date, Roll-Off-Date
-     * 
+     *
      * @param row row in CSV
      * @return true if row contains header otherwise return false;
+     * @throws InvalidCSVException if any exception occurs
      */
-    protected abstract boolean doesContainsHeader( List<String> row );
+    protected abstract boolean doesContainsHeader( List<String> row ) throws InvalidCSVException;
 
     /**
      * Check row in CSV file if contains header i.e Serial, Employee, Email, Roll-In-Date, Roll-Off-Date

@@ -31,10 +31,13 @@ public class EmployeeRoleValidator implements Validator<EmployeeRole> {
 	}
 
 	protected boolean isEmployeeRoleValueEmpty(EmployeeRole employeeRole) throws InvalidCSVException {
-		if ( isValueEmpty( employeeRole.getEmployeeSerial() ) ||
-				isValueEmpty( employeeRole.getEmployeeRoleString() ) ) {
-            logger.info( "CAUSE OF ERROR: " + OpumConstants.EMPTY_CSV_ERROR );
-            throw new InvalidCSVException( employeeRole, OpumConstants.EMPTY_CSV_ERROR );
+		if ( isValueEmpty( employeeRole.getEmployeeRoleString() ) ) {
+            logger.info( "CAUSE OF ERROR: " + OpumConstants.EMPTY_EMPLOYEE_ROLE );
+            throw new InvalidCSVException( employeeRole, OpumConstants.EMPTY_EMPLOYEE_ROLE );
+		}
+		if ( isValueEmpty( employeeRole.getEmployeeSerial() ) ) {
+			logger.info( "CAUSE OF ERROR: " + OpumConstants.EMPTY_EMPLOYEE_SERIAL );
+            throw new InvalidCSVException( employeeRole, OpumConstants.EMPTY_EMPLOYEE_SERIAL );
 		}
 		return false;
 	}

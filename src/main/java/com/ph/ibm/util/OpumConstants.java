@@ -33,6 +33,7 @@ public class OpumConstants {
     public static final String EMPLOYEE_EMAIL_EXISTS = "EMPLOYEE EMAIL ALREADY EXISTS";
     public static final String TEAM_NAME_EXISTS = "TEAM ALREADY EXIST";
 	public static final String PEM_ID_EXISTS = "PEM ID ALREADY EXISTS";
+	public static final String EMPLOYEE_ROLE_EXISTS = "EMPLOYEE ROLE ALREADY EXISTS";
 	public static final String PROJECT_ENGAGEMENT_NOT_FOUND = "PROJECT ENGAGEMENT NOT FOUND";
 	public static final String UNAUTHORIZED = "UNAUTHORIZED";
 	public static final String ERROR_START_DATE = "ERROR START DATE";
@@ -42,6 +43,9 @@ public class OpumConstants {
 	public static final String INVALID_EMPLOYEE_ROLE = "INVALID EMPLOYEE ROLE";
     public static final String EMPTY_CSV_ERROR = "CSV CONTENTS SHOULD NOT BE EMPTY";
     public static final String EMPTY_CSV_VALUE = "EMPTY CSV VALUE";
+    public static final String EMPTY_CSV_ENTRIES_EMPLOYEE_ROLE = "EMPTY ENTRY EMPLOYEE ROLE CSV";
+    public static final String EMPTY_EMPLOYEE_ROLE = "EMPLOYEE ROLE SHOULD NOT BE EMPTY";
+    public static final String EMPTY_EMPLOYEE_SERIAL = "EMPLOYEE SERIAL SHOULD NOT BE EMPTY";
 
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";

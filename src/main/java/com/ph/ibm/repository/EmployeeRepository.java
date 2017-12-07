@@ -19,7 +19,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to insert fields into employee table
-     * 
+     *
      * @param employee
      * @return boolean
      * @throws BatchUpdateException
@@ -29,7 +29,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to update fields from employee table
-     * 
+     *
      * @param employee
      * @return boolean
      * @throws SQLException
@@ -38,7 +38,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to select field from employee table
-     * 
+     *
      * @param username
      * @param password
      * @return boolean
@@ -48,7 +48,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to select field from employee table
-     * 
+     *
      * @param username
      * @param password
      * @return boolean
@@ -58,7 +58,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to select field from employee table
-     * 
+     *
      * @param companyId
      * @return String
      * @throws SQLException
@@ -67,7 +67,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to check employee Id from employee table
-     * 
+     *
      * @param employeeIdNumber employee id number
      * @return
      * @throws SQLException sqlException
@@ -76,7 +76,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to email from from employee table
-     * 
+     *
      * @param email employee email
      * @return
      * @throws SQLException sqlException
@@ -85,7 +85,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to select fields from employee table
-     * 
+     *
      * @param employeeIdNumber
      * @return EmployeeUpdate Object
      * @throws SQLException
@@ -94,7 +94,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to update fields from employee table
-     * 
+     *
      * @param employeeUpdate
      * @return boolean
      * @throws SQLException
@@ -104,7 +104,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used save validated employee data to employee table
-     * 
+     *
      * @param validateEmployee
      * @param role
      * @return boolean
@@ -114,7 +114,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used save employee roles to employee_role table
-     * 
+     *
      * @param employeeUpdate
      * @return boolean
      * @throws SQLException
@@ -125,7 +125,7 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to retrieve the salt from employee table to be used for the reset password link token
-     * 
+     *
      * @param employeeUpdate
      * @return boolean
      * @throws SQLException
@@ -135,12 +135,21 @@ public interface EmployeeRepository {
 
     /**
      * This method is used to update the password
-     * 
+     *
      * @param resetPassword
      * @return boolean
      * @throws SQLException
      * @throws OpumException
      */
     boolean updatePassword( ResetPassword resetPassword ) throws SQLException;
+
+    /**
+     * This method is used to check role Id from role table
+     *
+     * @param roleId
+     * @return boolea
+     * @throws SQLException
+     */
+    boolean doesEmployeeRoleIdExist( int roleId) throws SQLException;
 
 }
