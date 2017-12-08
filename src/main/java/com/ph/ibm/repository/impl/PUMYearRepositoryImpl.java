@@ -8,7 +8,12 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -26,7 +31,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
-	private static final String DATE_FORMAT = "yyyy-MM-dd";
+	public static final String DATE_FORMAT = "yyyy-MM-dd";
 
 	@Override
 	public void saveYear(PUMYear pumYear) throws SQLException, ParseException, OpumException {
@@ -54,6 +59,40 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		}
 	}
 
+	public void populateFiscalYear(PUMYear pumYear) {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+
+		List<String> lstWeekend = Arrays.asList("SATURDAY", "SUNDAY");
+		try {
+			connection.setAutoCommit(false);
+			DateTimeFormatter df = DateTimeFormatter.ofPattern(DATE_FORMAT);
+			LocalDate fromDate = LocalDate.parse(pumYear.getStart(), df);
+			LocalDate toDate = LocalDate.parse(pumYear.getEnd(), df);
+			LocalDateTime counterDateTime = LocalDateTime.of(fromDate, LocalTime.from(LocalTime.MIN));
+			LocalDateTime toDateTime = LocalDateTime.of(toDate, LocalTime.from(LocalTime.MIN)).plusDays(1);
+
+			int yearId = retrieveYearDate(pumYear.getPumYear()).getYearId();
+			String query = (" INSERT INTO opum.fy_template(YEAR_ID, DATE, VALUE) " + " Values (?, ?, ?); ");
+			preparedStatement = connection.prepareStatement(query);
+
+			while (!counterDateTime.equals(toDateTime)) {
+				preparedStatement.setInt(1, yearId);
+				preparedStatement.setDate(2, Date.valueOf(counterDateTime.toLocalDate()));
+				preparedStatement.setString(3, lstWeekend.contains(counterDateTime.getDayOfWeek().name()) ? "" : OpumConstants.EIGHT);
+				preparedStatement.addBatch();
+				counterDateTime = counterDateTime.plusDays(1);
+			}
+
+			preparedStatement.executeBatch();
+			connection.commit();
+		} catch (SQLException e) {
+			logger.error(e);
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
+	}
+	
 	private void checkIfPUMCycleExisting(PUMYear pumYear) throws ParseException, OpumException {
 		Connection connection = connectionPool.getConnection();
 		ResultSet rs = null;
@@ -222,5 +261,32 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		}
 		
 		return false;
+	}
+
+	@Override
+	public PUMYear retrieveCurrentFY() {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		try {
+			PUMYear pumYear = new PUMYear();
+			String query = "SELECT * FROM YEAR ORDER BY PUMYEAR DESC LIMIT 1";
+			preparedStatement = connection.prepareStatement(query);
+			resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				pumYear.setCreateDate(resultSet.getString("createDate"));
+				pumYear.setCreatedBy(resultSet.getString("createdBy"));
+				pumYear.setEnd(resultSet.getString("end"));
+				pumYear.setPumYear(resultSet.getInt("pumYear"));
+				pumYear.setStart(resultSet.getString("start"));
+				pumYear.setUpdateDate(resultSet.getString("updateDate"));
+				pumYear.setYearId(resultSet.getInt("year_id"));
+			}
+			return pumYear;
+		}
+		catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return null;
 	}
 }

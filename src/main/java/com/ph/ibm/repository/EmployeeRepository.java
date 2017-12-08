@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.util.List;
 
 import com.ph.ibm.model.Employee;
+import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.Role;
@@ -152,4 +153,7 @@ public interface EmployeeRepository {
      */
     boolean doesEmployeeRoleIdExist( int roleId) throws SQLException;
 
+    List<EmployeeLeave> getEmployeeLeaves(String empId, String currFY);
+    
+	boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeave);
 }

@@ -129,6 +129,7 @@ public class ProjectBO {
             logger.info("Saving year...");
 
             pumYearRepository.saveYear(pumYear);
+			pumYearRepository.populateFiscalYear(pumYear);
             response = Response.status(Status.OK).entity("PUM fiscal year updated!").build();
         } catch (OpumException e) {
             logger.error(e.getMessage());

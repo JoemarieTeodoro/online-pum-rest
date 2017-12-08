@@ -82,4 +82,8 @@ public class OpumConstants {
 
     public static final String SUCCESS_UPLOAD = "CSV Uploaded Successfully!";
 
+	/** PUM Year **/
+	public static final String ZERO = "0";
+	public static final String EIGHT = "8";
+
 }

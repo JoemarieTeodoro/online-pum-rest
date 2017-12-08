@@ -3,6 +3,7 @@ package com.ph.ibm.repository.impl;
 import static com.ph.ibm.util.ValidationUtils.dateFormat;
 
 import java.sql.BatchUpdateException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +14,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Employee;
+import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.Role;
@@ -488,10 +490,50 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             logger.error( e.getStackTrace() );
             return false;
         }
+    }
+    
+	@Override
+	public List<EmployeeLeave> getEmployeeLeaves(String empId, String currFY) {
+		List<EmployeeLeave> empLeaveList = new ArrayList<EmployeeLeave>();
+		if (empId == null || empId.isEmpty() || currFY == null || currFY.isEmpty()) {
+			return empLeaveList;
+		}
+		Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+        try{
+            CallableStatement cStmt = connection.prepareCall("{call getEmpUtil(?,?)}");
+            cStmt.setString(1, empId);
+            cStmt.setInt(2, Integer.valueOf(currFY));
+            
+            resultSet = cStmt.executeQuery();
+            
+            while(resultSet.next()) {
+            	EmployeeLeave empLeave = new EmployeeLeave();
+                empLeave.setEmployeeID(resultSet.getString("employeeid"));
+                empLeave.setDate(resultSet.getDate("date").toString());
+                if (resultSet.getString("event_name") != null && !resultSet.getString("event_name").isEmpty()) {
+                	empLeave.setLeaveName(resultSet.getString("event_name"));
+                } else {
+                	empLeave.setLeaveName(resultSet.getString("hours"));
+                }
+                empLeave.setHoliday(resultSet.getBoolean("is_holiday"));
+                empLeaveList.add(empLeave);
+            }
+        }
+        catch( SQLException e ){
+            logger.error(e.getMessage());
+        }
         finally{
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
         }
+		return empLeaveList;
+	}
 
-    }
+	@Override
+	public boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeave) {
+		return false;
+	}
 
 }

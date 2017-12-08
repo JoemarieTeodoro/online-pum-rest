@@ -53,4 +53,7 @@ public interface PUMYearRepository {
 
 	public boolean saveMonth(PUMMonth pumMonth) throws SQLException, ParseException;
 
+	public PUMYear retrieveCurrentFY();
+
+	public void populateFiscalYear(PUMYear pumYear) throws SQLException, ParseException;
 }
