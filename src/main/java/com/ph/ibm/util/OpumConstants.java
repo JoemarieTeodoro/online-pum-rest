@@ -34,6 +34,8 @@ public class OpumConstants {
     public static final String TEAM_NAME_EXISTS = "TEAM ALREADY EXIST";
 	public static final String PEM_ID_EXISTS = "PEM ID ALREADY EXISTS";
 	public static final String EMPLOYEE_ROLE_EXISTS = "EMPLOYEE ROLE ALREADY EXISTS";
+	public static final String EMPLOYEE_SERIAL_DOES_NOT_EXIST = "EMPLOYEE SERIAL DOES NOT EXIST";
+	public static final String EMPLOYEE_ROLE_ID_DOES_NOT_EXIST = "EMPLOYEE ROLE ID DOES NOT EXIST";
 	public static final String PROJECT_ENGAGEMENT_NOT_FOUND = "PROJECT ENGAGEMENT NOT FOUND";
 	public static final String UNAUTHORIZED = "UNAUTHORIZED";
 	public static final String ERROR_START_DATE = "ERROR START DATE";

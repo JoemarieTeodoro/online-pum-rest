@@ -69,7 +69,7 @@ public class AdminListUploader extends CsvUploaderBase {
 
     /**
      * Uploads list of user administrator
-     * 
+     *
      * @param rawData rawData Data from the CSV file
      * @param uriInfo URI information
      * @return Status.OK if successful otherwise return invalid response
@@ -125,11 +125,9 @@ public class AdminListUploader extends CsvUploaderBase {
      *
      * @param row represents row in CSV file
      * @return Employee employee object
-     * @throws InvalidCSVException custom exception for invalid CSV file values
-     * @throws SQLException SQL related exception
      * @throws Exception exception
      */
-    private Employee validateEmployee( List<String> row ) throws InvalidCSVException, SQLException, Exception {
+    private Employee validateEmployee( List<String> row ) throws Exception {
         checkRowIntegrity( row );
         Employee employee = null;
         employee = new Employee();
@@ -144,7 +142,7 @@ public class AdminListUploader extends CsvUploaderBase {
 
     /**
      * Checks basic row validation i.e row item must not be empty.
-     * 
+     *
      * @param row row in CSV file
      * @throws InvalidCSVException when row value is not valid
      */

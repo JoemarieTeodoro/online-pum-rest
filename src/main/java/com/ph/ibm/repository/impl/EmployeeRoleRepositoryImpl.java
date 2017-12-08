@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -52,24 +53,24 @@ public class EmployeeRoleRepositoryImpl implements EmployeeRoleRepository {
 	}
 
 	@Override
-	public EmployeeRole saveEmployeeRole(EmployeeRole employeeRole) {
+	public boolean saveEmployeeRoles(List<EmployeeRole> employeeRoles) throws Exception {
 		Connection connection = connectionPool.getConnection();
-		PreparedStatement preparedStatement = null;
-		try {
-			connection.setAutoCommit(false);
-			String query = "INSERT INTO EMPLOYEE_ROLE (EMPLOYEE_ID, ROLE_ID) VALUES (?, ?)";
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, employeeRole.getEmployeeSerial());
-			preparedStatement.setInt(2, employeeRole.getEmployeeRoleEnum().getRoleId());
-			preparedStatement.addBatch();
-			preparedStatement.executeBatch();
-			connection.commit();
-			logger.info( OpumConstants.INSERTED_SUCCESS );
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			connectionPool.closeConnection( connection, preparedStatement );
-		}
-		return employeeRole;
+        PreparedStatement preparedStatement = null;
+        connection.setAutoCommit( false );
+        String query = "INSERT INTO EMPLOYEE_ROLE (EMPLOYEE_ID, ROLE_ID) VALUES (?, ?)";
+        preparedStatement = connection.prepareStatement( query );
+
+        for( EmployeeRole employeeRole : employeeRoles ){
+            preparedStatement.setString( 1, employeeRole.getEmployeeSerial() );
+            preparedStatement.setInt( 2, employeeRole.getEmployeeRoleEnum().getRoleId() );
+            preparedStatement.addBatch();
+        }
+
+        preparedStatement.executeBatch();
+        connection.commit();
+        preparedStatement.close();
+        logger.info( OpumConstants.SUCCESSFULLY_SAVED_DATA );
+
+		return true;
 	}
 }
