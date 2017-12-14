@@ -55,6 +55,7 @@ CREATE TABLE `employee` (
   `MiddleName` varchar(45) DEFAULT NULL,
   `FullName` varchar(60) DEFAULT NULL,
   `Password` tinytext,
+  `Emp_Status` varchar(45) NOT NULL DEFAULT 'A',
   `IsActive` tinyint(1) NOT NULL DEFAULT '0',
   `Roll_In_Date` date NOT NULL DEFAULT '0000-00-00',
   `Roll_Off_Date` date NOT NULL DEFAULT '0000-00-00',
@@ -62,8 +63,8 @@ CREATE TABLE `employee` (
   `CreatedBy` varchar(45) DEFAULT NULL,
   `UpdateDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UpdatedBy` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`Employee_ID`),
-  UNIQUE KEY `Employee_ID_Email_UNIQUE` (`Employee_ID`,`Email`),
+   KEY (`Employee_ID`),
+  
   KEY `Project_Engagement_ID_idx` (`Project_Engagement_ID`),
   CONSTRAINT `FK_Project_Engagement_ID` 
     FOREIGN KEY (`Project_Engagement_ID`) 
@@ -76,7 +77,7 @@ CREATE TABLE `employee` (
 -- Dumping data for table `employee`
 --
 INSERT INTO `employee` VALUES 
-    ('123456PH1','admin', '123456PH1', NULL,NULL,NULL,NULL,'Admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-08-08','2020-01-30','2017-08-08 14:19:52','ADMINISTRATOR','2017-08-08 19:27:13','ADMINISTRATOR');
+    ('123456PH1','admin', '123456PH1', NULL,NULL,NULL,NULL,'Admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d','A',0,'2017-08-08','2020-01-30','2017-08-08 14:19:52','ADMINISTRATOR','2017-08-08 19:27:13','ADMINISTRATOR');
    -- ('121212PH1','magdanc@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,'Claude Magdangal',NULL,0,'2017-08-08','2020-01-30','2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 08:42:23',NULL),
  --   ('131313PH1','aumana@ph.ibm.com', '123456PH1', NULL,NULL,NULL,NULL,'Aldaina Auman','1fe02bd4ffffb947619effffac5458a7075aa5ffff966a4ab50714eb2cd322dd4ab56f90',0,'2017-08-08','2020-01-30','2017-08-16 08:42:23','ADMINISTRATOR','2017-08-16 13:36:15','ADMINISTRATOR'),
   --  ('141414PH1', 'admin', '123456PH1', NULL,NULL,NULL,NULL,'admin','20df22dd2ed128d7798656a9ffffa55bffffa75942bdffff897749b60e49b6ffff80801ee1ffffc33d',0,'2017-08-08','2020-01-30','2017-10-25 03:23:16','ADMINISTRATOR','2017-10-25 03:23:16','ADMINISTRATOR');

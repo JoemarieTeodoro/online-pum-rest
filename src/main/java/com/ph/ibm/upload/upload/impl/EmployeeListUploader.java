@@ -18,6 +18,7 @@ import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.upload.CsvUploaderBase;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.OpumUtils;
 import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -114,6 +115,7 @@ public class EmployeeListUploader extends CsvUploaderBase {
         Employee employee = null;
         employee = new Employee();
         employee.setEmployeeSerial( row.get( 0 ) );
+        employee = OpumUtils.getEmployeeSerialAPI( employee );
         employee.setFullName( row.get( 1 ) );
         employee.setIntranetId( row.get( 2 ) );
         employee.setRollInDate( row.get( 3 ) );

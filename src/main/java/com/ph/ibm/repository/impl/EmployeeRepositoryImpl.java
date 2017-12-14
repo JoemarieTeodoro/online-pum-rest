@@ -279,25 +279,19 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         EmployeeUpdate employee = null;
         try{
             String query =
-                "SELECT EMPLOYEE.FULLNAME, EMPLOYEE.EMAIL, PROJECT.NAME, PROJECT_ENGAGEMENT.START, PROJECT_ENGAGEMENT.END, EMPLOYEE.ISACTIVE " +
-                    "FROM EMPLOYEE " +
-                    "JOIN PROJECT_ENGAGEMENT ON EMPLOYEE.EMPLOYEE_ID=PROJECT_ENGAGEMENT.EMPLOYEE_ID " +
-                    "JOIN PROJECT ON PROJECT_ENGAGEMENT.PROJECT_ID=PROJECT.PROJECT_ID " +
-                    "WHERE EMPLOYEE.EMPLOYEE_ID = ?";
-
+                "SELECT EMPLOYEE_ID, FULLNAME, EMAIL, PROJECT_ENGAGEMENT_ID, ROLL_IN_DATE, ROLL_OFF_DATE FROM EMPLOYEE WHERE EMPLOYEE_ID = ?";
             preparedStatement = connection.prepareStatement( query );
             preparedStatement.setString( 1, employeeIdNumber );
             resultSet = preparedStatement.executeQuery();
 
             if( resultSet.next() ){
                 employee = new EmployeeUpdate();
-                employee.setEmployeeIdNumber( employeeIdNumber );
-                employee.setFullName( resultSet.getString( 1 ) );
-                employee.setEmail( resultSet.getString( 2 ) );
-                employee.setProjectName( resultSet.getString( 3 ) );
-                employee.setStartDate( resultSet.getString( 4 ) );
-                employee.setEndDate( resultSet.getString( 5 ) );
-                employee.setActive( resultSet.getBoolean( 6 ) );
+                employee.setEmployeeIdNumber( resultSet.getString( 1 ) );
+                employee.setFullName( resultSet.getString( 2 ) );
+                employee.setEmail( resultSet.getString( 3 ) );
+                employee.setProjectName( "" );
+                employee.setStartDate( resultSet.getString( 5 ) );
+                employee.setEndDate( resultSet.getString( 6 ) );
             }
             return employee;
         }
@@ -350,31 +344,34 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         Boolean isActive = true;
+        String empStatus = "A";
         connection.setAutoCommit( false );
         String query = "INSERT INTO EMPLOYEE (" +
-            "Employee_ID,Email,Manager_ID, Project_Engagement_ID,FirstName,LastName,MiddleName,FullName,Password,isActive,Roll_In_Date, Roll_Off_Date, CreateDate,CreatedBy,UpdateDate,UpdatedBy) " +
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
+            "Employee_ID,Email,Manager_ID, Project_Engagement_ID,FirstName,LastName,MiddleName,FullName,Password,Emp_Status,isActive,Roll_In_Date, Roll_Off_Date, CreateDate,CreatedBy,UpdateDate,UpdatedBy) " +
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
         preparedStatement = connection.prepareStatement( query );
 
         for( Employee employee : employees ){
             preparedStatement.setString( 1, employee.getEmployeeSerial() );
             preparedStatement.setString( 2, employee.getIntranetId() );
-            preparedStatement.setString( 3, "P2XXXXX" );
+            preparedStatement.setString( 3, employee.getManagerSerial() );
             preparedStatement.setString( 4, null );
             preparedStatement.setString( 5, null );
             preparedStatement.setString( 6, null );
             preparedStatement.setString( 7, null );
             preparedStatement.setString( 8, employee.getFullName() );
             preparedStatement.setString( 9, MD5HashEncrypter.computeMD5Digest( employee.getEmployeeSerial() ) );
-            preparedStatement.setBoolean( 10, isActive );
-            preparedStatement.setString( 11, dateFormat( employee.getRollInDate() ) );
-            preparedStatement.setString( 12, dateFormat( employee.getRollOffDate() ) );
-            preparedStatement.setString( 13, employee.getCreateDate() );
-            preparedStatement.setString( 14, role.getRoleValue() );
-            preparedStatement.setString( 15, employee.getUpdateDate() );
-            preparedStatement.setString( 16, employee.getUpdatedBy() );
+            preparedStatement.setString( 10, empStatus );
+            preparedStatement.setBoolean( 11, isActive );
+            preparedStatement.setString( 12, dateFormat( employee.getRollInDate() ) );
+            preparedStatement.setString( 13, dateFormat( employee.getRollOffDate() ) );
+            preparedStatement.setString( 14, employee.getCreateDate() );
+            preparedStatement.setString( 15, role.getRoleValue() );
+            preparedStatement.setString( 16, employee.getUpdateDate() );
+            preparedStatement.setString( 17, employee.getUpdatedBy() );
             preparedStatement.addBatch();
             saveEmployeeRole( employee.getEmployeeSerial(), role );
+            updateEmployeeStatus( employee.getEmployeeSerial() );
         }
 
         preparedStatement.executeBatch();
@@ -535,5 +532,34 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 	public boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeave) {
 		return false;
 	}
+
+    /**
+     * @param serialNumber
+     * @return
+     * @throws SQLException
+     * @see com.ph.ibm.repository.EmployeeRepository#updateEmployeeStatus(java.lang.String)
+     */
+    @Override
+    public boolean updateEmployeeStatus( String serialNumber ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        try{
+            connection.setAutoCommit( false );
+            String query = "UPDATE EMPLOYEE SET EMP_STATUS = 'I' WHERE EMPLOYEE_ID = ?;";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, serialNumber );
+            preparedStatement.executeUpdate();
+            connection.commit();
+            logger.info( OpumConstants.UPDATED_SUCCESS );
+            return true;
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement );
+        }
+        return false;
+    }
 
 }

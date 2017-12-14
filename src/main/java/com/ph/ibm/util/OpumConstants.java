@@ -49,6 +49,8 @@ public class OpumConstants {
     public static final String EMPTY_EMPLOYEE_ROLE = "EMPLOYEE ROLE SHOULD NOT BE EMPTY";
     public static final String EMPTY_EMPLOYEE_SERIAL = "EMPLOYEE SERIAL SHOULD NOT BE EMPTY";
 
+    public static final String EMPLOYEE_SERIAL_DOES_NOT_EXIST_IBM = "EMPLOYEE SERIAL DOES NOT EXIST IN IBM DIRECTORY";
+
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";
 	public static final String SUCCESSFULLY_SAVED_DATA = "SUCCESSFULLY SAVED DATA";
@@ -65,7 +67,7 @@ public class OpumConstants {
 	public static final String INSERTED_SUCCESS = "INSERTED SUCCESS";
 	public static final String UPDATED_SUCCESS = "UPDATED SUCCESS";
 	public static final String DELETED_SUCCESS = "DELETED SUCCESS";
-	public static final String ADMIN = "ADMIN";
+    public static final String ADMIN = "ADMIN";
 
 	/** EMAIL MESSAGES */
 	public static final String EMAIL_SUBJECT = "ACTION REQUIRED: RESET PASSWORD";

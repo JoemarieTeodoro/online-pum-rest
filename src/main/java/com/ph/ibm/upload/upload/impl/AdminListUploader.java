@@ -18,6 +18,7 @@ import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.upload.CsvUploaderBase;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.OpumUtils;
 import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
@@ -132,6 +133,7 @@ public class AdminListUploader extends CsvUploaderBase {
         Employee employee = null;
         employee = new Employee();
         employee.setEmployeeSerial( row.get( 0 ) );
+        employee = OpumUtils.getEmployeeSerialAPI( employee );
         employee.setFullName( row.get( 1 ) );
         employee.setIntranetId( row.get( 2 ) );
         employee.setRollInDate( row.get( 3 ) );
@@ -159,8 +161,10 @@ public class AdminListUploader extends CsvUploaderBase {
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).equalsIgnoreCase( SERIAL_COLUMN_HEADER ) && row.get( 1 ).equalsIgnoreCase( EMPLOYEE_COLUMN_HEADER ) &&
-            row.get( 2 ).equalsIgnoreCase( EMAIL_COLUMN_HEADER ) && row.get( 3 ).equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
+        return ( row.get( 0 ).equalsIgnoreCase( SERIAL_COLUMN_HEADER ) &&
+            row.get( 1 ).equalsIgnoreCase( EMPLOYEE_COLUMN_HEADER ) &&
+            row.get( 2 ).equalsIgnoreCase( EMAIL_COLUMN_HEADER ) &&
+            row.get( 3 ).equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
             row.get( 4 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) && row.size() == ROW_HEADER_COLUMN_SIZE );
     }
 
@@ -170,8 +174,9 @@ public class AdminListUploader extends CsvUploaderBase {
      */
     @Override
     protected String getHeaders() {
-        String header = String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s | %s", SERIAL_COLUMN_HEADER,
-            EMPLOYEE_COLUMN_HEADER, EMAIL_COLUMN_HEADER, ROLL_IN_DATE_COLUMN_HEADER, ROLL_OFF_DATE_COLUMN_HEADER );
+        String header =
+            String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s | %s", SERIAL_COLUMN_HEADER,
+                EMPLOYEE_COLUMN_HEADER, EMAIL_COLUMN_HEADER, ROLL_IN_DATE_COLUMN_HEADER, ROLL_OFF_DATE_COLUMN_HEADER );
         return header;
     }
 
