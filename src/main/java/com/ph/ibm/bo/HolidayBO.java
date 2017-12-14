@@ -11,13 +11,17 @@ import org.apache.log4j.Logger;
 import com.ph.ibm.model.Holiday;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.HolidayEngagementRepository;
+import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.repository.impl.HolidayRepositoryImpl;
+import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.util.ValidationUtils;
 
 public class HolidayBO {
 	private Logger logger = Logger.getLogger(HolidayBO.class);
 	
 	private HolidayEngagementRepository holidayEngagementRepository = new HolidayRepositoryImpl();
+
+	private PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
 
 	/**
 	 * @throws SQLException
@@ -31,6 +35,8 @@ public class HolidayBO {
 			} else {
 				holidayEngagementRepository.addHolidayEngagement(holiday);
 				logger.info("Holiday Added!");
+				pumYearRepository.addUpdateHolidayInFiscalYearTemplate(holiday, pumYearRepository.retrieveCurrentFY());
+				logger.info("Holiday Added in Fiscal Year Template!");
 				response = Response.status(Status.OK).entity("Holiday added!").build();
 			}
 		} catch (OpumException e) {

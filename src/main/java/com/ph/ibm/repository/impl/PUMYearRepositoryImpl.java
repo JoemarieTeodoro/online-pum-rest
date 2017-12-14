@@ -18,9 +18,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.ph.ibm.model.Holiday;
 import com.ph.ibm.model.PUMMonth;
 import com.ph.ibm.model.PUMQuarter;
 import com.ph.ibm.model.PUMYear;
+import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.resources.ConnectionPool;
@@ -42,12 +44,13 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 
 			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 			connection.setAutoCommit(false);
-			String query = "INSERT INTO YEAR (" + "START,END,PUMYEAR) " + "VALUES (?,?,?); ";
+			String query = "INSERT INTO YEAR (START,END,PUMYEAR,CREATEDBY) VALUES (?,?,?,?); ";
 
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setDate(1, new Date(df.parse(pumYear.getStart()).getTime()));
 			preparedStatement.setDate(2, new Date(df.parse(pumYear.getEnd()).getTime()));
 			preparedStatement.setInt(3, pumYear.getPumYear());
+			preparedStatement.setString(4, Role.ADMIN.toString());
 
 			preparedStatement.executeUpdate();
 			connection.commit();
@@ -59,6 +62,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		}
 	}
 
+	@Override
 	public void populateFiscalYear(PUMYear pumYear) {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
@@ -73,13 +77,15 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 			LocalDateTime toDateTime = LocalDateTime.of(toDate, LocalTime.from(LocalTime.MIN)).plusDays(1);
 
 			int yearId = retrieveYearDate(pumYear.getPumYear()).getYearId();
-			String query = (" INSERT INTO opum.fy_template(YEAR_ID, DATE, VALUE) " + " Values (?, ?, ?); ");
+			String query = (" INSERT INTO opum.fy_template(YEAR_ID, DATE, VALUE, IS_HOLIDAY, EVENT_NAME) " + " Values (?,?,?,?,?); ");
 			preparedStatement = connection.prepareStatement(query);
 
 			while (!counterDateTime.equals(toDateTime)) {
 				preparedStatement.setInt(1, yearId);
 				preparedStatement.setDate(2, Date.valueOf(counterDateTime.toLocalDate()));
 				preparedStatement.setString(3, lstWeekend.contains(counterDateTime.getDayOfWeek().name()) ? "" : OpumConstants.EIGHT);
+				preparedStatement.setInt(4, 0); // isHoliday
+				preparedStatement.setString(5, ""); // EventName
 				preparedStatement.addBatch();
 				counterDateTime = counterDateTime.plusDays(1);
 			}
@@ -93,6 +99,35 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		}
 	}
 	
+	@Override
+	public void addUpdateHolidayInFiscalYearTemplate(Holiday holiday, PUMYear pumYear) throws OpumException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+
+		try {
+
+			if (pumYear != null) {
+				connection.setAutoCommit(false);
+				String query = " UPDATE opum.fy_template SET value = 0, is_holiday = 1, event_name = ? WHERE date = ? AND YEAR_ID = ?; ";
+				preparedStatement = connection.prepareStatement(query);
+				preparedStatement.setString(1, holiday.getName());
+				preparedStatement.setDate(2, Date.valueOf(holiday.getDate()));
+				preparedStatement.setInt(3, pumYear.getYearId());
+				preparedStatement.executeUpdate();
+				connection.commit();
+			} else {
+				throw new OpumException("Fiscal year not found!");
+			}
+
+		} catch (SQLException e) {
+			logger.error(e);
+		} catch (OpumException e) {
+			throw new OpumException(e.getMessage());
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
+	}
+
 	private void checkIfPUMCycleExisting(PUMYear pumYear) throws ParseException, OpumException {
 		Connection connection = connectionPool.getConnection();
 		ResultSet rs = null;
@@ -114,7 +149,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		} catch (SQLException e) {
 			logger.error(e.getMessage());
 		} finally {
-			connectionPool.closeConnection(connection, preparedStatement);
+			connectionPool.closeConnection(connection, preparedStatement, rs);
 		}
 	}
 

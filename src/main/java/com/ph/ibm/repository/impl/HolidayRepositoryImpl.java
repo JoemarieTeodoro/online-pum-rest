@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.ph.ibm.model.Holiday;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.HolidayEngagementRepository;
+import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
 
@@ -30,14 +31,16 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		try {
+			connection.setAutoCommit(false);
 			checkIfHolidayExisting(holiday);
 
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			connection.setAutoCommit(false);
-			String query = "INSERT INTO HOLIDAY (" + "NAME,DATE ) " + "VALUES (?,?); ";
+			PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
+			String query = "INSERT INTO HOLIDAY (" + "NAME, DATE, YEAR_ID ) " + "VALUES (?,?,?); ";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, holiday.getName());
 			preparedStatement.setDate(2, new Date(df.parse(holiday.getDate()).getTime()));
+			preparedStatement.setInt(3, pumYearRepository.retrieveCurrentFY().getYearId());
 			preparedStatement.executeUpdate();
 			connection.commit();
 		} catch (ParseException e) {

@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
+import com.ph.ibm.model.Holiday;
 import com.ph.ibm.model.PUMMonth;
 import com.ph.ibm.model.PUMQuarter;
 import com.ph.ibm.model.PUMYear;
@@ -56,4 +57,6 @@ public interface PUMYearRepository {
 	public PUMYear retrieveCurrentFY();
 
 	public void populateFiscalYear(PUMYear pumYear) throws SQLException, ParseException;
+
+	public void addUpdateHolidayInFiscalYearTemplate(Holiday holiday, PUMYear pumyear) throws SQLException, OpumException;
 }
