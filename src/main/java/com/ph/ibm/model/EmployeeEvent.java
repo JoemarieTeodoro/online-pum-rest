@@ -1,12 +1,16 @@
 package com.ph.ibm.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class EmployeeEvent implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private List<EmployeeLeave> empLeaveList;
+	private List<EmployeeLeave> empLeaveList = new ArrayList<EmployeeLeave>();
 	private String currFYStartDate;
 	private String curreFYEndDate;
 	

@@ -160,4 +160,13 @@ public class EmployeeBO {
     	
     	return cal;
     }
+    
+	public boolean saveEmployeeLeave(List<EmployeeLeave> empLeave) {
+		try {
+			return employeeRepository.saveEmployeeLeave(empLeave);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return false;
+	}
 }
