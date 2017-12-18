@@ -17,8 +17,8 @@ import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.upload.CsvUploaderBase;
+import com.ph.ibm.util.BluePagesUtils;
 import com.ph.ibm.util.OpumConstants;
-import com.ph.ibm.util.OpumUtils;
 import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
@@ -102,6 +102,7 @@ public class AdminListUploader extends CsvUploaderBase {
             else{
                 employeeRepository.saveOrUpdate( validatedEmployees, Role.SYS_ADMIN );
                 logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
+                logger.info( OpumConstants.SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS + recipientList.toString() );
             }
         }
         catch( InvalidCSVException e ){
@@ -113,10 +114,6 @@ public class AdminListUploader extends CsvUploaderBase {
             logger.error( e.getStackTrace() );
             return Response.status( 406 ).entity( OpumConstants.SQL_ERROR ).build();
         }
-
-        logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
-        sendEmailsToListOfRecepientsToChangePasswords( recipientList );
-        logger.info( OpumConstants.SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS + recipientList.toString() );
 
         return Response.status( Status.OK ).entity( OpumConstants.SUCCESS_UPLOAD ).build();
     }
@@ -133,14 +130,15 @@ public class AdminListUploader extends CsvUploaderBase {
         Employee employee = null;
         employee = new Employee();
         employee.setEmployeeSerial( row.get( 0 ) );
-        employee = OpumUtils.getEmployeeSerialAPI( employee );
         employee.setFullName( row.get( 1 ) );
         employee.setIntranetId( row.get( 2 ) );
         employee.setRollInDate( row.get( 3 ) );
         employee.setRollOffDate( row.get( 4 ) );
         employeeValidator.validate( employee );
+        employee.setManagerSerial( BluePagesUtils.getManagerSerial( employee ) );
         return employee;
     }
+
 
     /**
      * Checks basic row validation i.e row item must not be empty.

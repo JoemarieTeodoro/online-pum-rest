@@ -123,7 +123,7 @@ public class TeamEmployeeUploader extends CsvUploaderBase {
             throw new InvalidCSVException( null, "No existing employee with Employee Serial: " + row.get( 0 ) );
         }
         else if( !teamRepository.teamExists( teamEmployee.getTeamName() ) ){
-            throw new InvalidCSVException( null, "No existing team with Team ID: " + row.get( 1 ) );
+            throw new InvalidCSVException( null, "No existing team with Team Name: " + row.get( 1 ) );
         }
         else if( !ValidationUtils.regexValidator( teamEmployee, teamEmployee.getTeamName(),
             ValidationUtils.VALID_TEAM_NAME_REGEX, OpumConstants.INVALID_TEAM_NAME ) ){

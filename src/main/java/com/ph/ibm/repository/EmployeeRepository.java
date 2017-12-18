@@ -156,13 +156,32 @@ public interface EmployeeRepository {
     List<EmployeeLeave> getEmployeeLeaves(String empId, String currFY);
     
 	boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeave);
+
     /**
      * This method is used to update employee status in employee table
      *
      * @param roleId
-     * @return boolea
+     * @return boolean
      * @throws SQLException
      */
-    boolean updateEmployeeStatus( String serialNumber ) throws SQLException;
+    public boolean updateEmployeeStatus( String serialNumber ) throws SQLException;
+
+    /**
+     * This method is used to retrieve employee details count
+     *
+     * @param serialNumber Employee Serial Number
+     * @return boolean
+     * @throws SQLException
+     */
+    public int getEmployeeCount( String serialNumber ) throws SQLException;
+
+    /**
+     * This method is used to retrieve the recent password of employee
+     * 
+     * @param serialNumber
+     * @return
+     * @throws SQLException
+     */
+    public String retrieveRecentPassword( String serialNumber ) throws SQLException;
 
 }

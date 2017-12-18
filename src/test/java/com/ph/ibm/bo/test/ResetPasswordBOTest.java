@@ -33,7 +33,7 @@ public class ResetPasswordBOTest {
 		email.setSubject("Testing");
 		email.setText("Dear User," + "\n\n For testing, please! \n\n reset password link: %s");
 		
-		resetPasswordBO.emailResetPasswordLink(email);
+        resetPasswordBO.emailResetPasswordLinkToSingleEmployee( email );
 	}
 	
 /*	@Test

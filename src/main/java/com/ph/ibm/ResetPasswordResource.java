@@ -78,7 +78,7 @@ public class ResetPasswordResource {
 		Response response;
 		try {
 			resetPasswordBO = new ResetPasswordBO();
-			response = resetPasswordBO.emailResetPasswordLink(email);
+            response = resetPasswordBO.emailResetPasswordLinkToSingleEmployee( email );
 		} catch (Exception e) {
 			logger.error(e);
 			throw new OpumException(e.getMessage(), e);

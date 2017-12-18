@@ -20,15 +20,19 @@ import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
+import com.ph.ibm.repository.TeamEmployeeRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.UploaderUtils;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
 
     private Logger logger = Logger.getLogger( EmployeeRepositoryImpl.class );
 
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
+
+    TeamEmployeeRepository teamEmployeeRepository = new TeamEmployeeRepositoryImpl();
 
     @Override
     public boolean addData( Employee employee ) throws SQLException, BatchUpdateException {
@@ -289,7 +293,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 employee.setEmployeeIdNumber( resultSet.getString( 1 ) );
                 employee.setFullName( resultSet.getString( 2 ) );
                 employee.setEmail( resultSet.getString( 3 ) );
-                employee.setProjectName( "" );
+                employee.setProjectName(
+                    teamEmployeeRepository.retrieveActiveTeamAssignment( employee.getEmployeeIdNumber() ) );
                 employee.setStartDate( resultSet.getString( 5 ) );
                 employee.setEndDate( resultSet.getString( 6 ) );
             }
@@ -340,7 +345,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     @Override
-	public boolean saveOrUpdate( List<Employee> employees, Role role ) throws Exception {
+    public boolean saveOrUpdate( List<Employee> employees, Role role ) throws Exception {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         Boolean isActive = true;
@@ -360,7 +365,14 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString( 6, null );
             preparedStatement.setString( 7, null );
             preparedStatement.setString( 8, employee.getFullName() );
-            preparedStatement.setString( 9, MD5HashEncrypter.computeMD5Digest( employee.getEmployeeSerial() ) );
+            if( getEmployeeCount( employee.getEmployeeSerial() ) > 0 ){
+                preparedStatement.setString( 9, retrieveRecentPassword( employee.getEmployeeSerial() ) );
+            }
+            else{
+                employee.setPassword( MD5HashEncrypter.computeMD5Digest( employee.getEmployeeSerial() ) );
+                preparedStatement.setString( 9, employee.getPassword() );
+                UploaderUtils.sendEmailToRecipients( employee );
+            }
             preparedStatement.setString( 10, empStatus );
             preparedStatement.setBoolean( 11, isActive );
             preparedStatement.setString( 12, dateFormat( employee.getRollInDate() ) );
@@ -471,8 +483,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     @Override
-    public boolean doesEmployeeRoleIdExist(int roleId) {
-    	Connection connection = connectionPool.getConnection();
+    public boolean doesEmployeeRoleIdExist( int roleId ) {
+        Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try{
@@ -488,50 +500,51 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             return false;
         }
     }
-    
-	@Override
-	public List<EmployeeLeave> getEmployeeLeaves(String empId, String currFY) {
-		List<EmployeeLeave> empLeaveList = new ArrayList<EmployeeLeave>();
-		if (empId == null || empId.isEmpty() || currFY == null || currFY.isEmpty()) {
-			return empLeaveList;
-		}
-		Connection connection = connectionPool.getConnection();
+
+    @Override
+    public List<EmployeeLeave> getEmployeeLeaves( String empId, String currFY ) {
+        List<EmployeeLeave> empLeaveList = new ArrayList<EmployeeLeave>();
+        if( empId == null || empId.isEmpty() || currFY == null || currFY.isEmpty() ){
+            return empLeaveList;
+        }
+        Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        
+
         try{
-            CallableStatement cStmt = connection.prepareCall("{call getEmpUtil(?,?)}");
-            cStmt.setString(1, empId);
-            cStmt.setInt(2, Integer.valueOf(currFY));
-            
+            CallableStatement cStmt = connection.prepareCall( "{call getEmpUtil(?,?)}" );
+            cStmt.setString( 1, empId );
+            cStmt.setInt( 2, Integer.valueOf( currFY ) );
+
             resultSet = cStmt.executeQuery();
-            
-            while(resultSet.next()) {
-            	EmployeeLeave empLeave = new EmployeeLeave();
-                empLeave.setEmployeeID(resultSet.getString("employeeid"));
-                empLeave.setDate(resultSet.getDate("date").toString());
-                if (resultSet.getString("event_name") != null && !resultSet.getString("event_name").isEmpty()) {
-                	empLeave.setLeaveName(resultSet.getString("event_name"));
-                } else {
-                	empLeave.setLeaveName(resultSet.getString("hours"));
+
+            while( resultSet.next() ){
+                EmployeeLeave empLeave = new EmployeeLeave();
+                empLeave.setEmployeeID( resultSet.getString( "employeeid" ) );
+                empLeave.setDate( resultSet.getDate( "date" ).toString() );
+                if( resultSet.getString( "event_name" ) != null && !resultSet.getString( "event_name" ).isEmpty() ){
+                    empLeave.setLeaveName( resultSet.getString( "event_name" ) );
                 }
-                empLeave.setHoliday(resultSet.getBoolean("is_holiday"));
-                empLeaveList.add(empLeave);
+                else{
+                    empLeave.setLeaveName( resultSet.getString( "hours" ) );
+                }
+                empLeave.setHoliday( resultSet.getBoolean( "is_holiday" ) );
+                empLeaveList.add( empLeave );
             }
         }
         catch( SQLException e ){
-            logger.error(e.getMessage());
+            logger.error( e.getMessage() );
         }
         finally{
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
         }
-		return empLeaveList;
-	}
+        return empLeaveList;
+    }
 
-	@Override
-	public boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeave) {
-		return false;
-	}
+    @Override
+    public boolean saveEmployeeLeave( List<EmployeeLeave> employeeLeave ) {
+        return false;
+    }
 
     /**
      * @param serialNumber
@@ -560,6 +573,75 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             connectionPool.closeConnection( connection, preparedStatement );
         }
         return false;
+    }
+
+    /**
+     * @param serialNumber
+     * @return
+     * @throws SQLException
+     * @see com.ph.ibm.repository.EmployeeRepository#getEmployeeCount(java.lang.String)
+     */
+    @Override
+    public int getEmployeeCount( String serialNumber ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int count = 0;
+        String query = "SELECT COUNT(EMPLOYEE_ID) FROM EMPLOYEE WHERE EMPLOYEE_ID = ?";
+        try{
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, serialNumber );
+            resultSet = preparedStatement.executeQuery();
+            if( resultSet.next() ){
+                count = resultSet.getInt( 1 );
+                // return resultSet.getInt( 1 );
+            }
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+        return count;
+
+    }
+
+    /**
+     * @param serialNumber
+     * @return
+     * @throws SQLException
+     * @see com.ph.ibm.repository.EmployeeRepository#retrieveRecentPassword(java.lang.String)
+     */
+    @Override
+    public String retrieveRecentPassword( String serialNumber ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String password = null;
+        String query = "SELECT PASSWORD FROM EMPLOYEE WHERE EMPLOYEE_ID = ? AND EMP_STATUS = 'A'";
+        try{
+
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, serialNumber );
+            resultSet = preparedStatement.executeQuery();
+            if( resultSet.next() ){
+                System.out.println( "getpassword" );
+                password = resultSet.getString( 1 );
+
+            }
+
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+            return null;
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+
+        return password;
     }
 
 }

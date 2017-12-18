@@ -3,8 +3,6 @@ package com.ph.ibm.validation.impl;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,41 +36,6 @@ public class EmployeeValidatorTest {
         invalidEmployee = createInvalidEmployee();
     }
 
-    @Test
-    public void testValidateWhenEmployeeEmailIsNotExisting()
-        throws SQLException, InvalidCSVException, InvalidCSVException {
-        Employee employee = createValidEmployee();
-
-        Mockito.doReturn( false ).when( validator ).isEmployeeEmailExisting( employee );
-
-        assertTrue( validator.validate( employee ) );
-    }
-
-    @Test
-    public void testValidateWhenEmployeeIdIsNotExisting()
-        throws SQLException, InvalidCSVException, InvalidCSVException {
-        Employee employee = createValidEmployee();
-
-        Mockito.doReturn( false ).when( validator ).isEmployeeIdExisting( employee );
-
-        assertTrue( validator.validate( employee ) );
-    }
-
-    @Test( expected = InvalidCSVException.class )
-    public void testValidateWhenInvalidDateRangeIsPresent()
-        throws SQLException, InvalidCSVException, InvalidCSVException {
-        Employee employee = new Employee();
-        employee.setEmployeeSerial( "P100Y2" );
-        employee.setFullName( "Jason Tan" );
-        employee.setIntranetId( "tanjs@ph.ibm.com" );
-        employee.setRollInDate( "9/18/2017" );
-        employee.setRollOffDate( "02/31/2017" );
-
-        Mockito.doReturn( false ).when( validator ).isEmployeeEmailExisting( employee );
-
-        validator.validate( employee );
-    }
-    
     @Test
     public void testValidIsEmployeeValueEmpty() throws InvalidCSVException, InvalidCSVException {
         Employee employee = createValidEmployee();
@@ -185,46 +148,11 @@ public class EmployeeValidatorTest {
         validator.isValidEmployeeName( invalidEmployee );
     }
 
-    @Test
-    public void testIsEmployeeExisting() throws SQLException, InvalidCSVException {
-        Employee nonExistingEmployee = createNonExistingEmployee();
-        Mockito.doReturn( false ).when( employeeRepository ).doesEmployeeIdExist(
-            nonExistingEmployee.getEmployeeSerial() );
-        assertFalse( validator.isEmployeeIdExisting( nonExistingEmployee ) );
-    }
-
-    @Test
-    public void testIsEmployeeEmailExisting() throws SQLException, InvalidCSVException {
-        Employee nonExistingEmployee = createNonExistingEmployee();
-        Mockito.doReturn( false ).when( employeeRepository ).doesEmployeeIdExist(
-            nonExistingEmployee.getEmployeeSerial() );
-        assertFalse( validator.isEmployeeEmailExisting( nonExistingEmployee ) );
-    }
-
-    @Test( expected = InvalidCSVException.class )
-    public void testIsEmployeeExistingCSVException() throws SQLException, InvalidCSVException {
-        Employee nonExistingEmployee = createNonExistingEmployee();
-
-        Mockito.doReturn( true ).when( employeeRepository ).doesEmailExist( nonExistingEmployee.getIntranetId() );
-
-        validator.isEmployeeEmailExisting( nonExistingEmployee );
-    }
-    
-    @Test( expected = InvalidCSVException.class )
-    public void testIsEmployeeIdCSVException() throws SQLException, InvalidCSVException {
-        Employee nonExistingEmployee = createNonExistingEmployee();
-
-        Mockito.doReturn( true ).when( employeeRepository ).doesEmployeeIdExist( nonExistingEmployee.getEmployeeId() );
-
-        validator.isEmployeeIdExisting( nonExistingEmployee );
-    }
-
     private Employee createNonExistingEmployee() {
         Employee nonExistingEmployee = new Employee();
 
         validEmployee.setEmployeeSerial( "P100XX" );
         validEmployee.setFullName( "Juan DelaCruz" );
-        validEmployee.setIntranetId( "delacruzj@ph.ibm.com" );
         validEmployee.setRollInDate( "9/20/2017" );
         validEmployee.setRollOffDate( "12/31/2017" );
 

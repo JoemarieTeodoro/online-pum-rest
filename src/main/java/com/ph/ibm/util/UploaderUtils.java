@@ -1,7 +1,14 @@
 package com.ph.ibm.util;
 
+import java.io.IOException;
+
+import javax.mail.Message.RecipientType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import com.ph.ibm.bo.ResetPasswordBO;
+import com.ph.ibm.model.Email;
+import com.ph.ibm.model.Employee;
 
 /**
  * Utility Class for upload functionality
@@ -31,5 +38,20 @@ public class UploaderUtils {
      */
     public static Response invalidCsvResponseBuilder( UriInfo uriInfo, Object e, String errorMessage ) {
         return Response.status( 406 ).entity( errorMessage ).build();
+    }
+
+    public static void sendEmailToRecipients( Employee employee ) throws IOException {
+
+        Email email = new Email();
+        email.setRecipientAddress( employee.getIntranetId() );
+        email.setTempPassword( employee.getPassword() );
+        email.setSenderAddress( "onlinepumsender@gmail.com" );
+        email.setRecipientType( RecipientType.TO.toString() );
+        email.setSubject( OpumConstants.EMAIL_SUBJECT );
+        email.setText( OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s" );
+
+        ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
+        resetPasswordBO.emailResetPasswordLinkToSingleEmployee( email );
+
     }
 }

@@ -17,8 +17,8 @@ import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.upload.CsvUploaderBase;
+import com.ph.ibm.util.BluePagesUtils;
 import com.ph.ibm.util.OpumConstants;
-import com.ph.ibm.util.OpumUtils;
 import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
@@ -84,6 +84,8 @@ public class EmployeeListUploader extends CsvUploaderBase {
             }
             else{
                 employeeRepository.saveOrUpdate( validatedEmployee, Role.ADMIN );
+                logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
+                logger.info( OpumConstants.SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS + recipientList.toString() );
             }
         }
         catch( InvalidCSVException e ){
@@ -96,9 +98,6 @@ public class EmployeeListUploader extends CsvUploaderBase {
             return Response.status( 406 ).entity( OpumConstants.SQL_ERROR ).build();
         }
 
-        logger.info( OpumConstants.SUCCESSFULLY_UPLOADED_FILE );
-        sendEmailsToListOfRecepientsToChangePasswords( recipientList );
-        logger.info( OpumConstants.SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS + recipientList.toString() );
         return Response.status( Status.OK ).entity( OpumConstants.SUCCESS_UPLOAD ).build();
     }
 
@@ -115,12 +114,12 @@ public class EmployeeListUploader extends CsvUploaderBase {
         Employee employee = null;
         employee = new Employee();
         employee.setEmployeeSerial( row.get( 0 ) );
-        employee = OpumUtils.getEmployeeSerialAPI( employee );
         employee.setFullName( row.get( 1 ) );
         employee.setIntranetId( row.get( 2 ) );
         employee.setRollInDate( row.get( 3 ) );
         employee.setRollOffDate( row.get( 4 ) );
         employeeValidator.validate( employee );
+        employee.setManagerSerial( BluePagesUtils.getManagerSerial( employee ) );
         return employee;
     }
 
@@ -147,8 +146,7 @@ public class EmployeeListUploader extends CsvUploaderBase {
             row.get( 1 ).equalsIgnoreCase( EMPLOYEE_COLUMN_HEADER ) &&
             row.get( 2 ).equalsIgnoreCase( EMAIL_COLUMN_HEADER ) &&
             row.get( 3 ).equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
-            row.get( 4 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) &&
-            row.size() == ROW_HEADER_COLUMN_SIZE );
+            row.get( 4 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) && row.size() == ROW_HEADER_COLUMN_SIZE );
     }
 
     /**
@@ -157,8 +155,9 @@ public class EmployeeListUploader extends CsvUploaderBase {
      */
     @Override
     protected String getHeaders() {
-        String header = String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s | %s", SERIAL_COLUMN_HEADER,
-            EMPLOYEE_COLUMN_HEADER, EMAIL_COLUMN_HEADER, ROLL_IN_DATE_COLUMN_HEADER, ROLL_OFF_DATE_COLUMN_HEADER );
+        String header =
+            String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s | %s", SERIAL_COLUMN_HEADER,
+                EMPLOYEE_COLUMN_HEADER, EMAIL_COLUMN_HEADER, ROLL_IN_DATE_COLUMN_HEADER, ROLL_OFF_DATE_COLUMN_HEADER );
         return header;
     }
 

@@ -30,7 +30,7 @@ public class OpumConstants {
     public static final String INVALID_RECOVERABLE = "INVALID RECOVERABLE STATUS";
     public static final String INVALID_TEAM_LEAD_SERIAL = "INVALID TEAM LEAD SERIAL NUMBER";
     public static final String EMPLOYEE_ID_EXISTS = "EMPLOYEE ID ALREADY EXISTS";
-    public static final String EMPLOYEE_EMAIL_EXISTS = "EMPLOYEE EMAIL ALREADY EXISTS";
+    public static final String EMPLOYEE_EMAIL_NOT_FOUND = "EMPLOYEE EMAIL DID NOT MATCH IN IBM DIRECTORY";
     public static final String TEAM_NAME_EXISTS = "TEAM ALREADY EXIST";
 	public static final String PEM_ID_EXISTS = "PEM ID ALREADY EXISTS";
 	public static final String EMPLOYEE_ROLE_EXISTS = "EMPLOYEE ROLE ALREADY EXISTS";

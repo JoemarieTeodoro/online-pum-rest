@@ -10,6 +10,7 @@ import com.ph.ibm.model.Employee;
 import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.BluePagesUtils;
 import com.ph.ibm.util.ValidationUtils;
 import com.ph.ibm.validation.Validator;
 
@@ -30,14 +31,15 @@ public class EmployeeValidator implements Validator<Employee> {
     @Override
     public boolean validate( Employee employee ) throws InvalidCSVException, SQLException {
 
-        boolean isValid =
-            !isEmployeeValueEmpty( employee ) &&
-            isValidEmployeeSerial( employee ) &&
-            isValidEmployeeName( employee ) &&
-            isValidEmailAddress( employee ) &&
-            ValidationUtils.isValidDate( employee, employee.getRollInDate() ) &&
-            ValidationUtils.isValidDate( employee, employee.getRollOffDate() ) &&
-            ValidationUtils.isValidDateRange( employee, employee.getRollInDate(), employee.getRollOffDate() );
+        boolean isValid = !isEmployeeValueEmpty( employee ) && 
+                        isValidEmployeeSerial( employee ) &&
+                        isEmployeeIdExisting( employee ) &&
+                        isValidEmployeeName( employee ) &&
+                        isValidEmailAddress( employee ) &&
+                        isEmployeeEmailExisting( employee ) && 
+                        ValidationUtils.isValidDate( employee, employee.getRollInDate() ) &&
+                        ValidationUtils.isValidDate( employee, employee.getRollOffDate() ) &&
+                        ValidationUtils.isValidDateRange( employee, employee.getRollInDate(), employee.getRollOffDate() );
         return isValid;
     }
 
@@ -91,12 +93,12 @@ public class EmployeeValidator implements Validator<Employee> {
      * @throws InvalidCSVException
      */
     protected boolean isEmployeeEmailExisting( Employee employee ) throws SQLException, InvalidCSVException {
-        boolean isExisting = employeeRepository.doesEmailExist( employee.getIntranetId() );
-        if( isExisting ){
-            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_EMAIL_EXISTS );
-            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_EMAIL_EXISTS );
+          boolean isExisting = BluePagesUtils.isEmployeeIntranetFound( employee.getEmployeeSerial(), employee.getIntranetId()  );
+        if( !isExisting ){
+            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_EMAIL_NOT_FOUND );
+            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_EMAIL_NOT_FOUND );
         }
-        return isExisting;
+        return true;
     }
 
     /**
@@ -108,10 +110,10 @@ public class EmployeeValidator implements Validator<Employee> {
      * @throws InvalidCSVException
      */
     protected boolean isEmployeeIdExisting( Employee employee ) throws SQLException, InvalidCSVException {
-        boolean isExisting = employeeRepository.doesEmployeeIdExist( employee.getEmployeeSerial() );
-        if( isExisting ){
-            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_ID_EXISTS );
-            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_ID_EXISTS );
+        boolean isExisting = BluePagesUtils.isEmployeeSerialFound( employee.getEmployeeSerial() );
+        if( !isExisting ){
+            logger.info( ValidationUtils.CAUSE_OF_ERROR + OpumConstants.EMPLOYEE_SERIAL_DOES_NOT_EXIST_IBM );
+            throw new InvalidCSVException( employee, OpumConstants.EMPLOYEE_SERIAL_DOES_NOT_EXIST_IBM );
         }
         return isExisting;
     }

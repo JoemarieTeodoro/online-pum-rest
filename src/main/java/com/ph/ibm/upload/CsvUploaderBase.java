@@ -1,18 +1,14 @@
 package com.ph.ibm.upload;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.mail.Message.RecipientType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.ph.ibm.bo.ResetPasswordBO;
-import com.ph.ibm.model.Email;
 import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
@@ -95,17 +91,18 @@ public abstract class CsvUploaderBase implements Uploader {
      * @param lstRecipients list of recipients
      * @throws IOException exception
      */
-    protected void sendEmailsToListOfRecepientsToChangePasswords( List<String> lstRecipients ) throws IOException {
+    /* protected void sendEmailsToListOfRecepientsToChangePasswords( List<String> lstRecipients ) throws IOException {
         Email email = new Email();
         email.setRecipientAddresses( lstRecipients );
         email.setSenderAddress( "onlinepumsender@gmail.com" );
         email.setRecipientType( RecipientType.TO.toString() );
         email.setSubject( OpumConstants.EMAIL_SUBJECT );
         email.setText( OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s" );
-
+    
         ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
         resetPasswordBO.emailResetPasswordLink( email );
-    }
+    }*/
+
 
     /**
      * Generate message with the corresponding line number/s and error/s and return invalid response.

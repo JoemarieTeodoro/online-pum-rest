@@ -56,45 +56,40 @@ public class ResetPasswordBO {
 		
 	}
 	
-	public Response emailResetPasswordLink(Email email) throws IOException {
-		
-		Properties props = new Properties();
-		props.put("mail.smtp.host", "smtp.gmail.com");
-		props.put("mail.smtp.socketFactory.port", "465");
-		props.put("mail.smtp.socketFactory.class",
-				"javax.net.ssl.SSLSocketFactory");
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.port", "465");
+    public Response emailResetPasswordLinkToSingleEmployee( Email email ) throws IOException {
 
-		Session session = Session.getDefaultInstance(props,
-			new javax.mail.Authenticator() {
-				@Override
-				protected PasswordAuthentication getPasswordAuthentication() {
-					return new PasswordAuthentication("onlinepumsender@gmail.com","onlinepum");
-				}
-			});
+        Properties props = new Properties();
+        props.put( "mail.smtp.host", "smtp.gmail.com" );
+        props.put( "mail.smtp.socketFactory.port", "465" );
+        props.put( "mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory" );
+        props.put( "mail.smtp.auth", "true" );
+        props.put( "mail.smtp.port", "465" );
 
-		try {
-			Message message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(email.getSenderAddress()));
-			message.setSubject(email.getSubject());
-			for (String recipientAddress : email.getRecipientAddresses()) {
-				message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipientAddress));
-				String emailResetPasswordLink = generateEmailResetPasswordLink(recipientAddress);
-				message.setText(String.format(email.getText(), emailResetPasswordLink) + "\n\n"
-						+ OpumConstants.EMAIL_CLOSING + "\n" + OpumConstants.EMAIL_SIGNATURE);
-				Transport.send(message);
-			}
-			
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
-		}
-		return Response.status(Status.OK)
-				.header("Location", "" + "employee/")
-				.entity("email sent successfully")
-				.build();
-	}
-	
+        Session session = Session.getDefaultInstance( props, new javax.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication( "onlinepumsender@gmail.com", "onlinepum" );
+            }
+        } );
+
+        try{
+            Message message = new MimeMessage( session );
+            message.setFrom( new InternetAddress( email.getSenderAddress() ) );
+            message.setSubject( email.getSubject() );
+            message.setRecipient( Message.RecipientType.TO, new InternetAddress( email.getRecipient() ) );
+            String emailResetPasswordLink = generateEmailResetPasswordLink( email );
+            message.setText( String.format( email.getText(), emailResetPasswordLink ) + "\n\n" +
+                OpumConstants.EMAIL_CLOSING + "\n" + OpumConstants.EMAIL_SIGNATURE );
+            Transport.send( message );
+
+        }
+        catch( MessagingException e ){
+            throw new RuntimeException( e );
+        }
+        return Response.status( Status.OK ).header( "Location", "" + "employee/" ).entity(
+            "email sent successfully" ).build();
+    }
+
 	public boolean validateToken(ResetPasswordToken ResetPasswordToken) throws SQLException, OpumException {
 		boolean tokenValidated = false;
 		String token = ResetPasswordToken.getToken();
@@ -109,10 +104,10 @@ public class ResetPasswordBO {
 	    return tokenValidated;
 	}
 	
-	public String generateToken(String email) throws SQLException, OpumException {
-		String salt = employeeRepository.retrieveSalt(email);
+    public String generateToken(Email email) throws SQLException, OpumException {
+        String salt = email.getTempPassword();
 		
-		Claims claims = Jwts.claims().setSubject(email);
+		Claims claims = Jwts.claims().setSubject(email.getRecipient());
         claims.put("salt", salt);
         Date currentTime = new Date();
         currentTime.setTime(currentTime.getTime() + 1440 * 60000);
@@ -123,7 +118,7 @@ public class ResetPasswordBO {
           .compact();
 	}
 	
-	private String generateEmailResetPasswordLink(String email) throws UnsupportedEncodingException {
+    private String generateEmailResetPasswordLink( Email email ) throws UnsupportedEncodingException {
 		String resetPasswordHomeLink = OpumConfig.getConfigProperties().getProperty("SERVER_URL")
 				+ "/online-pum-ui/resetPassword/resetPasswordLink";
 		String token = null;
@@ -134,7 +129,7 @@ public class ResetPasswordBO {
 		}
 		return new StringBuilder(resetPasswordHomeLink)
 				.append("?email=")
-				.append(email != null ? URLEncoder.encode(email, "UTF-8") : "")
+            .append( email != null ? URLEncoder.encode( email.getRecipient(), "UTF-8" ) : "" )
 				.append("&token=")
 				.append(token != null ? URLEncoder.encode(token, "UTF-8") : "")
 				.toString();

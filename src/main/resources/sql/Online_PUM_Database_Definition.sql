@@ -123,13 +123,14 @@ CREATE TABLE `employee_team` (
   `Team_ID` smallint(2) NOT NULL,
    `Roll_In_Date` date NOT NULL DEFAULT '0000-00-00',
   `Roll_Off_Date` date NOT NULL DEFAULT '0000-00-00',
+   `Emp_Team_Status` varchar(45) NOT NULL DEFAULT 'A',
   KEY `Employee_ID` (`Employee_ID`),
   KEY `Team_ID` (`Team_ID`),
   INDEX `Team_ID_idx` (`Team_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `employee_team` VALUES 
-    ('123456PH1', 1, '2017-08-08','2020-01-30');
+    ('123456PH1', 1, '2017-08-08','2020-01-30','A');
 
 --
 -- Table structure for mapping table `employee_project`

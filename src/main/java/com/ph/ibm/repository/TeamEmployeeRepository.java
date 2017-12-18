@@ -11,4 +11,18 @@ public interface TeamEmployeeRepository {
     public int teamExists( String teamName );
 	public boolean empExists(String empId);
 	public boolean updateTeamEmployee(List<TeamEmployee> teamEmpList);
+
+    /**
+     * @param serialNumber
+     * @return
+     * @throws SQLException
+     */
+    boolean updateEmployeeTeamMapping( String serialNumber ) throws SQLException;
+
+    /**
+     * @param serialNumber
+     * @return
+     * @throws SQLException
+     */
+    public String retrieveActiveTeamAssignment( String serialNumber ) throws SQLException;
 }
