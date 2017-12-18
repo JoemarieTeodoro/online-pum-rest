@@ -5,9 +5,11 @@ import static com.ph.ibm.util.ValidationUtils.dateFormat;
 import java.sql.BatchUpdateException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
+import com.ph.ibm.util.ValidationUtils;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
 
@@ -517,16 +520,23 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             cStmt.setInt( 2, Integer.valueOf( currFY ) );
 
             resultSet = cStmt.executeQuery();
-
-            while( resultSet.next() ){
-                EmployeeLeave empLeave = new EmployeeLeave();
-                empLeave.setEmployeeID( resultSet.getString( "employeeid" ) );
-                empLeave.setDate( resultSet.getDate( "date" ).toString() );
-                if( resultSet.getString( "event_name" ) != null && !resultSet.getString( "event_name" ).isEmpty() ){
-                    empLeave.setLeaveName( resultSet.getString( "event_name" ) );
-                }
-                else{
-                    empLeave.setLeaveName( resultSet.getString( "hours" ) );
+            
+            while(resultSet.next()) {
+            	EmployeeLeave empLeave = new EmployeeLeave();
+                empLeave.setEmployeeID(resultSet.getString("employeeid"));
+                empLeave.setDate(resultSet.getDate("date").toString());
+                empLeave.setYearID(String.valueOf(resultSet.getInt("year_id")));
+                empLeave.setEmployeeLeaveID(String.valueOf(resultSet.getInt("employee_leave_id")));
+                String hours = resultSet.getString("hours");
+				if (resultSet.getString("event_name") != null && !resultSet.getString("event_name").isEmpty()
+						&& !resultSet.getString("event_name").equalsIgnoreCase("RC")) {
+					empLeave.setLeaveName(resultSet.getString("event_name"));
+                	// set status to pending since this leave is not yet approved
+                	if (hours.equalsIgnoreCase("8")) {
+                		empLeave.setStatus("pending");
+                	}
+                } else {
+                	empLeave.setLeaveName(resultSet.getString("hours"));
                 }
                 empLeave.setHoliday( resultSet.getBoolean( "is_holiday" ) );
                 empLeaveList.add( empLeave );
@@ -539,11 +549,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
         }
         return empLeaveList;
-    }
-
-    @Override
-    public boolean saveEmployeeLeave( List<EmployeeLeave> employeeLeave ) {
-        return false;
     }
 
     /**
@@ -644,4 +649,65 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         return password;
     }
 
+    @Override
+	public boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeaveList) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		connection.setAutoCommit(false);
+
+		try {
+			String query = "INSERT INTO EMPLOYEE_LEAVE (Employee_ID,Year_ID,Status,"
+					+ "Leave_Date,Leave_Type,CreateDate,UpdateDate,Hours) VALUES(?,?,?,?,?,?,?,?);";
+			preparedStatement = connection.prepareStatement(query);
+
+			for (EmployeeLeave emp : employeeLeaveList) {
+				if (ValidationUtils.isValueEmpty(emp.getEmployeeLeaveID()) || emp.getEmployeeLeaveID().equals("0")) {
+					preparedStatement.setString(1, emp.getEmployeeID());
+					preparedStatement.setInt(2, Integer.valueOf(emp.getYearID()));
+					preparedStatement.setString(3, emp.getStatus());
+					preparedStatement.setDate(4, Date.valueOf(ValidationUtils.dateFormat(emp.getDate())));
+					preparedStatement.setString(5, emp.getLeaveName());
+					preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+					preparedStatement.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+					preparedStatement.setInt(8, emp.getValue());
+					preparedStatement.addBatch();
+				}
+				else {
+					updateEmployeeLeave(emp);
+				}
+			}
+
+			preparedStatement.executeBatch();
+			connection.commit();
+			preparedStatement.close();
+			return true;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateEmployeeLeave(EmployeeLeave employeeLeave) throws SQLException {
+		boolean isSuccess = false;
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		connection.setAutoCommit(false);
+
+		try {
+			String query = "UPDATE EMPLOYEE_LEAVE SET LEAVE_DATE=?, LEAVE_TYPE=?, STATUS=?, HOURS=? " + "WHERE EMPLOYEE_LEAVE_ID=?";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setDate(1, Date.valueOf(ValidationUtils.dateFormat(employeeLeave.getDate())));
+			preparedStatement.setString(2, employeeLeave.getLeaveName());
+			preparedStatement.setString(3, employeeLeave.getStatus());
+			preparedStatement.setInt(4, employeeLeave.getValue());
+			preparedStatement.setInt(5, Integer.valueOf(employeeLeave.getEmployeeLeaveID()));
+			preparedStatement.executeUpdate();
+			connection.commit();
+			isSuccess = true;
+		} catch (Exception e) {
+			logger.info(e.getMessage());
+		}
+		return isSuccess;
+	}
 }

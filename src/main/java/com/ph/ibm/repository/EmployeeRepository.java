@@ -155,8 +155,6 @@ public interface EmployeeRepository {
 
     List<EmployeeLeave> getEmployeeLeaves(String empId, String currFY);
     
-	boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeave);
-
     /**
      * This method is used to update employee status in employee table
      *
@@ -184,4 +182,6 @@ public interface EmployeeRepository {
      */
     public String retrieveRecentPassword( String serialNumber ) throws SQLException;
 
+    boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeaveList) throws SQLException;
+	boolean updateEmployeeLeave(EmployeeLeave employeeLeave) throws SQLException;
 }
