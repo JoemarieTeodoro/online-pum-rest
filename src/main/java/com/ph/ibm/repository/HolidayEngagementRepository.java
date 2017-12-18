@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.ph.ibm.model.Holiday;
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.opum.exception.OpumException;
 
 public interface HolidayEngagementRepository {
@@ -30,7 +31,7 @@ public interface HolidayEngagementRepository {
 	 * @return List
 	 * @throws SQLException
 	 */
-	public List<Holiday> getAllHoliday() throws SQLException;
+	public List<Holiday> getAllHoliday(PUMYear pumyear) throws SQLException;
 
 	/**
 	 * 

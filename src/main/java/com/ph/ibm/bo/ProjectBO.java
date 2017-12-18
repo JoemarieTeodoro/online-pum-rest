@@ -125,12 +125,26 @@ public class ProjectBO {
             
             ValidationUtils.checkIfStartAndEndDateValid(pumYear);
             ValidationUtils.checkIfValidFiscalYear(pumYear);
-            
-            logger.info("Saving year...");
+			if (pumYearRepository.checkIfPUMCycleExisting(pumYear)) {
+				logger.info("Updating Existing Fiscal Year...");
 
-            pumYearRepository.saveYear(pumYear);
-			pumYearRepository.populateFiscalYear(pumYear);
-            response = Response.status(Status.OK).entity("PUM fiscal year updated!").build();
+				pumYearRepository.updateFiscalYear(pumYear);
+				PUMYear selectedPUMYear = pumYearRepository.retrieveYearDate(pumYear.getPumYear());
+				pumYearRepository.deleteFiscalYearTemplate(selectedPUMYear);
+				pumYearRepository.populateFiscalYear(selectedPUMYear);
+
+				List<Holiday> lstHoliday = holidayEngagementRepository.getAllHoliday(selectedPUMYear);
+				pumYearRepository.addUpdateHolidayInFiscalYearTemplate(lstHoliday, selectedPUMYear);
+
+				response = Response.status(Status.OK).entity("Existing PUM fiscal year updated!").build();
+			} else {
+				logger.info("Saving year...");
+
+				pumYearRepository.saveYear(pumYear);
+				pumYearRepository.populateFiscalYear(pumYear);
+				response = Response.status(Status.OK).entity("PUM Fiscal year added!").build();
+			}
+
         } catch (OpumException e) {
             logger.error(e.getMessage());
             response = Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();

@@ -40,8 +40,6 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		try {
-			checkIfPUMCycleExisting(pumYear);
-
 			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 			connection.setAutoCommit(false);
 			String query = "INSERT INTO YEAR (START,END,PUMYEAR,CREATEDBY) VALUES (?,?,?,?); ";
@@ -100,25 +98,26 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 	}
 	
 	@Override
-	public void addUpdateHolidayInFiscalYearTemplate(Holiday holiday, PUMYear pumYear) throws OpumException {
+	public void addUpdateHolidayInFiscalYearTemplate(List<Holiday> lstHoliday, PUMYear pumYear) throws OpumException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 
 		try {
-
 			if (pumYear != null) {
-				connection.setAutoCommit(false);
-				String query = " UPDATE opum.fy_template SET value = 0, is_holiday = 1, event_name = ? WHERE date = ? AND YEAR_ID = ?; ";
-				preparedStatement = connection.prepareStatement(query);
-				preparedStatement.setString(1, holiday.getName());
-				preparedStatement.setDate(2, Date.valueOf(holiday.getDate()));
-				preparedStatement.setInt(3, pumYear.getYearId());
-				preparedStatement.executeUpdate();
-				connection.commit();
+				for (Holiday holiday : lstHoliday) {
+					connection.setAutoCommit(false);
+					String query = " UPDATE opum.fy_template SET value = 0, is_holiday = 1, event_name = ? WHERE date = ? AND YEAR_ID = ?; ";
+					preparedStatement = connection.prepareStatement(query);
+					preparedStatement.setString(1, holiday.getName());
+					preparedStatement.setDate(2, Date.valueOf(holiday.getDate()));
+					preparedStatement.setInt(3, pumYear.getYearId());
+					preparedStatement.addBatch();
+				}
 			} else {
 				throw new OpumException("Fiscal year not found!");
 			}
-
+			preparedStatement.executeBatch();
+			connection.commit();
 		} catch (SQLException e) {
 			logger.error(e);
 		} catch (OpumException e) {
@@ -128,22 +127,21 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		}
 	}
 
-	private void checkIfPUMCycleExisting(PUMYear pumYear) throws ParseException, OpumException {
+	@Override
+	public boolean checkIfPUMCycleExisting(PUMYear pumYear) throws ParseException, OpumException {
+		ConnectionPool connectionPool = ConnectionPool.getInstance();
 		Connection connection = connectionPool.getConnection();
 		ResultSet rs = null;
 		PreparedStatement preparedStatement = null;
 
 		try {
-			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
-			String query = "select count(*) from opum.year where PUMYear = ? and start = ? and end = ?; ";
+			String query = "select count(*) from opum.year where PUMYear = ?; ";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setInt(1, pumYear.getPumYear());
-			preparedStatement.setDate(2, new Date(df.parse(pumYear.getStart()).getTime()));
-			preparedStatement.setDate(3, new Date(df.parse(pumYear.getEnd()).getTime()));
 			rs = preparedStatement.executeQuery();
 			if (rs.next()) {
 				if (Integer.valueOf(rs.getString(1)) > 0) {
-					throw new OpumException("Existing PUM Year, Start Date, and End Date!");
+					return true;
 				}
 			}
 		} catch (SQLException e) {
@@ -151,6 +149,8 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		} finally {
 			connectionPool.closeConnection(connection, preparedStatement, rs);
 		}
+
+		return false;
 	}
 
 	@Override 
@@ -323,5 +323,49 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 			logger.error(e.getMessage());
 		}
 		return null;
+	}
+
+	@Override
+	public void updateFiscalYear(PUMYear pumYear) throws ParseException, OpumException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+
+		try {
+			connection.setAutoCommit(false);
+			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
+			String query = " UPDATE opum.year SET start = ?, end = ? WHERE pumyear = ?; ";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setDate(1, new Date(df.parse(pumYear.getStart()).getTime()));
+			preparedStatement.setDate(2, new Date(df.parse(pumYear.getEnd()).getTime()));
+			preparedStatement.setInt(3, pumYear.getPumYear());
+			preparedStatement.executeUpdate();
+			connection.commit();
+
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
+
+	}
+
+	@Override
+	public void deleteFiscalYearTemplate(PUMYear pumYear) {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+
+		try {
+			String query = " DELETE FROM opum.fy_template WHERE year_id = ?; ";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setInt(1, pumYear.getYearId());
+			preparedStatement.executeUpdate();
+			connection.commit();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement);
+		}
+
 	}
 }

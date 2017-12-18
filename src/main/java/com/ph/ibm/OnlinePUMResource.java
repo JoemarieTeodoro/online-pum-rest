@@ -42,6 +42,7 @@ import com.ph.ibm.model.Project;
 import com.ph.ibm.model.Utilization;
 import com.ph.ibm.model.Year;
 import com.ph.ibm.opum.exception.OpumException;
+import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConstants;
 
@@ -867,7 +868,7 @@ public class OnlinePUMResource {
 		HolidayList holidayList = new HolidayList();
 		try {
 			holidayBO = new HolidayBO();
-			holidayList.setHolidayList(holidayBO.getAllHoliday());
+			holidayList.setHolidayList(holidayBO.getAllHoliday(new PUMYearRepositoryImpl().retrieveCurrentFY()));
 		} catch (Exception e) {
 			logger.error(e);
 			throw new OpumException(e.getMessage(), e);

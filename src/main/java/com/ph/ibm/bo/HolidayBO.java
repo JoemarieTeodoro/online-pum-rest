@@ -1,6 +1,7 @@
 package com.ph.ibm.bo;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -9,6 +10,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Holiday;
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.repository.PUMYearRepository;
@@ -35,7 +37,7 @@ public class HolidayBO {
 			} else {
 				holidayEngagementRepository.addHolidayEngagement(holiday);
 				logger.info("Holiday Added!");
-				pumYearRepository.addUpdateHolidayInFiscalYearTemplate(holiday, pumYearRepository.retrieveCurrentFY());
+				pumYearRepository.addUpdateHolidayInFiscalYearTemplate(Arrays.asList(holiday), pumYearRepository.retrieveCurrentFY());
 				logger.info("Holiday Added in Fiscal Year Template!");
 				response = Response.status(Status.OK).entity("Holiday added!").build();
 			}
@@ -70,8 +72,8 @@ public class HolidayBO {
 	 * @return List of Holiday
 	 * @throws SQLException
 	 */
-	public List<Holiday> getAllHoliday() throws SQLException {
-		return holidayEngagementRepository.getAllHoliday();
+	public List<Holiday> getAllHoliday(PUMYear pumYear) throws SQLException {
+		return holidayEngagementRepository.getAllHoliday(pumYear);
 	}
 	
 	/**

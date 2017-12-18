@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Holiday;
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.repository.PUMYearRepository;
@@ -128,14 +129,15 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 	}
 
 	@Override
-	public List<Holiday> getAllHoliday() throws SQLException {
+	public List<Holiday> getAllHoliday(PUMYear pumYear) throws SQLException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		List<Holiday> holidays = new ArrayList<Holiday>();
 		try {
-			String query = "SELECT HOLIDAY_ID, NAME, DATE, CREATEDATE, CREATEDBY, UPDATEDATE, UPDATEDBY FROM HOLIDAY";
+			String query = "SELECT HOLIDAY_ID, NAME, DATE, CREATEDATE, CREATEDBY, UPDATEDATE, UPDATEDBY FROM HOLIDAY WHERE YEAR_ID = ? ";
 			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setInt(1, pumYear.getYearId());
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
 				int holiday_Id = resultSet.getInt(1);
