@@ -88,4 +88,9 @@ public class OpumConstants {
 	public static final String ZERO = "0";
 	public static final String EIGHT = "8";
 
+	/** Error Messages **/
+	public static final String FILL_HOLIDAY_NAME_AND_OR_HOLIDAY_DATE = "Please fill Holiday Name and/or Holiday Date";
+	public static final String FISCAL_YEAR_NOT_DEFINED = "Fiscal Year not yet defined!";
+	public static final String HOLIDAY_DATE_NOT_WITHIN_FISCAL_YEAR = "Holiday Date is not within Fiscal Year date range!";
+
 }

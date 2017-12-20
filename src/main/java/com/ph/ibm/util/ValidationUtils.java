@@ -17,7 +17,9 @@ public class ValidationUtils
 {
     private static Logger logger = Logger.getLogger( ValidationUtils.class );
     
-    public static final String DATE_FORMAT = "M/d/yyyy";
+    public static final String MONTH_DAY_YEAR_FORMAT = "M/d/yyyy";
+    
+    public static final String YEAR_MONTH_DAY_FORMAT = "yyyy-M-d";
     
     public static final String VALID_SERIAL_REGEX = "^([A-Za-z0-9]{6,})*$";
 
@@ -50,7 +52,7 @@ public class ValidationUtils
     
     public static boolean isValidDate(Object object, String rollDate) throws InvalidCSVException {
         try {
-            DateFormat format = new SimpleDateFormat(DATE_FORMAT);
+            DateFormat format = new SimpleDateFormat(MONTH_DAY_YEAR_FORMAT);
             format.setLenient(false);
             format.parse(rollDate);
 
@@ -75,7 +77,7 @@ public class ValidationUtils
     }
     
     public static boolean isValidDateRange(Object object, String start, String end) throws InvalidCSVException {
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_DAY_YEAR_FORMAT);
 	        LocalDate rollInDate = LocalDate.parse(start, formatter);
 	        LocalDate rollOffDate = LocalDate.parse(end, formatter);
 	
@@ -118,5 +120,17 @@ public class ValidationUtils
 			logger.error(e);
 			throw new OpumException("Unable to parse Date!");
 		}
+	}
+	
+	public static boolean isDateWithinFiscalYear(String d, PUMYear pumYear) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(YEAR_MONTH_DAY_FORMAT);
+		LocalDate date = LocalDate.parse(d, formatter);
+		LocalDate fromDate = LocalDate.parse(pumYear.getStart(), formatter);
+		LocalDate toDate = LocalDate.parse(pumYear.getEnd(), formatter);
+		if (date.isAfter(fromDate) && date.isBefore(toDate)) {
+			return true;
+        }
+
+		return false;
 	}
 }
