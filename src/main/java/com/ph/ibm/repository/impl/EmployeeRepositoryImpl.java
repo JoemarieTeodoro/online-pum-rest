@@ -163,6 +163,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 employee.setIntranetId( resultSet.getString( 2 ) );
                 employee.setAssignedRoles( getRolesFromEmployeeRole( employee, assignedRoles ) );
                 employee.setFullName( resultSet.getString( 3 ) );
+                employee.setIsTeamLead(getIsTeamLead(employee));
             }
         }
         catch( SQLException e ){
@@ -201,6 +202,31 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         }
 
         return assignedRoles;
+    }
+
+    private boolean getIsTeamLead(Employee employee) throws SQLException {
+    	boolean isTeamLead = false;
+    	Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+    	try {
+    		String query = "select * from team where Team_Lead_Employee_ID = ? ;";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, employee.getEmployeeSerial() );
+            resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.first()) {
+            	isTeamLead = true;
+            }
+    	}
+    	catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+
+    	return isTeamLead;
     }
 
     @Override
@@ -520,7 +546,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             cStmt.setInt( 2, Integer.valueOf( currFY ) );
 
             resultSet = cStmt.executeQuery();
-            
+
             while(resultSet.next()) {
             	EmployeeLeave empLeave = new EmployeeLeave();
                 empLeave.setEmployeeID(resultSet.getString("employeeid"));
@@ -709,5 +735,34 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			logger.info(e.getMessage());
 		}
 		return isSuccess;
+	}
+
+	@Override
+	public List<String> getAdminEmailList() throws SQLException {
+		Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<String> listOfAdmins = null;
+        try{
+            String query =
+                "SELECT emp.Email FROM employee_role_v emprole " +
+                "INNER JOIN employee emp ON emp.Employee_ID = emprole.Employee_ID " +
+                "WHERE emprole.name = 'Administrator'";
+
+            preparedStatement = connection.prepareStatement( query );
+            resultSet = preparedStatement.executeQuery();
+
+            if( resultSet.next() ){
+            	listOfAdmins.add(resultSet.getString(1));
+            }
+            return listOfAdmins;
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+            return null;
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
 	}
 }

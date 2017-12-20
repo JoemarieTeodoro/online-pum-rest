@@ -184,4 +184,12 @@ public interface EmployeeRepository {
 
     boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeaveList) throws SQLException;
 	boolean updateEmployeeLeave(EmployeeLeave employeeLeave) throws SQLException;
+
+    /**
+     * This method is used to get the list of admin emails
+     *
+     * @return list
+     * @throws SQLException
+     */
+    public List<String> getAdminEmailList() throws SQLException;
 }

@@ -76,6 +76,16 @@ public class OpumConstants {
 	public static final String EMAIL_CLOSING = "Thank you,";
 	public static final String EMAIL_SIGNATURE = "Online PUM Support";
 
+	/** APPROVE EMAIL MESSAGES */
+	public static final String APPROVE_EMAIL_SUBJECT = "PUM NOTIFICATION: Leaves Approved for today";
+	public static final String APPROVE_EMAIL_BODY = "Below is a table that represents the leaves approved today. "
+			+ "They were approved by ";
+
+	/** REJECT EMAIL MESSAGES */
+	public static final String REJECT_EMAIL_SUBJECT = "PUM NOTIFICATION: Leaves Rejected for today";
+	public static final String REJECT_EMAIL_BODY = "The leave dates that were rejected are mentioned below. " +
+			"They were rejected by ";
+
     public static final String SYS_ADMIN ="system administrator";
     public static final String ADMIN_FULL_FORM = "administrator";
     public static final String USER = "user";

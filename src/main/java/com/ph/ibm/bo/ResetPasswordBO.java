@@ -48,12 +48,12 @@ public class ResetPasswordBO {
 	public Response resetPassword(ResetPassword resetPassword) throws Exception {
 		resetPassword.setNewPassword(MD5HashEncrypter.computeMD5Digest(resetPassword.getNewPassword()));
 		employeeRepository.updatePassword(resetPassword);
-		
+
 		return Response.status(Status.OK)
 				.header("Location", "" + "employee/")
 				.entity("email sent successfully")
 				.build();
-		
+
 	}
 	
     public Response emailResetPasswordLinkToSingleEmployee( Email email ) throws IOException {
@@ -94,11 +94,11 @@ public class ResetPasswordBO {
 		boolean tokenValidated = false;
 		String token = ResetPasswordToken.getToken();
 		String email = ResetPasswordToken.getEmail();
-		
-		String salt = employeeRepository.retrieveSalt(email);		
+
+		String salt = employeeRepository.retrieveSalt(email);
 		if (token != null) {
 			Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(ResetPasswordToken.getToken()).getSignature();
-		    Jws<Claims> parseClaimsJws = Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(ResetPasswordToken.getToken());        
+		    Jws<Claims> parseClaimsJws = Jwts.parser().setSigningKey(salt.getBytes()).parseClaimsJws(ResetPasswordToken.getToken());
 		    tokenValidated = email.equals(parseClaimsJws.getBody().getSubject()) ? true : false;
 		}
 	    return tokenValidated;
@@ -134,5 +134,5 @@ public class ResetPasswordBO {
 				.append(token != null ? URLEncoder.encode(token, "UTF-8") : "")
 				.toString();
 	}
-	
+
 }

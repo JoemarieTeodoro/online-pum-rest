@@ -15,16 +15,27 @@ import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeEvent;
 import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
-import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
-import com.ph.ibm.repository.PUMYearRepository;
+import com.ph.ibm.repository.ProjectEngagementRepository;
+import com.ph.ibm.repository.ProjectRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
-import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
+import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
+import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.util.MD5HashEncrypter;
+import com.ph.ibm.validation.Validator;
+import com.ph.ibm.validation.impl.EmployeeValidator;
+import com.ph.ibm.repository.LeaveRepository;
+import com.ph.ibm.repository.PUMYearRepository;
+import com.ph.ibm.repository.impl.LeaveRepositoryImpl;
+import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
+import com.ph.ibm.model.ForApproval;
+import com.ph.ibm.model.PUMYear;
 
 public class EmployeeBO {
 
+	private LeaveRepository leaveRepository = new LeaveRepositoryImpl();
+	
     /**
      * EmployeeRepository is a Data Access Object which contain methods to add,
      * register, login, view, validate field/s stored in employee table - opum
@@ -33,6 +44,25 @@ public class EmployeeBO {
     private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
     private PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
+    
+    /**
+     * ProjectRepository is a Data Access Object which contain method to retrieve
+     * fields stored in project table - opum database
+     */
+    private ProjectRepository projectRepository = new ProjectRepositoryImpl();
+
+    /**
+     * ProjectEngagementRepository is a Data Access Object which contain method to
+     * add, save, get, check field/s stored in project_engagement table - opum
+     * database
+     */
+    private ProjectEngagementRepository projectEngagementRepository = new ProjectEngagementRepositoryImpl();
+
+    /**
+     * Validation contain methods to validate field such as employee name, employee
+     * id, project name, email address
+     */
+    private Validator<Employee> validator = new EmployeeValidator(employeeRepository);
 
     private static Logger logger = Logger.getLogger(EmployeeBO.class);
 
@@ -168,5 +198,13 @@ public class EmployeeBO {
 			logger.error(e.getMessage());
 		}
 		return false;
+	}
+    
+    /**
+	 * @return List of Items for Approval
+	 * @throws SQLException
+	 */
+	public List<ForApproval> getAllForApproval() throws SQLException {
+		return leaveRepository.getAllForApproval();
 	}
 }

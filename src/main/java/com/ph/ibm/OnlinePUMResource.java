@@ -41,10 +41,12 @@ import com.ph.ibm.model.PUMYearList;
 import com.ph.ibm.model.Project;
 import com.ph.ibm.model.Utilization;
 import com.ph.ibm.model.Year;
+import com.ph.ibm.model.ForApprovalList;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConstants;
+
 
 /**
  * Root resource (exposed at "opum" path) This class is an end point called by
@@ -876,6 +878,38 @@ public class OnlinePUMResource {
 		logger.info("END getAllHoliday");
 		return holidayList;
 	}
+    
+    /**
+     * This service is invoked when user classified as team lead views for approval list <br>
+     * Exposed at "opum/forApprovalList" path
+     *
+     * @param header - this contains the HTTP request header - username and password
+     * @return <b>forApprovalList</b> - this contain Lists of Items for Approval >>>>>>> 
+     * @throws Exception
+     */
+    @GET
+    @Path( "/forApprovalList" )
+    @Produces( MediaType.APPLICATION_JSON )
+    public ForApprovalList getForApproval( @Context HttpHeaders header ) throws Exception {
+        /*
+         * MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
+         * String email = headerParams.getFirst("username"); String password =
+         * headerParams.getFirst("password"); if (!(authenticateUser(email, password)))
+         * { logger.error(OpumConstants.UNAUTHORIZED); return null; }
+         */
+        logger.info( "START getAllForApproval" );
+        ForApprovalList forApprovalList = new ForApprovalList();
+        try{
+            employeeBO = new EmployeeBO();
+            forApprovalList.setForApprovalList(employeeBO.getAllForApproval());
+        }
+        catch( Exception e ){
+            logger.error( e );
+            throw new OpumException( e.getMessage(), e );
+        }
+        logger.info( "END getAllForApproval" );
+        return forApprovalList;
+    }
 
 	/**
 	 * This service is invoked when user display a certain holiday <br>
