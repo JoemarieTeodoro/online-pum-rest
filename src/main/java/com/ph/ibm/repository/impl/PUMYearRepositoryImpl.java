@@ -355,6 +355,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 		PreparedStatement preparedStatement = null;
 
 		try {
+			connection.setAutoCommit(false);
 			String query = " DELETE FROM opum.fy_template WHERE year_id = ?; ";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setInt(1, pumYear.getYearId());

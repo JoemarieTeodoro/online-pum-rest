@@ -134,7 +134,9 @@ public class ProjectBO {
 				pumYearRepository.populateFiscalYear(selectedPUMYear);
 
 				List<Holiday> lstHoliday = holidayEngagementRepository.getAllHoliday(selectedPUMYear);
-				pumYearRepository.addUpdateHolidayInFiscalYearTemplate(lstHoliday, selectedPUMYear);
+				if (!lstHoliday.isEmpty()) {
+					pumYearRepository.addUpdateHolidayInFiscalYearTemplate(lstHoliday, selectedPUMYear);
+				}
 
 				response = Response.status(Status.OK).entity("Existing PUM fiscal year updated!").build();
 			} else {
