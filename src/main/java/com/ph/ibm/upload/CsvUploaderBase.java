@@ -44,7 +44,7 @@ public abstract class CsvUploaderBase implements Uploader {
      * @throws InvalidCSVException custom exception of invalid CSV
      */
     private void populateRawDataMap( Map<String, List<String>> rawDataMap, Scanner sc ) throws InvalidCSVException {
-        String delimiter = ",";
+        String commaNotInQuotesDelimiterRegex = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
         ignoreFirstRow( sc );
         List<String> row;
         int lineNumber = 1;
@@ -56,7 +56,7 @@ public abstract class CsvUploaderBase implements Uploader {
                 throw new InvalidCSVException( null, OpumConstants.NO_HEADER_FOUND );
             }
 
-            row = Arrays.asList( line.split( delimiter ) );
+            row = Arrays.asList( line.split( commaNotInQuotesDelimiterRegex ) );
             if( headerLineNumber == lineNumber && !doesContainsHeader( row ) ){
                 throw new InvalidCSVException( null, getHeaders() );
             }
@@ -98,7 +98,7 @@ public abstract class CsvUploaderBase implements Uploader {
         email.setRecipientType( RecipientType.TO.toString() );
         email.setSubject( OpumConstants.EMAIL_SUBJECT );
         email.setText( OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s" );
-    
+
         ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
         resetPasswordBO.emailResetPasswordLink( email );
     }*/
@@ -147,7 +147,7 @@ public abstract class CsvUploaderBase implements Uploader {
 
     /**
      * Check row in CSV file if contains header i.e Serial, Employee, Email, Roll-In-Date, Roll-Off-Date
-     * 
+     *
      * @param row row in CSV
      * @return true if row contains header otherwise return false;
      */
