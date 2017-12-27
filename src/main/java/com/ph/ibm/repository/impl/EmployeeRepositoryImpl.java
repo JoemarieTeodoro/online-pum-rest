@@ -553,6 +553,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 empLeave.setDate(resultSet.getDate("date").toString());
                 empLeave.setYearID(String.valueOf(resultSet.getInt("year_id")));
                 empLeave.setEmployeeLeaveID(String.valueOf(resultSet.getInt("employee_leave_id")));
+                empLeave.setHoliday(resultSet.getBoolean("is_holiday"));
                 String hours = resultSet.getString("hours");
 				if (resultSet.getString("event_name") != null && !resultSet.getString("event_name").isEmpty()
 						&& !resultSet.getString("event_name").equalsIgnoreCase("RC")) {
@@ -691,7 +692,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 					preparedStatement.setString(1, emp.getEmployeeID());
 					preparedStatement.setInt(2, Integer.valueOf(emp.getYearID()));
 					preparedStatement.setString(3, emp.getStatus());
-					preparedStatement.setDate(4, Date.valueOf(ValidationUtils.dateFormat(emp.getDate())));
+					preparedStatement.setDate(4, Date.valueOf(emp.getDate()));
 					preparedStatement.setString(5, emp.getLeaveName());
 					preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 					preparedStatement.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
