@@ -619,9 +619,9 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		connection.setAutoCommit(false);
 
 		try {
-			String query = "INSERT INTO EMPLOYEE_LEAVE (Employee_ID,Year_ID,Status,"
+			String query_Core = "INSERT INTO EMPLOYEE_LEAVE (Employee_ID,Year_ID,Status,"
 					+ "Leave_Date,Leave_Type,CreateDate,UpdateDate,Hours) VALUES(?,?,?,?,?,?,?,?);";
-			preparedStatement = connection.prepareStatement(query);
+			preparedStatement = connection.prepareStatement(query_Core);
 
 			if (employeeLeaveList.size() > 0) {
 				for (EmployeeLeave emp : employeeLeaveList) {
@@ -742,5 +742,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			logger.error(e.getMessage());
 		}
 		return isSuccess;
+	}
+
+	@Override
+	public boolean saveEmployeeLeaveHistory(EmployeeLeave employeeLeave) throws SQLException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
