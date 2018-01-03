@@ -19,6 +19,7 @@ import org.apache.commons.lang.NumberUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mysql.jdbc.Statement;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
@@ -621,10 +622,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		try {
 			String query_Core = "INSERT INTO EMPLOYEE_LEAVE (Employee_ID,Year_ID,Status,"
 					+ "Leave_Date,Leave_Type,CreateDate,UpdateDate,Hours) VALUES(?,?,?,?,?,?,?,?);";
-			preparedStatement = connection.prepareStatement(query_Core);
+			preparedStatement = connection.prepareStatement(query_Core, Statement.RETURN_GENERATED_KEYS);
 
 			if (employeeLeaveList.size() > 0) {
 				for (EmployeeLeave emp : employeeLeaveList) {
+					int empLeaveID = 0;
 					if (ValidationUtils.isValueEmpty(emp.getEmployeeLeaveID())
 							|| emp.getEmployeeLeaveID().equals("0")) {
 
@@ -648,14 +650,27 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 						if ((emp.getLeaveName().equalsIgnoreCase("HO") && isHoliday)
 								|| emp.getLeaveName().equalsIgnoreCase("VL")) {
 							preparedStatement.addBatch();
+							preparedStatement.executeUpdate();
+							connection.commit();
+							ResultSet rs = preparedStatement.getGeneratedKeys();
+							if (rs.next()) {
+								empLeaveID = rs.getInt(1);
+							}
 						}
 
 					} else {
 						updateEmployeeLeave(emp, draft);
 					}
+
+					/**
+					 * Save employee leave to history table
+					 */
+					if (!draft) {
+						saveEmployeeLeaveHistory(emp, empLeaveID);
+					}
 				}
-				preparedStatement.executeBatch();
-				connection.commit();
+				// preparedStatement.executeBatch();
+
 				preparedStatement.close();
 			} else {
 				if (!draft) {
@@ -685,22 +700,32 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			preparedStatement.setString(2, emp.getLeaveName());
 
 			if (!draft && emp.getStatus().equalsIgnoreCase("draft")) {
-				preparedStatement.setString(3, "pending");
+				preparedStatement.setString(3, "Pending");
+				emp.setStatus("Pending");
 			}
 			preparedStatement.setString(3, emp.getStatus());
 			if (emp.getLeaveName().equalsIgnoreCase("8")) {
 				preparedStatement.setString(3, "Removed");
 				preparedStatement.setString(2, "VL");
+
+				emp.setStatus("Removed");
+				emp.setLeaveName("VL");
 			}
 			if (emp.getLeaveName().equalsIgnoreCase("HO")) {
 				if (isValidHoliday(emp.getLeaveName(), ValidationUtils.dateFormat(emp.getDate())))
 					preparedStatement.setString(3, "Removed");
 				preparedStatement.setString(2, "RC");
+
+				emp.setStatus("Removed");
+				emp.setLeaveName("RC");
 			}
 			preparedStatement.setInt(4, emp.getValue());
 			preparedStatement.setInt(5, Integer.valueOf(emp.getEmployeeLeaveID()));
 			preparedStatement.executeUpdate();
 			connection.commit();
+
+			saveEmployeeLeaveHistory(emp, Integer.valueOf(emp.getEmployeeLeaveID()));
+
 			isSuccess = true;
 		} catch (Exception e) {
 			logger.info(e.getMessage());
@@ -728,7 +753,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		connection.setAutoCommit(false);
-		empID = empID.replace("\'","");
+		empID = empID.replace("\'", "");
 		try {
 			String query = "UPDATE EMPLOYEE_LEAVE SET STATUS=? WHERE EMPLOYEE_ID=? and YEAR_ID=?";
 			preparedStatement = connection.prepareStatement(query);
@@ -737,6 +762,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			preparedStatement.setInt(3, 1);
 			preparedStatement.executeUpdate();
 			connection.commit();
+			
 			isSuccess = true;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -745,8 +771,44 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 	}
 
 	@Override
-	public boolean saveEmployeeLeaveHistory(EmployeeLeave employeeLeave) throws SQLException {
-		// TODO Auto-generated method stub
+	public boolean saveEmployeeLeaveHistory(EmployeeLeave emp, int empLeaveID) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		connection.setAutoCommit(false);
+		System.out.println("empLeaveID >>>>>>>>>>>>>> " + empLeaveID);
+
+		try {
+			String query_Core = "INSERT INTO EMPLOYEE_LEAVE_HISTORY (Employee_ID,Year_ID,Status,"
+					+ "Leave_Date,Leave_Type,CreateDate,UpdateDate, Employee_Leave_ID) VALUES(?,?,?,?,?,?,?,?);";
+			preparedStatement = connection.prepareStatement(query_Core);
+
+			// boolean isHoliday = isValidHoliday(emp.getLeaveName(),
+			// ValidationUtils.dateFormat(emp.getDate()));
+
+			preparedStatement.setString(1, emp.getEmployeeID());
+			preparedStatement.setInt(2, Integer.valueOf(emp.getYearID()));
+			preparedStatement.setString(3, emp.getStatus());
+			preparedStatement.setDate(4, Date.valueOf(ValidationUtils.dateFormat(emp.getDate())));
+			preparedStatement.setString(5, emp.getLeaveName());
+			preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+			preparedStatement.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+			preparedStatement.setInt(8, empLeaveID);
+
+			/*
+			 * if ((emp.getLeaveName().equalsIgnoreCase("HO") && isHoliday) ||
+			 * emp.getLeaveName().equalsIgnoreCase("VL")) {
+			 * preparedStatement.executeUpdate(); }
+			 */
+
+			preparedStatement.execute();
+			connection.commit();
+			preparedStatement.close();
+
+			return true;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 		return false;
+
 	}
 }

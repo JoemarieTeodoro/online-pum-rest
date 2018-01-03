@@ -185,5 +185,5 @@ public interface EmployeeRepository {
     boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeaveList, boolean draft, String empID, String fyID) throws SQLException;
 	boolean updateEmployeeLeave(EmployeeLeave employeeLeave, boolean draft) throws SQLException;
 	boolean updateEmployeeLeaveStatus(String empID, String fyID) throws SQLException;
-	boolean saveEmployeeLeaveHistory(EmployeeLeave employeeLeave) throws SQLException;
+	boolean saveEmployeeLeaveHistory(EmployeeLeave employeeLeave, int empLeaveID) throws SQLException;
 }
