@@ -145,6 +145,33 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     @Override
+    public ArrayList<String> getEmployeeRollDates( String employeeIdNumber ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String> rollDates = new ArrayList<String>();
+        try{
+            String query = "SELECT ROLL_IN_DATE, ROLL_OFF_DATE FROM EMPLOYEE WHERE EMPLOYEE_ID = ?";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, employeeIdNumber );
+            resultSet = preparedStatement.executeQuery();
+            if( resultSet.next() ){
+                rollDates.add( resultSet.getString( 1 ) );
+                rollDates.add( resultSet.getString( 2 ) );
+            }
+            resultSet.close();
+            preparedStatement.close();
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+        return rollDates;
+    }
+
+    @Override
     public Employee loginAdmin( String username, String hashed ) throws SQLException {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;

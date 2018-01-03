@@ -192,4 +192,11 @@ public interface EmployeeRepository {
      * @throws SQLException
      */
     public List<String> getAdminEmailList() throws SQLException;
+
+    /**
+     * @param employeeIdNumber employee number
+     * @return list containing roll in and roll off dates of specified employee
+     * @throws SQLException
+     */
+    public List<String> getEmployeeRollDates( String employeeIdNumber ) throws SQLException;
 }

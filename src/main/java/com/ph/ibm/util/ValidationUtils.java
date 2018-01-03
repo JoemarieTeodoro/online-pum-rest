@@ -1,17 +1,22 @@
 package com.ph.ibm.util;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.PUMYear;
+import com.ph.ibm.model.TeamEmployee;
 import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.opum.exception.OpumException;
+import com.ph.ibm.repository.EmployeeRepository;
 
 public class ValidationUtils 
 {
@@ -31,7 +36,7 @@ public class ValidationUtils
 	
     public static final String VALID_RECOVERABLE_REGEX = "^(?:Y|N)$";
 
-    public static final String VALID_TEAM_NAME_REGEX = "^([A-Za-z.]+[ ]{0,1})*([A-Za-z.]+[ ]{0,1})*$";
+    public static final String VALID_TEAM_NAME_REGEX = "^([A-Za-z0-9]+[ ]{0,1})*([A-Za-z0-9]+[ ]{0,1})*$";
 
 	public static String CAUSE_OF_ERROR = "CAUSE OF ERROR: ";
 
@@ -61,7 +66,44 @@ public class ValidationUtils
             logger.info( CAUSE_OF_ERROR + OpumConstants.INVALID_DATE );
             throw new InvalidCSVException(object, OpumConstants.INVALID_DATE);
         }
-	}   
+    }
+
+    /**
+     * Checks the value of the date if within the actual employee roll dates
+     * 
+     * @param employeeRepository data access object to employee table
+     * @param teamEmployee mapper for team_employee table in opum database
+     * @return true if team mapper roll dates values are within actual project roll dates
+     * @throws InvalidCSVException custom exception for invalid csv values
+     * @throws SQLException
+     */
+    public static boolean isWithinDateRange( EmployeeRepository employeeRepository,
+                                             TeamEmployee teamEmployee )
+        throws InvalidCSVException, SQLException {
+        try{
+
+            List<String> projectEmployeeRollDates =
+                employeeRepository.getEmployeeRollDates( teamEmployee.getEmployeeId() );
+
+            Date actualEmployeeRollInDate =
+                new SimpleDateFormat( YEAR_MONTH_DAY_FORMAT ).parse( projectEmployeeRollDates.get( 0 ) );
+            Date actualEmployeeRollOffDate =
+                new SimpleDateFormat( YEAR_MONTH_DAY_FORMAT ).parse( projectEmployeeRollDates.get( 1 ) );
+
+            Date updatedTeamRollInDate =
+                new SimpleDateFormat( MONTH_DAY_YEAR_FORMAT ).parse( teamEmployee.getRollInDate() );
+            Date updatedTeamRollOffDate =
+                new SimpleDateFormat( MONTH_DAY_YEAR_FORMAT ).parse( teamEmployee.getRollOffDate() );
+
+            return (updatedTeamRollInDate.after( actualEmployeeRollInDate ) &&
+                updatedTeamRollOffDate.before( actualEmployeeRollOffDate ) );
+            
+        }
+        catch( ParseException e ){
+            logger.info( CAUSE_OF_ERROR + OpumConstants.INVALID_DATE );
+            throw new InvalidCSVException( null, OpumConstants.INVALID_DATE );
+        }
+    }
 
     public static String dateFormat( String date ) {
            SimpleDateFormat fromFile = new SimpleDateFormat( "MM/dd/yyyy" );
