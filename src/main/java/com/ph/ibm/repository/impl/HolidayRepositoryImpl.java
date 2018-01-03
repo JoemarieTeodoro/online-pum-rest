@@ -57,11 +57,11 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		}
 	}
 
-	private void checkIfHolidayExisting(Holiday holiday) throws ParseException, OpumException {
+	public boolean checkIfHolidayExisting(Holiday holiday) throws ParseException, OpumException {
 		Connection connection = connectionPool.getConnection();
 		ResultSet rs = null;
 		PreparedStatement preparedStatement = null;
-
+		boolean status = false;
 		try {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String query = "SELECT count(*) FROM opum.holiday WHERE name = ? OR date = ?; ";
@@ -70,8 +70,8 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			preparedStatement.setDate(2, new Date(df.parse(holiday.getDate()).getTime()));
 			rs = preparedStatement.executeQuery();
 			if (rs.next()) {
-				if (Integer.valueOf(rs.getString(1)) > 0) {
-					throw new OpumException("Existing Holiday!");
+				if (rs.getInt(1) > 0) {
+					status = true;
 				}
 			}
 		} catch (SQLException e) {
@@ -80,6 +80,8 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		} finally {
 			connectionPool.closeConnection(connection, preparedStatement, rs);
 		}
+
+		return status;
 	}
 
 	@Override
@@ -104,12 +106,12 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean deleteHoliday(Holiday holiday) throws SQLException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
-		try{
+		try {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			connection.setAutoCommit(false);
 			String query = "DELETE FROM HOLIDAY WHERE NAME = ?;";
@@ -119,9 +121,9 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			connection.commit();
 			System.out.println(OpumConstants.DELETED_SUCCESS);
 			return true;
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			connectionPool.closeConnection(connection, preparedStatement);
 		}
 		return false;
@@ -182,7 +184,5 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			connectionPool.closeConnection(connection, preparedStatement, resultSet);
 		}
 	}
-
-	
 
 }

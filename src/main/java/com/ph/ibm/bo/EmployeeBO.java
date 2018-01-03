@@ -161,9 +161,9 @@ public class EmployeeBO {
     	return cal;
     }
     
-	public boolean saveEmployeeLeave(List<EmployeeLeave> empLeave) {
+	public boolean saveEmployeeLeave(List<EmployeeLeave> empLeave, boolean draft, String empID, String fyID) {
 		try {
-			return employeeRepository.saveEmployeeLeave(empLeave);
+ 			return employeeRepository.saveEmployeeLeave(empLeave, draft, empID, fyID);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}

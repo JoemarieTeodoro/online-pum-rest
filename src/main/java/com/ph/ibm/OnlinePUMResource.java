@@ -1064,12 +1064,12 @@ public class OnlinePUMResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String saveEmployeeLeave( EmployeeEvent empLeaves) throws Exception {
-		logger.info("START save employee leave");
+		logger.info("START save employee leave" + empLeaves.isDraft());
 		boolean result;
 
 		try {
 			employeeBO = new EmployeeBO();
-			result = employeeBO.saveEmployeeLeave(empLeaves.getEmpLeaveList());
+			result = employeeBO.saveEmployeeLeave(empLeaves.getEmpLeaveList(), empLeaves.isDraft(), empLeaves.getEmpID(), empLeaves.getFyID());
 		} catch (Exception e) {
 			logger.error(e);
 			throw new OpumException(e.getMessage(), e);
