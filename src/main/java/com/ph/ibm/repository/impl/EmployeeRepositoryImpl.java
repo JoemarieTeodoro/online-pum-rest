@@ -339,7 +339,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         EmployeeUpdate employee = null;
         try{
             String query =
-                "SELECT EMPLOYEE_ID, FULLNAME, EMAIL, PROJECT_ENGAGEMENT_ID, ROLL_IN_DATE, ROLL_OFF_DATE FROM EMPLOYEE WHERE EMPLOYEE_ID = ?";
+                "SELECT EMPLOYEE_ID, FULLNAME, EMAIL, PROJECT_ENGAGEMENT_ID, ROLL_IN_DATE, ROLL_OFF_DATE FROM EMPLOYEE WHERE EMPLOYEE_ID = ? AND EMP_STATUS='A'";
             preparedStatement = connection.prepareStatement( query );
             preparedStatement.setString( 1, employeeIdNumber );
             resultSet = preparedStatement.executeQuery();
@@ -369,26 +369,9 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     public boolean updateEmployee( EmployeeUpdate employeeUpdate ) throws SQLException, BatchUpdateException {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
-        try{
-            connection.setAutoCommit( false );
-            String query = "UPDATE EMPLOYEE " +
-                "JOIN PROJECT_ENGAGEMENT ON EMPLOYEE.EMPLOYEE_ID = PROJECT_ENGAGEMENT.EMPLOYEE_ID " +
-                "JOIN PROJECT ON PROJECT_ENGAGEMENT.PROJECT_ID = PROJECT.PROJECT_ID " + "SET EMPLOYEE.FULLNAME = ?," +
-                "EMPLOYEE.EMAIL = ?," + "PROJECT.NAME = ?, " + "PROJECT_ENGAGEMENT.START = ?," +
-                "PROJECT_ENGAGEMENT.END = ?," + "EMPLOYEE.ISACTIVE = ?" + " WHERE EMPLOYEE.EMPLOYEE_ID = ?";
-
-            preparedStatement = connection.prepareStatement( query );
-            preparedStatement.setString( 1, employeeUpdate.getFullName() );
-            preparedStatement.setString( 2, employeeUpdate.getEmail() );
-            preparedStatement.setString( 3, employeeUpdate.getProjectName() );
-            preparedStatement.setString( 4, employeeUpdate.getStartDate() );
-            preparedStatement.setString( 5, employeeUpdate.getEndDate() );
-            preparedStatement.setBoolean( 6, employeeUpdate.isActive() );
-            preparedStatement.setString( 7, employeeUpdate.getEmployeeIdNumber() );
-            preparedStatement.executeUpdate();
-            connection.commit();
-            logger.info( OpumConstants.UPDATED_SUCCESS );
-            preparedStatement.close();
+        try{        	
+        	updateEmployeeStatus(employeeUpdate.getEmployeeIdNumber());        	
+            addUpdatedEmployee(employeeUpdate);
             return true;
         }
         catch( SQLException e ){
@@ -573,7 +556,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             cStmt.setInt( 2, Integer.valueOf( currFY ) );
 
             resultSet = cStmt.executeQuery();
-
             while(resultSet.next()) {
             	EmployeeLeave empLeave = new EmployeeLeave();
                 empLeave.setEmployeeID(resultSet.getString("employeeid"));
@@ -617,7 +599,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         PreparedStatement preparedStatement = null;
         try{
             connection.setAutoCommit( false );
-            String query = "UPDATE EMPLOYEE SET EMP_STATUS = 'I' WHERE EMPLOYEE_ID = ?;";
+            String query = "UPDATE EMPLOYEE SET EMP_STATUS = 'I' WHERE EMPLOYEE_ID = ? AND EMP_STATUS = 'A';";
             preparedStatement = connection.prepareStatement( query );
             preparedStatement.setString( 1, serialNumber );
             preparedStatement.executeUpdate();
@@ -686,7 +668,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString( 1, serialNumber );
             resultSet = preparedStatement.executeQuery();
             if( resultSet.next() ){
-                System.out.println( "getpassword" );
                 password = resultSet.getString( 1 );
 
             }
@@ -792,5 +773,46 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         finally{
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
         }
+	}
+	
+	public boolean addUpdatedEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException {
+        String empPassword = retrieveRecentPassword(employeeUpdate.getEmployeeIdNumber());
+        boolean isActive = true;
+        String empStatus = "A";
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        try{
+            connection.setAutoCommit( false );
+            String query = "INSERT INTO EMPLOYEE (" +
+                "Employee_ID,Email,Manager_ID, Project_Engagement_ID,FirstName,LastName,MiddleName,FullName,Password,isActive,Roll_In_Date, Roll_Off_Date, UpdateDate,UpdatedBy, Emp_Status) " +
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, employeeUpdate.getEmployeeIdNumber() );
+            preparedStatement.setString( 2, employeeUpdate.getEmail() );
+            preparedStatement.setString( 3, employeeUpdate.getManagerSerial());
+            preparedStatement.setString( 4, null );
+            preparedStatement.setString( 5, employeeUpdate.getFirstName());
+            preparedStatement.setString( 6, employeeUpdate.getLastName() );
+            preparedStatement.setString( 7, employeeUpdate.getMiddleName() );
+            preparedStatement.setString( 8, employeeUpdate.getFullName() );
+            preparedStatement.setString( 9, empPassword );
+            preparedStatement.setBoolean( 10, isActive );
+            preparedStatement.setString( 11, employeeUpdate.getStartDate() );
+            preparedStatement.setString( 12, employeeUpdate.getEndDate() );
+            preparedStatement.setString( 13, new Timestamp(System.currentTimeMillis()).toString());
+            preparedStatement.setString( 14, Role.ADMIN.getRoleValue() );
+            preparedStatement.setString( 15, empStatus );
+            preparedStatement.execute();
+            connection.commit();
+            logger.info( OpumConstants.SUCCESSFULLY_SAVED_UPDATED_DATA );
+            preparedStatement.close();
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+        finally{
+        	connectionPool.closeConnection( connection, preparedStatement );
+        }
+        return false;
 	}
 }

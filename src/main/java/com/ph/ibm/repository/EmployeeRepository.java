@@ -199,4 +199,6 @@ public interface EmployeeRepository {
      * @throws SQLException
      */
     public List<String> getEmployeeRollDates( String employeeIdNumber ) throws SQLException;
+
+	public boolean addUpdatedEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException;
 }
