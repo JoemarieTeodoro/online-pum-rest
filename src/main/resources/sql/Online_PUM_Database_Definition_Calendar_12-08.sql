@@ -1,3 +1,6 @@
+--WARNING--
+--THIS SQL FILE IS DEPRECATED. KINDLY USE THE "Online_PUM_Database_Definition.sql"--
+
 CREATE DATABASE  IF NOT EXISTS `opum` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `opum`;
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)

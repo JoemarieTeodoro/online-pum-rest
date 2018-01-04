@@ -65,4 +65,13 @@ public interface PUMYearRepository {
 	public void updateFiscalYear(PUMYear pumyear) throws ParseException, OpumException;
 
 	public void deleteFiscalYearTemplate(PUMYear pumYear);
+
+    public void deleteFiscalQuarters( PUMYear selectedPUMYear );
+
+    public void deleteFiscalWeeks( PUMYear selectedPUMYear );
+
+    public void populateFiscalWeeks( PUMYear pumYear );
+
+    public void populateFiscalQuarters( PUMYear pumYear );
+
 }

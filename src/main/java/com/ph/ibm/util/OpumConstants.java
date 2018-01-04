@@ -103,4 +103,11 @@ public class OpumConstants {
 	public static final String FISCAL_YEAR_NOT_DEFINED = "Fiscal Year not yet defined!";
 	public static final String HOLIDAY_DATE_NOT_WITHIN_FISCAL_YEAR = "Holiday Date is not within Fiscal Year date range!";
 
+    /** Utilization Constants **/
+
+    public static final int TOTAL_NUMBER_OF_WEEKS = 52;
+    public static final int TOTAL_WEEKLY_HOURS = 40;
+    public static final int COUNT_OF_WEEKS_PER_QUARTER = 13;
+    public static final int PERCENTAGE = 100;
+
 }

@@ -122,28 +122,20 @@ public class ProjectBO {
                 logger.error("Please fill Start Date and/or End Date");
                 return response = Response.status(Status.NOT_ACCEPTABLE).entity("Please fill Start Date and/or End Date").build();
             }
-            
             ValidationUtils.checkIfStartAndEndDateValid(pumYear);
             ValidationUtils.checkIfValidFiscalYear(pumYear);
 			if (pumYearRepository.checkIfPUMCycleExisting(pumYear)) {
 				logger.info("Updating Existing Fiscal Year...");
-
 				pumYearRepository.updateFiscalYear(pumYear);
 				PUMYear selectedPUMYear = pumYearRepository.retrieveYearDate(pumYear.getPumYear());
-				pumYearRepository.deleteFiscalYearTemplate(selectedPUMYear);
-				pumYearRepository.populateFiscalYear(selectedPUMYear);
-
-				List<Holiday> lstHoliday = holidayEngagementRepository.getAllHoliday(selectedPUMYear);
-				if (!lstHoliday.isEmpty()) {
-					pumYearRepository.addUpdateHolidayInFiscalYearTemplate(lstHoliday, selectedPUMYear);
-				}
+				updateFiscalYear( selectedPUMYear );
+				addUpdateHoliday( selectedPUMYear );
 
 				response = Response.status(Status.OK).entity("Existing PUM fiscal year updated!").build();
 			} else {
 				logger.info("Saving year...");
 
-				pumYearRepository.saveYear(pumYear);
-				pumYearRepository.populateFiscalYear(pumYear);
+				saveFiscalYear( pumYear );
 				response = Response.status(Status.OK).entity("PUM Fiscal year added!").build();
 			}
 
@@ -155,11 +147,49 @@ public class ProjectBO {
             response = Response.status(Status.NOT_ACCEPTABLE).entity("ERROR: Unable to update Fiscal Year").build();
         } catch (ParseException e) {
             logger.error(e.getMessage());
-            response = Response.status(Status.NOT_ACCEPTABLE).entity("Invalid Input: Please fill fields correctly")
-                    .build();
+            response = Response.status(Status.NOT_ACCEPTABLE).entity("Invalid Input: Please fill fields correctly").build();
         }
 
         return response;
+    }
+
+    /**
+     * @param pumYear
+     * @throws SQLException
+     * @throws ParseException
+     * @throws OpumException
+     */
+    private void saveFiscalYear( PUMYear pumYear ) throws SQLException, ParseException, OpumException {
+        pumYearRepository.saveYear(pumYear);
+        pumYearRepository.populateFiscalYear(pumYear);
+        pumYearRepository.populateFiscalQuarters( pumYear );
+        pumYearRepository.populateFiscalWeeks( pumYear );
+    }
+
+    /**
+     * @param selectedPUMYear
+     * @throws SQLException
+     * @throws ParseException
+     */
+    private void updateFiscalYear( PUMYear selectedPUMYear ) throws SQLException, ParseException {
+        pumYearRepository.deleteFiscalYearTemplate(selectedPUMYear);
+        pumYearRepository.deleteFiscalQuarters( selectedPUMYear );
+        pumYearRepository.deleteFiscalWeeks( selectedPUMYear );
+        pumYearRepository.populateFiscalYear(selectedPUMYear);
+        pumYearRepository.populateFiscalQuarters( selectedPUMYear );
+        pumYearRepository.populateFiscalWeeks( selectedPUMYear );
+    }
+
+    /**
+     * @param selectedPUMYear
+     * @throws SQLException
+     * @throws OpumException
+     */
+    private void addUpdateHoliday( PUMYear selectedPUMYear ) throws SQLException, OpumException {
+        List<Holiday> lstHoliday = holidayEngagementRepository.getAllHoliday(selectedPUMYear);
+        if (!lstHoliday.isEmpty()) {
+        	pumYearRepository.addUpdateHolidayInFiscalYearTemplate(lstHoliday, selectedPUMYear);
+        }
     }
     
     /*
