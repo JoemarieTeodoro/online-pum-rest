@@ -273,6 +273,7 @@ CREATE TABLE `utilization` (
   `CreatedBy` varchar(45) DEFAULT NULL,
   `UpdateDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UpdatedBy` varchar(45) DEFAULT 'ADMIN',
+  `isActive` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Utilization_ID`),
   UNIQUE KEY `UNQ_Utilization` (`Employee_ID`,`Year`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
