@@ -37,8 +37,18 @@ public class Employee extends BaseAuditBean {
     private Boolean isAdmin;
 
     private Utilization utilization;
+    
+    private Boolean isTeamLead;
 
-    public Employee() {
+    public Boolean getIsTeamLead() {
+		return isTeamLead;
+	}
+
+	public void setIsTeamLead(Boolean isTeamLead) {
+		this.isTeamLead = isTeamLead;
+	}
+
+	public Employee() {
         super();
     }
 

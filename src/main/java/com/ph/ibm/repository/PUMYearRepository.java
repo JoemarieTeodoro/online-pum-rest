@@ -58,5 +58,20 @@ public interface PUMYearRepository {
 
 	public void populateFiscalYear(PUMYear pumYear) throws SQLException, ParseException;
 
-	public void addUpdateHolidayInFiscalYearTemplate(Holiday holiday, PUMYear pumyear) throws SQLException, OpumException;
+	public void addUpdateHolidayInFiscalYearTemplate(List<Holiday> lstHoliday, PUMYear pumyear) throws SQLException, OpumException;
+
+	public boolean checkIfPUMCycleExisting(PUMYear pumYear) throws ParseException, OpumException;
+
+	public void updateFiscalYear(PUMYear pumyear) throws ParseException, OpumException;
+
+	public void deleteFiscalYearTemplate(PUMYear pumYear);
+
+    public void deleteFiscalQuarters( PUMYear selectedPUMYear );
+
+    public void deleteFiscalWeeks( PUMYear selectedPUMYear );
+
+    public void populateFiscalWeeks( PUMYear pumYear );
+
+    public void populateFiscalQuarters( PUMYear pumYear );
+
 }

@@ -21,7 +21,8 @@ import com.ph.ibm.repository.impl.TeamEmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamRepositoryImpl;
 import com.ph.ibm.upload.CsvUploaderBase;
 import com.ph.ibm.util.OpumConstants;
-import com.ph.ibm.util.ValidationUtils;
+import com.ph.ibm.validation.Validator;
+import com.ph.ibm.validation.impl.TeamEmployeeValidator;
 
 public class TeamEmployeeUploader extends CsvUploaderBase {
 
@@ -52,6 +53,11 @@ public class TeamEmployeeUploader extends CsvUploaderBase {
     private TeamEmployeeRepository teamEmployeeRepository = new TeamEmployeeRepositoryImpl();
 
     /**
+     * Contain methods to validate team employee field
+     */
+    private Validator<TeamEmployee> teamEmployeeValidator = new TeamEmployeeValidator();
+
+    /**
      * Logger is used to document the execution of the system and logs the corresponding log level such as INFO, WARN,
      * ERROR
      */
@@ -61,7 +67,7 @@ public class TeamEmployeeUploader extends CsvUploaderBase {
     private static final int ROW_HEADER_COLUMN_SIZE = 4;
 
     @Override
-    public Response upload( String rawData, UriInfo uriInfo ) {
+    public Response upload( String rawData, UriInfo uriInfo ) throws Exception {
         List<TeamEmployee> validatedEmployee = new ArrayList<TeamEmployee>();
         String currentEmployeeID = null;
         List<String> errorList = new ArrayList<String>();
@@ -106,39 +112,18 @@ public class TeamEmployeeUploader extends CsvUploaderBase {
      * @param uriInfo
      * @param row
      * @return TeamEmployee team employee instance
-     * @throws InvalidCSVException when row value is not valid
-     * @throws SQLException
-     * @throws NumberFormatException
      * @throws Exception
      */
     private TeamEmployee validateTeamEmployee( UriInfo uriInfo, List<String> row )
-        throws InvalidCSVException, NumberFormatException, SQLException {
+        throws Exception {
         checkRowIntegrity( row );
         TeamEmployee teamEmployee = new TeamEmployee();
         teamEmployee.setEmployeeId( row.get( 0 ) );
         teamEmployee.setTeamName( row.get( 1 ) );
         teamEmployee.setRollInDate( row.get( 2 ) );
         teamEmployee.setRollOffDate( row.get( 3 ) );
-        if( employeeRepository.viewEmployee( teamEmployee.getEmployeeId() ) == null ){
-            throw new InvalidCSVException( null, "No existing employee with Employee Serial: " + row.get( 0 ) );
-        }
-        else if( !teamRepository.teamExists( teamEmployee.getTeamName() ) ){
-            throw new InvalidCSVException( null, "No existing team with Team Name: " + row.get( 1 ) );
-        }
-        else if( !ValidationUtils.regexValidator( teamEmployee, teamEmployee.getTeamName(),
-            ValidationUtils.VALID_TEAM_NAME_REGEX, OpumConstants.INVALID_TEAM_NAME ) ){
-            throw new InvalidCSVException( null, OpumConstants.INVALID_TEAM_NAME );
-        }
-        else if( !ValidationUtils.isValidDate( teamEmployee, teamEmployee.getRollInDate() ) ){
-            throw new InvalidCSVException( null, "Roll-In Date is Invalid: " + row.get( 2 ) );
-        }
-        else if( !ValidationUtils.isValidDate( teamEmployee, teamEmployee.getRollOffDate() ) ){
-            throw new InvalidCSVException( null, "Roll-Off Date is Invalid: " + row.get( 3 ) );
-        }
-        else if( !ValidationUtils.isValidDateRange( teamEmployee, teamEmployee.getRollInDate(),
-            teamEmployee.getRollOffDate() ) ){
-            throw new InvalidCSVException( null, "INVALID DATE RANGE FOR ROLL IN & ROLL OFF" );
-        }
+        
+        teamEmployeeValidator.validate( teamEmployee );
 
         return teamEmployee;
 

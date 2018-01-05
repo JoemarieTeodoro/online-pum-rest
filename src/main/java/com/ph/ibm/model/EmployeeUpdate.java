@@ -1,9 +1,10 @@
 package com.ph.ibm.model;
 
-public class EmployeeUpdate {
+public class EmployeeUpdate extends BaseAuditBean{
 
 	private int employeeId;
 	private String employeeIdNumber;
+	private String managerSerial;
 	private String firstName;
 	private String middleName;
 	private String lastName;
@@ -131,6 +132,14 @@ public class EmployeeUpdate {
 
 	public void setEndDate(String endDate) {
 		this.endDate = endDate;
+	}
+
+	public String getManagerSerial() {
+		return managerSerial;
+	}
+
+	public void setManagerSerial(String managerSerial) {
+		this.managerSerial = managerSerial;
 	}
 
 }

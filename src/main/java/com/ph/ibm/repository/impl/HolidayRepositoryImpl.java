@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Holiday;
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.HolidayEngagementRepository;
 import com.ph.ibm.repository.PUMYearRepository;
@@ -32,7 +33,7 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		PreparedStatement preparedStatement = null;
 		try {
 			connection.setAutoCommit(false);
-			checkIfHolidayExisting(holiday);
+			isHolidayExists(holiday);
 
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
@@ -57,11 +58,11 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		}
 	}
 
-	public boolean checkIfHolidayExisting(Holiday holiday) throws ParseException, OpumException {
+	public boolean isHolidayExists(Holiday holiday) throws ParseException, OpumException {
 		Connection connection = connectionPool.getConnection();
 		ResultSet rs = null;
 		PreparedStatement preparedStatement = null;
-		boolean status = false;
+		boolean isExists = false;
 		try {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String query = "SELECT count(*) FROM opum.holiday WHERE name = ? OR date = ?; ";
@@ -71,7 +72,7 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			rs = preparedStatement.executeQuery();
 			if (rs.next()) {
 				if (rs.getInt(1) > 0) {
-					status = true;
+					isExists = true;
 				}
 			}
 		} catch (SQLException e) {
@@ -81,7 +82,7 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			connectionPool.closeConnection(connection, preparedStatement, rs);
 		}
 
-		return status;
+		return isExists;
 	}
 
 	@Override
@@ -97,7 +98,6 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			preparedStatement.setDate(2, new java.sql.Date(df.parse(holiday.getDate()).getTime()));
 			preparedStatement.executeUpdate();
 			connection.commit();
-			System.out.println(OpumConstants.UPDATED_SUCCESS);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -119,7 +119,6 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 			preparedStatement.setString(1, holiday.getName());
 			preparedStatement.executeUpdate();
 			connection.commit();
-			System.out.println(OpumConstants.DELETED_SUCCESS);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -130,14 +129,15 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 	}
 
 	@Override
-	public List<Holiday> getAllHoliday() throws SQLException {
+	public List<Holiday> getAllHoliday(PUMYear pumYear) throws SQLException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		List<Holiday> holidays = new ArrayList<Holiday>();
 		try {
-			String query = "SELECT HOLIDAY_ID, NAME, DATE, CREATEDATE, CREATEDBY, UPDATEDATE, UPDATEDBY FROM HOLIDAY";
+			String query = "SELECT HOLIDAY_ID, NAME, DATE, CREATEDATE, CREATEDBY, UPDATEDATE, UPDATEDBY FROM HOLIDAY WHERE YEAR_ID = ? ";
 			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setInt(1, pumYear.getYearId());
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
 				int holiday_Id = resultSet.getInt(1);

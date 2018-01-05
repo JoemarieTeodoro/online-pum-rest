@@ -54,6 +54,7 @@ public class OpumConstants {
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";
 	public static final String SUCCESSFULLY_SAVED_DATA = "SUCCESSFULLY SAVED DATA";
+	public static final String SUCCESSFULLY_SAVED_UPDATED_DATA = "SUCCESSFULLY SAVED UPDATED DATA";
 	public static final String SUCCESSFULLY_REGISTERED = "SUCCESSFULLY REGISTERED";
 	public static final String SUCCESSFULLY_UPLOADED_FILE = "SUCCESSFULLY UPLOADED FILE";
 	public static final String SUCCESSFULLY_EMAILED_LIST_OF_EMAIL_ADDRESS = "SUCCESSFULLY EMAILED LIST OF EMAIL ADDRESS";
@@ -76,6 +77,16 @@ public class OpumConstants {
 	public static final String EMAIL_CLOSING = "Thank you,";
 	public static final String EMAIL_SIGNATURE = "Online PUM Support";
 
+	/** APPROVE EMAIL MESSAGES */
+	public static final String APPROVE_EMAIL_SUBJECT = "PUM NOTIFICATION: Leaves Approved for today";
+	public static final String APPROVE_EMAIL_BODY = "Below is a table that represents the leaves approved today. "
+			+ "They were approved by ";
+
+	/** REJECT EMAIL MESSAGES */
+	public static final String REJECT_EMAIL_SUBJECT = "PUM NOTIFICATION: Leaves Rejected for today";
+	public static final String REJECT_EMAIL_BODY = "The leave dates that were rejected are mentioned below. " +
+			"They were rejected by ";
+
     public static final String SYS_ADMIN ="system administrator";
     public static final String ADMIN_FULL_FORM = "administrator";
     public static final String USER = "user";
@@ -87,5 +98,17 @@ public class OpumConstants {
 	/** PUM Year **/
 	public static final String ZERO = "0";
 	public static final String EIGHT = "8";
+
+	/** Error Messages **/
+	public static final String FILL_HOLIDAY_NAME_AND_OR_HOLIDAY_DATE = "Please fill Holiday Name and/or Holiday Date";
+	public static final String FISCAL_YEAR_NOT_DEFINED = "Fiscal Year not yet defined!";
+	public static final String HOLIDAY_DATE_NOT_WITHIN_FISCAL_YEAR = "Holiday Date is not within Fiscal Year date range!";
+
+    /** Utilization Constants **/
+
+    public static final int TOTAL_NUMBER_OF_WEEKS = 52;
+    public static final int TOTAL_WEEKLY_HOURS = 40;
+    public static final int COUNT_OF_WEEKS_PER_QUARTER = 13;
+    public static final int PERCENTAGE = 100;
 
 }

@@ -12,6 +12,17 @@ public class EmployeeLeave {
 	private String createDate;
 	private String updateDate;
 	private boolean isHoliday;
+	
+	@Override
+	public String toString()
+	{
+		return "Employee Leave ID: " + employeeLeaveID + "\n"+
+				"Employee ID: " + employeeID + "\n"+ 
+				"Year Id: " + yearID + "\n" +
+				"Status: " + status + "\n" +
+				"leave Type: " + leaveName + "\n" + 
+				"leave date: " + date + "\n";
+	}
 
 	public String getEmployeeLeaveID() {
 		return employeeLeaveID;
