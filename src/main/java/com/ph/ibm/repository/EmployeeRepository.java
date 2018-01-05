@@ -151,10 +151,10 @@ public interface EmployeeRepository {
      * @return boolea
      * @throws SQLException
      */
-    boolean doesEmployeeRoleIdExist( int roleId) throws SQLException;
+    boolean doesEmployeeRoleIdExist( int roleId ) throws SQLException;
 
-    List<EmployeeLeave> getEmployeeLeaves(String empId, String currFY);
-    
+    List<EmployeeLeave> getEmployeeLeaves( String empId, String currFY );
+
     /**
      * This method is used to update employee status in employee table
      *
@@ -182,8 +182,9 @@ public interface EmployeeRepository {
      */
     public String retrieveRecentPassword( String serialNumber ) throws SQLException;
 
-    boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeaveList) throws SQLException;
-	boolean updateEmployeeLeave(EmployeeLeave employeeLeave) throws SQLException;
+    boolean saveEmployeeLeave( List<EmployeeLeave> employeeLeaveList ) throws SQLException;
+
+    boolean updateEmployeeLeave( EmployeeLeave employeeLeave ) throws SQLException;
 
     /**
      * This method is used to get the list of admin emails
@@ -201,4 +202,5 @@ public interface EmployeeRepository {
     public List<String> getEmployeeRollDates( String employeeIdNumber ) throws SQLException;
 
 	public boolean addUpdatedEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException;
+
 }

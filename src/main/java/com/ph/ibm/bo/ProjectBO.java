@@ -134,7 +134,6 @@ public class ProjectBO {
 				response = Response.status(Status.OK).entity("Existing PUM fiscal year updated!").build();
 			} else {
 				logger.info("Saving year...");
-
 				saveFiscalYear( pumYear );
 				response = Response.status(Status.OK).entity("PUM Fiscal year added!").build();
 			}
@@ -160,10 +159,13 @@ public class ProjectBO {
      * @throws OpumException
      */
     private void saveFiscalYear( PUMYear pumYear ) throws SQLException, ParseException, OpumException {
+
         pumYearRepository.saveYear(pumYear);
         pumYearRepository.populateFiscalYear(pumYear);
         pumYearRepository.populateFiscalQuarters( pumYear );
         pumYearRepository.populateFiscalWeeks( pumYear );
+        List<String> lstEmployees = pumYearRepository.getEmployeeList();
+        pumYearRepository.populateUtilization( lstEmployees );
     }
 
     /**

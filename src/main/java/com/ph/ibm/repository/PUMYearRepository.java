@@ -74,4 +74,10 @@ public interface PUMYearRepository {
 
     public void populateFiscalQuarters( PUMYear pumYear );
 
+    public List<String> getEmployeeList() throws SQLException;
+
+    public void populateUtilization( List<String> lstEmployees ) throws SQLException;
+
+    public void populateUtilization( String employee ) throws SQLException;
+
 }

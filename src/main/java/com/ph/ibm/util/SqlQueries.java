@@ -45,7 +45,10 @@ public class SqlQueries {
 
     public static final String SQL_RETRIEVE_ALL_YEAR =
         "SELECT YEAR_ID, PUMYEAR, END, START, CREATEDATE, CREATEDBY, UPDATEDATE, UPDATEDBY FROM YEAR;";
+    
+    public static final String SQL_POPULATE_UTILIZATION = "INSERT INTO UTILIZATION(EMPLOYEE_SERIAL, TYPE, YEAR_ID) VALUES (?,?,?)";
 
+    public static final String SQL_GET_EMPLOYEE_LIST = "SELECT DISTINCT EMPLOYEE_ID FROM EMPLOYEE_ROLE WHERE ROLE_ID = ?";
     //UTILIZATION REPOSITORY IMPL
     public static final String SQL_GET_QUARTERLY_UTILIZATION_HOURS =
         "SELECT SUM((CASE WHEN (EL.LEAVE_TYPE = 'RC') THEN EL.HOURS" +
@@ -56,4 +59,29 @@ public class SqlQueries {
             "                ON ( FT.DATE BETWEEN Q.START AND Q.END) WHERE FT.YEAR_ID = ? " +
             "                GROUP BY Q.QUARTER_ID " +
             "                ORDER BY DATE;";
+    
+    public static final String SQL_GET_WEEKLY_UTILIZATION_HOURS = 
+                    " SELECT SUM(                   " +
+                    "   (CASE WHEN (EL.LEAVE_TYPE = 'RC') THEN EL.HOURS " +
+                    "           WHEN (EL.STATUS = 'Approved') THEN 0    " +
+                    "           ELSE FT.VALUE                           " +
+                    "      END)) AS HOURS                               " +
+                    " FROM                                              " +
+                    "   WEEK W LEFT JOIN (                              " +
+                    "       FY_TEMPLATE FT LEFT JOIN EMPLOYEE_LEAVE EL  " +
+                    "           ON ((FT.DATE = EL.LEAVE_DATE)           " +
+                    "               AND EL.EMPLOYEE_ID = ?))            " +
+                    "       ON ( FT.DATE BETWEEN W.START AND W.END)     " +
+                    " WHERE                                             " +
+                    "               FT.YEAR_ID = ?                      " +
+                    " GROUP BY W.WEEK_ID                                " +
+                    " ORDER BY DATE                                     ";
+    
+    public static final String SQL_UPDATE_UTILIZATION_HOURS = 
+        "UPDATE UTILIZATION " +
+            "   SET Week1 = ?, Week2 = ?, Week3 = ?, Week4 = ?, Week5 = ?, Week6 = ?, Week7 = ?, Week8 = ?, Week9 = ?, Week10 = ?, Week11 = ?, Week12 = ?, Week13 = ?, " +
+            "    Week14 = ?, Week15 = ?, Week16 = ?, Week17 = ?, Week18 = ?, Week19 = ?, Week20 = ?, Week21 = ?, Week22 = ?, Week23 = ?, Week24 = ?, Week25 = ?, Week26 = ?, " +
+            "   Week27 = ?, Week28 = ?, Week29 = ?, Week30 = ?, Week31 = ?, Week32 = ?, Week33 = ?, Week34 = ?, Week35 = ?, Week36 = ?, Week37 = ?, Week38 = ?, Week39 = ?, " +
+            "   Week40 = ?, Week41 = ?, Week42 = ?, Week43 = ?, Week44 = ?, Week45 = ?, Week46 = ?, Week47 = ?, Week48 = ?, Week49 = ?, Week50 = ?, Week51 = ?, Week52 = ? " +
+            " WHERE YEAR_ID = ? AND EMPLOYEE_SERIAL = ? ";
 }
