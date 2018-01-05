@@ -3,9 +3,9 @@ package com.ph.ibm.model;
 public enum Role {
     SYS_ADMIN( 1, "SYSTEM ADMINISTRATOR" ), 
     ADMIN( 2, "ADMINISTRATOR" ), 
-    USER( 3, "USER" ), 
-    PEM( 4, "PEOPLE MANAGER" ),
-    TEAM_LEAD( 5, "TEAM LEAD" );
+    PEM( 3, "PEOPLE MANAGER" ),
+    TEAM_LEAD( 4, "TEAM LEAD" ),
+    USER( 5, "USER" );
 
 	private String roleValue;
 	private int roleId;

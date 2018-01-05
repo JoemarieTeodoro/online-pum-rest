@@ -35,7 +35,15 @@ import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.SqlQueries;
 
 public class PUMYearRepositoryImpl implements PUMYearRepository {
-    Logger logger = Logger.getLogger( PUMYearRepositoryImpl.class );
+    private static final int SQL_GET_EMPLOYEE_LIST_ROLE_ID = 1;
+
+	private static final int SQL_POPULATE_UTILIZATION_YEAR_ID = 3;
+
+	private static final int SQL_POPULATE_UTILIZATION_FORECAST = 2;
+
+	private static final int SQL_POPULATE_UTILIZATION_SERIAL_NUMBER = 1;
+
+	Logger logger = Logger.getLogger( PUMYearRepositoryImpl.class );
 
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
@@ -59,7 +67,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
             preparedStatement.setString( 4, Role.ADMIN.toString() );
             preparedStatement.executeUpdate();
             connection.commit();
-            
+
         }
         catch( Exception e ){
             logger.error( e.getMessage() );
@@ -324,10 +332,11 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try{
-            PUMYear pumYear = new PUMYear();
+            PUMYear pumYear = null;
             preparedStatement = connection.prepareStatement( SqlQueries.SQL_RETRIEVE_CURRENT_FY );
             resultSet = preparedStatement.executeQuery();
             while( resultSet.next() ){
+                pumYear = new PUMYear();
                 pumYear.setCreateDate( resultSet.getString( "createDate" ) );
                 pumYear.setCreatedBy( resultSet.getString( "createdBy" ) );
                 pumYear.setEnd( resultSet.getString( "end" ) );
@@ -473,8 +482,8 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
 
         try{
             connection.setAutoCommit( false );
-			LocalDate fromDate = FormatUtils.toDBDateFormat(pumYear.getStart());
-			LocalDate toDate = FormatUtils.toDBDateFormat(pumYear.getEnd());
+            LocalDate fromDate = FormatUtils.toDBDateFormat( pumYear.getStart() );
+            LocalDate toDate = FormatUtils.toDBDateFormat( pumYear.getEnd() );
             LocalDateTime counterDateTime = LocalDateTime.of( fromDate, LocalTime.from( LocalTime.MIN ) );
             LocalDateTime startWeekDate = null;
             LocalDateTime startQuarterDate = counterDateTime;
@@ -487,13 +496,14 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
             while( counterDateTime.isBefore( toDateTime ) ){
                 //start date of the week
                 startWeekDate = counterDateTime;
-                while( !counterDateTime.getDayOfWeek().name().equalsIgnoreCase( "FRIDAY" ) && counterDateTime.isBefore( toDateTime )){
+                while( !counterDateTime.getDayOfWeek().name().equalsIgnoreCase( "FRIDAY" ) &&
+                    counterDateTime.isBefore( toDateTime ) ){
                     counterDateTime = counterDateTime.plusDays( 1 );
                 }
 
-				weekMap = populateWeekMap(weekMap, quarterID, yearId, startWeekDate, counterDateTime, weekID);
+                weekMap = populateWeekMap( weekMap, quarterID, yearId, startWeekDate, counterDateTime, weekID );
 
-				// Insert Fiscal Quarter's Start and End Date
+                // Insert Fiscal Quarter's Start and End Date
                 if( weekID % COUNT_OF_WEEKS_PER_QUARTER == 0 ){
                     preparedStatement.setInt( 1, yearId );
                     preparedStatement.setString( 2, "Quarter " + quarterID );
@@ -509,29 +519,122 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
             }
             preparedStatement.executeBatch();
             connection.commit();
-		} catch (SQLException e) {
+        }
+        catch( SQLException e ){
             e.printStackTrace();
             logger.error( e );
-		} finally {
+        }
+        finally{
             connectionPool.closeConnection( connection, preparedStatement );
         }
     }
 
-	/**
-	 * @param counterDateTime
-	 * @param startWeekDate
-	 * @param weekID
-	 * @param quarterID
-	 * @param yearId
-	 * @return
-	 */
-	private LinkedHashMap<String, String[]> populateWeekMap(LinkedHashMap<String, String[]> weekMap, int quarterID, int yearId, LocalDateTime startWeekDate,
-															LocalDateTime counterDateTime, int weekID) {
-		weekMap.put( "Week " + weekID, new String[]{ String.valueOf( quarterID ),
-		                                         	String.valueOf( yearId ),
-		                                         	startWeekDate.toLocalDate().toString(), 
-		                                         	counterDateTime.toLocalDate().toString(), } );
-		return weekMap;
-		
-	}
+    /**
+     * @param counterDateTime
+     * @param startWeekDate
+     * @param weekID
+     * @param quarterID
+     * @param yearId
+     * @return
+     */
+    private LinkedHashMap<String, String[]> populateWeekMap( LinkedHashMap<String, String[]> weekMap, int quarterID,
+                                                             int yearId, LocalDateTime startWeekDate,
+                                                             LocalDateTime counterDateTime, int weekID ) {
+        weekMap.put( "Week " + weekID,
+            new String[]{ String.valueOf( quarterID ), String.valueOf( yearId ), startWeekDate.toLocalDate().toString(),
+                          counterDateTime.toLocalDate().toString(), } );
+        return weekMap;
+
+    }
+
+    /**
+     * @param employeeSerial
+     * @return
+     * @throws SQLException
+     * @see com.ph.ibm.repository.PUMYearRepository#createFiscaWeeksTemplate(java.lang.String)
+     */
+    @Override
+    public void populateUtilization( List<String> lstEmployees ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        connection.setAutoCommit( false );
+        try{
+            int yearId = retrieveCurrentFY().getYearId();
+            preparedStatement = connection.prepareStatement( SqlQueries.SQL_POPULATE_UTILIZATION );
+            for( String employee : lstEmployees ){
+                preparedStatement.setString( SQL_POPULATE_UTILIZATION_SERIAL_NUMBER, employee );
+                preparedStatement.setString( SQL_POPULATE_UTILIZATION_FORECAST, OpumConstants.FORECAST_UTILIZATION );
+                preparedStatement.setInt( SQL_POPULATE_UTILIZATION_YEAR_ID, yearId );
+                preparedStatement.addBatch();
+            }
+
+            preparedStatement.executeBatch();
+            connection.commit();
+            preparedStatement.close();
+        }
+        catch( Exception e ){
+            logger.error( e.getMessage() );
+        }
+    }
+
+    /**
+     * @param employeeSerial
+     * @return
+     * @throws SQLException
+     * @see com.ph.ibm.repository.PUMYearRepository#createFiscaWeeksTemplate(java.lang.String)
+     */
+    @Override
+    public void populateUtilization( String employee ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        connection.setAutoCommit( false );
+        try{
+            int yearId;
+            if( retrieveCurrentFY() != null ){
+                yearId = retrieveCurrentFY().getYearId();
+                preparedStatement = connection.prepareStatement( SqlQueries.SQL_POPULATE_UTILIZATION );
+                preparedStatement.setString( SQL_POPULATE_UTILIZATION_SERIAL_NUMBER, employee );
+                preparedStatement.setString( SQL_POPULATE_UTILIZATION_FORECAST, OpumConstants.FORECAST_UTILIZATION );
+                preparedStatement.setInt( SQL_POPULATE_UTILIZATION_YEAR_ID, yearId );
+                preparedStatement.executeUpdate();
+                connection.commit();
+                preparedStatement.close();
+            }
+        }
+        catch( Exception e ){
+            logger.error( e.getMessage() );
+        }
+    }
+
+    /**
+     * @param serialNumber
+     * @return
+     * @throws SQLException
+     * @see com.ph.ibm.repository.EmployeeRepository#retrieveRecentPassword(java.lang.String)
+     */
+    @Override
+    public List<String> getEmployeeList() throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        List<String> lstEmployees = new ArrayList<String>();
+        ResultSet resultSet = null;
+        try{
+            preparedStatement = connection.prepareStatement( SqlQueries.SQL_GET_EMPLOYEE_LIST );
+            preparedStatement.setInt( SQL_GET_EMPLOYEE_LIST_ROLE_ID, Role.USER.getRoleId() );
+            resultSet = preparedStatement.executeQuery();
+            while( resultSet.next() ){
+                lstEmployees.add( resultSet.getString( "EMPLOYEE_ID" ) );
+            }
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+            return null;
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+
+        return lstEmployees;
+    }
+
 }

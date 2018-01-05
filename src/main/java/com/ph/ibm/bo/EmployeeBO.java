@@ -15,22 +15,24 @@ import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeEvent;
 import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
+import com.ph.ibm.model.ForApproval;
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
+import com.ph.ibm.repository.LeaveRepository;
+import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.repository.ProjectEngagementRepository;
 import com.ph.ibm.repository.ProjectRepository;
+import com.ph.ibm.repository.UtilizationRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
+import com.ph.ibm.repository.impl.LeaveRepositoryImpl;
+import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
+import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
-import com.ph.ibm.repository.LeaveRepository;
-import com.ph.ibm.repository.PUMYearRepository;
-import com.ph.ibm.repository.impl.LeaveRepositoryImpl;
-import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
-import com.ph.ibm.model.ForApproval;
-import com.ph.ibm.model.PUMYear;
 
 public class EmployeeBO {
 
@@ -45,6 +47,8 @@ public class EmployeeBO {
 
     private PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
     
+    private UtilizationRepository utilizationRepository = new UtilizationRepositoryImpl();
+
     /**
      * ProjectRepository is a Data Access Object which contain method to retrieve
      * fields stored in project table - opum database
@@ -193,8 +197,12 @@ public class EmployeeBO {
     
 	public boolean saveEmployeeLeave(List<EmployeeLeave> empLeave, boolean isDraft, String empID, String fyID) {
 		try {
- 			return employeeRepository.saveEmployeeLeave(empLeave, isDraft, empID, fyID);
-
+ 			
+		    String serial = empLeave.get( 0 ).getEmployeeID();
+		    String yearID = empLeave.get( 0 ).getYearID();
+            employeeRepository.saveEmployeeLeave( empLeave , isDraft, empID, fyID);
+            utilizationRepository.updateUtilizationHours( serial, yearID, utilizationRepository.getEmployeeWeeklyHours( serial, yearID ) );
+            return employeeRepository.saveEmployeeLeave(empLeave, isDraft, empID, fyID);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}

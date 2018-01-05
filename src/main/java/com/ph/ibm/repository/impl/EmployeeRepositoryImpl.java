@@ -25,6 +25,7 @@ import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
+import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.repository.TeamEmployeeRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.MD5HashEncrypter;
@@ -39,6 +40,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     private TeamEmployeeRepository teamEmployeeRepository = new TeamEmployeeRepositoryImpl();
+
+    PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
 
     @Override
     public boolean addData( Employee employee ) throws SQLException, BatchUpdateException {
@@ -414,6 +417,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 employee.setPassword( MD5HashEncrypter.computeMD5Digest( employee.getEmployeeSerial() ) );
                 preparedStatement.setString( 9, employee.getPassword() );
                 UploaderUtils.sendEmailToRecipients( employee );
+                pumYearRepository.populateUtilization( employee.getEmployeeSerial() );
             }
             preparedStatement.setString( 10, empStatus );
             preparedStatement.setBoolean( 11, isActive );

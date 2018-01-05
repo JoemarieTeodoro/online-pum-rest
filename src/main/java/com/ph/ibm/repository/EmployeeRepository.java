@@ -151,10 +151,10 @@ public interface EmployeeRepository {
      * @return boolea
      * @throws SQLException
      */
-    boolean doesEmployeeRoleIdExist( int roleId) throws SQLException;
+    boolean doesEmployeeRoleIdExist( int roleId ) throws SQLException;
 
-    List<EmployeeLeave> getEmployeeLeaves(String empId, String currFY);
-    
+    List<EmployeeLeave> getEmployeeLeaves( String empId, String currFY );
+
     /**
      * This method is used to update employee status in employee table
      *

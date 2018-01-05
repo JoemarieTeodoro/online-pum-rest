@@ -265,24 +265,37 @@ CREATE TABLE `quarter` (
 -- Table structure for table `utilization`
 --
 CREATE TABLE `utilization` (
-  `Utilization_ID` int(11) NOT NULL AUTO_INCREMENT,
-  `Employee_ID` char(9) NOT NULL,
-  `Year` smallint(6) NOT NULL,
-  `Utilization_JSON` mediumtext,
-  `CreateDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreatedBy` varchar(45) DEFAULT NULL,
-  `UpdateDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `UpdatedBy` varchar(45) DEFAULT 'ADMIN',
-  `isActive` tinyint(4) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Utilization_ID`),
-  UNIQUE KEY `UNQ_Utilization` (`Employee_ID`,`Year`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `utilization`
---
-INSERT INTO `utilization` VALUES 
-    (9,'27',2017,'{\"utilization_JSON\":[{\"month\":8,\"dayOfMonth\":16,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":4},{\"month\":8,\"dayOfMonth\":17,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":5},{\"month\":8,\"dayOfMonth\":18,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":6},{\"month\":8,\"dayOfMonth\":19,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":7},{\"month\":8,\"dayOfMonth\":20,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":1},{\"month\":8,\"dayOfMonth\":21,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":2},{\"month\":8,\"dayOfMonth\":22,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":3},{\"month\":8,\"dayOfMonth\":23,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":4},{\"month\":8,\"dayOfMonth\":24,\"editable\":\"\",\"utilizationHours\":\"VL\",\"day\":5},{\"month\":8,\"dayOfMonth\":25,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":6},{\"month\":8,\"dayOfMonth\":26,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":7},{\"month\":8,\"dayOfMonth\":27,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":1},{\"month\":8,\"dayOfMonth\":28,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":2},{\"month\":8,\"dayOfMonth\":29,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":3},{\"month\":8,\"dayOfMonth\":30,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":4},{\"month\":8,\"dayOfMonth\":31,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":5},{\"month\":9,\"dayOfMonth\":1,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":6},{\"month\":9,\"dayOfMonth\":2,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":7},{\"month\":9,\"dayOfMonth\":3,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":1},{\"month\":9,\"dayOfMonth\":4,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":2},{\"month\":9,\"dayOfMonth\":5,\"editable\":\"\",\"utilizationHours\":\"SL\",\"day\":3},{\"month\":9,\"dayOfMonth\":6,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":4},{\"month\":9,\"dayOfMonth\":7,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":5},{\"month\":9,\"dayOfMonth\":8,\"editable\":\"\",\"utilizationHours\":\"CDO\",\"day\":6},{\"month\":9,\"dayOfMonth\":9,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":7},{\"month\":9,\"dayOfMonth\":10,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":1},{\"month\":9,\"dayOfMonth\":11,\"editable\":\"\",\"utilizationHours\":\"EL\",\"day\":2},{\"month\":9,\"dayOfMonth\":12,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":3},{\"month\":9,\"dayOfMonth\":13,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":4},{\"month\":9,\"dayOfMonth\":14,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":5},{\"month\":9,\"dayOfMonth\":15,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":6},{\"month\":9,\"dayOfMonth\":16,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":7},{\"month\":9,\"dayOfMonth\":17,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":1},{\"month\":9,\"dayOfMonth\":18,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":2},{\"month\":9,\"dayOfMonth\":19,\"editable\":\"\",\"utilizationHours\":\"OL\",\"day\":3},{\"month\":9,\"dayOfMonth\":20,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":4},{\"month\":9,\"dayOfMonth\":21,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":5},{\"month\":9,\"dayOfMonth\":22,\"editable\":\"\",\"utilizationHours\":\"TR\",\"day\":6},{\"month\":9,\"dayOfMonth\":23,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":7},{\"month\":9,\"dayOfMonth\":24,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":1},{\"month\":9,\"dayOfMonth\":25,\"editable\":\"\",\"utilizationHours\":\"HO\",\"day\":2},{\"month\":9,\"dayOfMonth\":26,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":3},{\"month\":9,\"dayOfMonth\":27,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":4},{\"month\":9,\"dayOfMonth\":28,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":5},{\"month\":9,\"dayOfMonth\":29,\"editable\":\"\",\"utilizationHours\":\"8\",\"day\":6},{\"month\":9,\"dayOfMonth\":30,\"editable\":\"\",\"utilizationHours\":\"\",\"day\":7}],\"year\":2017}','2017-08-16 13:39:40','27','2017-08-16 13:39:40','27');
+`utilization_id` smallint(15) NOT NULL auto_increment,
+  `employee_serial` varchar(45) NOT NULL,
+  `type` varchar(20) NOT NULL, `year_id` smallint(6),
+  `week1` smallint(6) default 40,`week2` smallint(6) default 40,
+  `week3` smallint(6) default 40,`week4` smallint(6) default 40,
+  `week5` smallint(6) default 40,`week6` smallint(6) default 40,
+  `week7` smallint(6) default 40,`week8` smallint(6) default 40,
+  `week9` smallint(6) default 40,`week10` smallint(6) default 40,
+  `week13` smallint(6) default 40,`week14` smallint(6) default 40,
+  `week15` smallint(6) default 40,`week16` smallint(6) default 40,
+  `week17` smallint(6) default 40,`week18` smallint(6) default 40,
+  `week19` smallint(6) default 40,`week20` smallint(6) default 40,
+  `week21` smallint(6) default 40,`week22` smallint(6) default 40,
+  `week23` smallint(6) default 40,`week24` smallint(6) default 40,
+  `week11` smallint(6) default 40,`week12` smallint(6) default 40,
+  `week25` smallint(6) default 40,`week26` smallint(6) default 40,
+  `week27` smallint(6) default 40,`week28` smallint(6) default 40,
+  `week29` smallint(6) default 40,`week30` smallint(6) default 40,
+  `week31` smallint(6) default 40,`week32` smallint(6) default 40,
+  `week33` smallint(6) default 40,`week34` smallint(6) default 40,
+  `week35` smallint(6) default 40,`week36` smallint(6) default 40,
+  `week37` smallint(6) default 40,`week38` smallint(6) default 40,
+  `week39` smallint(6) default 40,`week40` smallint(6) default 40,
+  `week41` smallint(6) default 40,`week42` smallint(6) default 40,
+  `week43` smallint(6) default 40,`week44` smallint(6) default 40,
+  `week45` smallint(6) default 40,`week46` smallint(6) default 40,
+  `week47` smallint(6) default 40,`week48` smallint(6) default 40,
+  `week49` smallint(6) default 40,`week50` smallint(6) default 40,
+  `week51` smallint(6) default 40,`week52` smallint(6) default 40,
+   PRIMARY KEY (`utilization_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table `week`

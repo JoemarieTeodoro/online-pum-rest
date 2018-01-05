@@ -21,13 +21,30 @@ public interface UtilizationRepository {
      * @throws SQLException
      * @throws OpumException
      */
-    String retrieveYearID( String year ) throws SQLException;
+    public String retrieveYearID( String year ) throws SQLException;
 
     /**
      * @param year
      * @return
      * @throws SQLException
      */
-    boolean doesYearExists( String year ) throws SQLException;
+    public boolean doesYearExists( String year ) throws SQLException;
+
+    /**
+     * @param serial
+     * @param year
+     * @return
+     * @throws SQLException
+     */
+    public List<Double> getEmployeeWeeklyHours( String serial, String year ) throws SQLException;
+
+    /**
+     * @param serial
+     * @param yearId
+     * @param lstWeeklyHours
+     * @return
+     * @throws SQLException
+     */
+    boolean updateUtilizationHours( String serial, String yearId, List<Double> lstWeeklyHours ) throws SQLException;
 
 }
