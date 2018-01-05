@@ -30,6 +30,7 @@ import com.ph.ibm.bo.UtilizationBO;
 import com.ph.ibm.bo.YearBO;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeEvent;
+import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.EmployeeUtil;
 import com.ph.ibm.model.ForApprovalList;
@@ -1077,26 +1078,25 @@ public class OnlinePUMResource {
         }
         return Response.status( Status.OK ).entity( employeeEvent ).build();
     }
+	
+	@POST
+	@Path("/employeeLeave")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String saveEmployeeLeave( EmployeeEvent empLeaves) throws Exception {
+		logger.info("START save employee leave" + empLeaves.isDraft());
+		boolean result;
 
-    @POST
-    @Path( "/employeeLeave" )
-    @Consumes( MediaType.APPLICATION_JSON )
-    @Produces( MediaType.TEXT_PLAIN )
-    public String saveEmployeeLeave( EmployeeEvent empLeaves ) throws Exception {
-        logger.info( "START save employee leave" );
-        boolean result;
-
-        try{
-            employeeBO = new EmployeeBO();
-            result = employeeBO.saveEmployeeLeave( empLeaves.getEmpLeaveList() );
-        }
-        catch( Exception e ){
-            logger.error( e );
-            throw new OpumException( e.getMessage(), e );
-        }
-        logger.info( "END employee leave update" );
-        return String.valueOf( result );
-    }
+		try {
+			employeeBO = new EmployeeBO();
+			result = employeeBO.saveEmployeeLeave(empLeaves.getEmpLeaveList(), empLeaves.isDraft(), empLeaves.getEmpID(), empLeaves.getFyID());
+		} catch (Exception e) {
+			logger.error(e);
+			throw new OpumException(e.getMessage(), e);
+		}
+		logger.info("END employee leave update");
+		return String.valueOf(result);
+	}
 
     @GET
     @Path( "/myUtilization/{serial}/{year}" )

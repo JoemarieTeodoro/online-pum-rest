@@ -182,8 +182,10 @@ public interface EmployeeRepository {
      */
     public String retrieveRecentPassword( String serialNumber ) throws SQLException;
 
-    boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeaveList) throws SQLException;
-	boolean updateEmployeeLeave(EmployeeLeave employeeLeave) throws SQLException;
+    public boolean saveEmployeeLeave(List<EmployeeLeave> employeeLeaveList, boolean isDraft, String empID, String fyID) throws SQLException;
+	public boolean updateEmployeeLeave(EmployeeLeave employeeLeave, boolean isDraft) throws SQLException;
+	public boolean updateEmployeeLeaveStatus(String empID, String fyID) throws SQLException;
+	public boolean saveEmployeeLeaveHistory(EmployeeLeave employeeLeave, int empLeaveID) throws SQLException;
 
     /**
      * This method is used to get the list of admin emails
@@ -201,4 +203,5 @@ public interface EmployeeRepository {
     public List<String> getEmployeeRollDates( String employeeIdNumber ) throws SQLException;
 
 	public boolean addUpdatedEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException;
+
 }

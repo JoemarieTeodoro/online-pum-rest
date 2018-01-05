@@ -163,6 +163,8 @@ public class ValidationUtils
 			throw new OpumException("Unable to parse Date!");
 		}
 	}
+<<<<<<< HEAD
+=======
 	
 	public static boolean isDateWithinFiscalYear(String d, PUMYear pumYear) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(YEAR_MONTH_DAY_FORMAT);
@@ -175,4 +177,5 @@ public class ValidationUtils
 
 		return false;
 	}
+>>>>>>> development
 }

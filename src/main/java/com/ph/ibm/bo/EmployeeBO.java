@@ -191,9 +191,10 @@ public class EmployeeBO {
     	return cal;
     }
     
-	public boolean saveEmployeeLeave(List<EmployeeLeave> empLeave) {
+	public boolean saveEmployeeLeave(List<EmployeeLeave> empLeave, boolean isDraft, String empID, String fyID) {
 		try {
-			return employeeRepository.saveEmployeeLeave(empLeave);
+ 			return employeeRepository.saveEmployeeLeave(empLeave, isDraft, empID, fyID);
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -207,4 +208,5 @@ public class EmployeeBO {
 	public List<ForApproval> getAllForApproval() throws SQLException {
 		return leaveRepository.getAllForApproval();
 	}
+
 }
