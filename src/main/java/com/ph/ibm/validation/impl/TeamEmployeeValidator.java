@@ -11,6 +11,7 @@ import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.TeamRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
+import com.ph.ibm.repository.impl.TeamEmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamRepositoryImpl;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.ValidationUtils;
@@ -36,11 +37,14 @@ public class TeamEmployeeValidator implements Validator<TeamEmployee> {
      * Object which contain methods to add, register, login, view, validate field/employee stored in employeeRepository
      */
     private EmployeeRepository employeeRepository;
+    
+    private TeamEmployeeRepositoryImpl teamEmployeeRepository;
 
 
     public TeamEmployeeValidator( ) {
         this.teamRepository = new TeamRepositoryImpl();
         this.employeeRepository = new EmployeeRepositoryImpl();
+        this.teamEmployeeRepository = new TeamEmployeeRepositoryImpl();
     }
 
     /**
@@ -58,6 +62,7 @@ public class TeamEmployeeValidator implements Validator<TeamEmployee> {
                         isValidDate( teamEmployee.getRollOffDate() ) &&
                         isEmployeeExisting( teamEmployee ) &&
                         isTeamExists( teamEmployee ) &&
+                        isEmployeeHasTeam(teamEmployee)&&
                         isValidDateRange( teamEmployee ) &&
                         isWithinDateRange( teamEmployee );
         return isValid;
@@ -107,6 +112,13 @@ public class TeamEmployeeValidator implements Validator<TeamEmployee> {
                 "Roll in and Roll off dates must within USAA Roll in and  Roll off Dates" );
         }
         return true;
+    }
+    
+    private boolean isEmployeeHasTeam(TeamEmployee teamEmployee) throws InvalidCSVException {
+    	if (teamEmployeeRepository.empExists(teamEmployee.getEmployeeId())) {
+    		throw new InvalidCSVException( null, "Employee has existing team" );
+    	}
+		return true;
     }
 
 

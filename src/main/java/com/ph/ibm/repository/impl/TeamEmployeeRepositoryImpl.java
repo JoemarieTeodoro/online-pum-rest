@@ -80,6 +80,28 @@ public class TeamEmployeeRepositoryImpl implements TeamEmployeeRepository {
 
     @Override
     public boolean empExists( String empId ) {
+    	Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        String teamName = null;
+        ResultSet resultSet;
+        try{
+            connection.setAutoCommit( false );
+            String query = "SELECT TEAM_ID FROM EMPLOYEE_TEAM WHERE EMPLOYEE_ID = ?";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, empId );
+            resultSet = preparedStatement.executeQuery();
+            while( resultSet.next() ){
+                teamName = resultSet.getString( 1 );
+            }
+                return teamName != null;            
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement );
+        }
         return false;
     }
 
