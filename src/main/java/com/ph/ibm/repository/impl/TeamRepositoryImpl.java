@@ -24,7 +24,9 @@ import com.ph.ibm.util.OpumConstants;
 
 public class TeamRepositoryImpl implements TeamRepository {
 
-    private Logger logger = Logger.getLogger( TeamRepositoryImpl.class );
+    private static final String GET_RECOVERABLE_FLAG_BASE_ON_TEAM_ID = "SELECT ISRECOVERABLE FROM TEAM WHERE TEAM_ID = ?";
+	public static final String INVALID_RECOVERABLE_VALUE = "";
+	private Logger logger = Logger.getLogger( TeamRepositoryImpl.class );
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     /** 
@@ -141,4 +143,28 @@ public class TeamRepositoryImpl implements TeamRepository {
         return exists;
     }
 
+	@Override
+	public String getRecoverableFlag(String teamId) {
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		try{
+            connection = connectionPool.getConnection();
+            String query = GET_RECOVERABLE_FLAG_BASE_ON_TEAM_ID;
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, teamId );
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+            	return resultSet.getString(1);
+            }
+            resultSet.close();
+            preparedStatement.close();
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        } finally {
+        	connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+        return INVALID_RECOVERABLE_VALUE;
+	}
 }

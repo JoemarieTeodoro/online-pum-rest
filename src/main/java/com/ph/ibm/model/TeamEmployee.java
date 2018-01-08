@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class TeamEmployee implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private int teamId;
+	private int teamId = -1;
 	private String employeeId;
     private String teamName;
     private String rollInDate;

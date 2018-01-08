@@ -11,6 +11,7 @@ public interface TeamEmployeeRepository {
     public int teamExists( String teamName );
 	public boolean empExists(String empId);
 	public boolean updateTeamEmployee(List<TeamEmployee> teamEmpList);
+	public int getTeamID(String empId);
 
     /**
      * @param serialNumber

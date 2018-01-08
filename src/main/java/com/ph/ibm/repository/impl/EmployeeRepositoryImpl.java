@@ -768,9 +768,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		connection.setAutoCommit(false);
-
-		String leaveType_HO = "HO";
-		String leaveType_VL = "VL";
 		String leaveID_Zero = "0";
 		
 		try {
@@ -784,9 +781,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 					if (ValidationUtils.isValueEmpty(emp.getEmployeeLeaveID())
 							|| emp.getEmployeeLeaveID().equals(leaveID_Zero)) {
 
-						boolean isHoliday = isValidHoliday(emp.getLeaveName(),
-								ValidationUtils.dateFormat(emp.getDate()));
-
 						preparedStatement.setString(1, emp.getEmployeeID());
 						preparedStatement.setInt(2, Integer.valueOf(emp.getYearID()));
 
@@ -795,21 +789,18 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 						} else {
 							preparedStatement.setString(3, emp.getStatus());
 						}
-						preparedStatement.setDate(4, Date.valueOf(ValidationUtils.dateFormat(emp.getDate())));
+						preparedStatement.setDate(4, Date.valueOf(emp.getDate()));
 						preparedStatement.setString(5, emp.getLeaveName());
 						preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 						preparedStatement.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
 						preparedStatement.setInt(8, emp.getValue());
-
-						if ((emp.getLeaveName().equalsIgnoreCase(leaveType_HO) && isHoliday)
-								|| emp.getLeaveName().equalsIgnoreCase(leaveType_VL)) {
-							preparedStatement.addBatch();
-							preparedStatement.executeUpdate();
-							connection.commit();
-							ResultSet rs = preparedStatement.getGeneratedKeys();
-							if (rs.next()) {
-								empLeaveID = rs.getInt(1);
-							}
+						preparedStatement.addBatch();
+						preparedStatement.executeUpdate();
+						connection.commit();
+						
+						ResultSet rs = preparedStatement.getGeneratedKeys();
+						if (rs.next()) {
+							empLeaveID = rs.getInt(1);
 						}
 
 					} else {
@@ -856,7 +847,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			String query = "UPDATE EMPLOYEE_LEAVE SET LEAVE_DATE=?, LEAVE_TYPE=?, STATUS=?, HOURS=? "
 					+ "WHERE EMPLOYEE_LEAVE_ID=?";
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setDate(1, Date.valueOf(ValidationUtils.dateFormat(emp.getDate())));
+			preparedStatement.setDate(1, Date.valueOf(emp.getDate()));
 			preparedStatement.setString(2, emp.getLeaveName());
 
 			if (!isDraft && emp.getStatus().equalsIgnoreCase(leaveStatusDraft)) {
@@ -876,7 +867,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			}
 			
 			if (emp.getLeaveName().equalsIgnoreCase(leaveTypeHO)) {
-				if (isValidHoliday(emp.getLeaveName(), ValidationUtils.dateFormat(emp.getDate())))
+				if (isValidHoliday(emp.getLeaveName(), emp.getDate()))
 					preparedStatement.setString(3, leaveStatusRemoved);
 				
 				preparedStatement.setString(2, leaveTypeRC);
@@ -949,7 +940,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			preparedStatement.setString(1, emp.getEmployeeID());
 			preparedStatement.setInt(2, Integer.valueOf(emp.getYearID()));
 			preparedStatement.setString(3, emp.getStatus());
-			preparedStatement.setDate(4, Date.valueOf(ValidationUtils.dateFormat(emp.getDate())));
+			preparedStatement.setDate(4, Date.valueOf(emp.getDate()));
 			preparedStatement.setString(5, emp.getLeaveName());
 			preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 			preparedStatement.setTimestamp(7, new Timestamp(System.currentTimeMillis()));

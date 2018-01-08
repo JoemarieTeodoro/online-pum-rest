@@ -23,18 +23,28 @@ import com.ph.ibm.repository.LeaveRepository;
 import com.ph.ibm.repository.PUMYearRepository;
 import com.ph.ibm.repository.ProjectEngagementRepository;
 import com.ph.ibm.repository.ProjectRepository;
+import com.ph.ibm.repository.TeamEmployeeRepository;
+import com.ph.ibm.repository.TeamRepository;
 import com.ph.ibm.repository.UtilizationRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.LeaveRepositoryImpl;
 import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
+import com.ph.ibm.repository.impl.TeamEmployeeRepositoryImpl;
+import com.ph.ibm.repository.impl.TeamRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
 import com.ph.ibm.util.MD5HashEncrypter;
+import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.ValidationUtils;
 import com.ph.ibm.validation.Validator;
 import com.ph.ibm.validation.impl.EmployeeValidator;
 
 public class EmployeeBO {
+
+	private static final String RECOVERABLE_TEAM_VALUE = "Y";
+
+	public static final int INVALID_TEAM_ID = -1;
 
 	private LeaveRepository leaveRepository = new LeaveRepositoryImpl();
 	
@@ -67,6 +77,7 @@ public class EmployeeBO {
      * id, project name, email address
      */
     private Validator<Employee> validator = new EmployeeValidator(employeeRepository);
+    private TeamEmployeeRepository teamEmpRepository = new TeamEmployeeRepositoryImpl();
 
     private static Logger logger = Logger.getLogger(EmployeeBO.class);
 
@@ -162,38 +173,54 @@ public class EmployeeBO {
     
     public EmployeeEvent getEmployeeEvent(String employeeId) {
     	EmployeeEvent empEvent = new EmployeeEvent();
-    	List<EmployeeLeave> employeeLeaveList = new ArrayList<EmployeeLeave>();
     	
     	try {
-    		PUMYear pumYear = pumYearRepository.retrieveCurrentFY();
-    		String currFY = "";
-    		String currFYStartDate = "";
-    		String currFYEndDate = "";
-    		if(pumYear!=null) {
-    			DateTimeFormatter df = DateTimeFormatter.ofPattern(PUMYearRepositoryImpl.DATE_FORMAT);
-    			LocalDate toDate = LocalDate.parse(pumYear.getEnd(), df);
-    			LocalDateTime toDateTime = LocalDateTime.of(toDate, LocalTime.from(LocalTime.MIN)).plusDays(1);
-    			currFY = String.valueOf(pumYear.getYearId());
-    			currFYStartDate = pumYear.getStart();
-    			currFYEndDate = toDateTime.toString();
-    			
-    			empEvent.setCurrFYStartDate(currFYStartDate);
-    			empEvent.setCurrFYEndDate(currFYEndDate);
-    		}
-    		
-    		employeeLeaveList = employeeRepository.getEmployeeLeaves(employeeId, currFY);
-    		empEvent.setEmpLeaveList(employeeLeaveList);
-    	} catch (Exception e) {
+    		empEvent = populateEmployeeEvent(employeeId);
+    	} catch (OpumException e) {
 			logger.error(e.getMessage());
 		}
     	return empEvent;
     }
-    
-    public List<EmployeeEvent> generatePUMCalendar() {
-    	List<EmployeeEvent> cal = new ArrayList<EmployeeEvent>();
-    	
-    	return cal;
-    }
+
+	private EmployeeEvent populateEmployeeEvent(String employeeId) throws OpumException {
+		EmployeeEvent empEvent = new EmployeeEvent();
+		List<EmployeeLeave> employeeLeaveList = new ArrayList<EmployeeLeave>();
+		PUMYear pumYear = pumYearRepository.retrieveCurrentFY();
+		
+		String currFY = "";
+		if(pumYear != null) {
+			String currFYStartDate = "";
+			String currFYEndDate = "";
+			DateTimeFormatter df = DateTimeFormatter.ofPattern(PUMYearRepositoryImpl.DATE_FORMAT);
+			LocalDate toDate = LocalDate.parse(pumYear.getEnd(), df);
+			LocalDateTime toDateTime = LocalDateTime.of(toDate, LocalTime.from(LocalTime.MIN)).plusDays(1);
+			currFY = String.valueOf(pumYear.getYearId());
+			currFYStartDate = pumYear.getStart();
+			currFYEndDate = toDateTime.toString();
+			
+			empEvent.setCurrFYStartDate(currFYStartDate);
+			empEvent.setCurrFYEndDate(currFYEndDate);
+			setRecoverable(employeeId, empEvent);
+		}
+		
+		employeeLeaveList = employeeRepository.getEmployeeLeaves(employeeId, currFY);
+		empEvent.setEmpLeaveList(employeeLeaveList);
+		return empEvent;
+	}
+
+	private void setRecoverable(String employeeId, EmployeeEvent empEvent) throws OpumException {
+		int teamID = teamEmpRepository.getTeamID(employeeId);
+		if (teamID == TeamEmployeeRepositoryImpl.INVALID_VALUE) {
+			throw new OpumException(OpumConstants.EMPLOYEE_HAS_NO_TEAM);
+		}
+
+		TeamRepository teamRepository = new TeamRepositoryImpl();
+		String recoverableValue = teamRepository.getRecoverableFlag(String.valueOf(teamID));
+		if (!ValidationUtils.isValueEmpty(recoverableValue)
+				&& recoverableValue.toUpperCase().equals(RECOVERABLE_TEAM_VALUE)) {
+			empEvent.setRecoverable(true);
+		}
+	}
     
 	public boolean saveEmployeeLeave(List<EmployeeLeave> empLeave, boolean isDraft, String empID, String fyID) {
 		try {
@@ -202,17 +229,13 @@ public class EmployeeBO {
 		    String yearID = empLeave.get( 0 ).getYearID();
             employeeRepository.saveEmployeeLeave( empLeave , isDraft, empID, fyID);
             utilizationRepository.updateUtilizationHours( serial, yearID, utilizationRepository.getEmployeeWeeklyHours( serial, yearID ) );
-            return employeeRepository.saveEmployeeLeave(empLeave, isDraft, empID, fyID);
+            return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 		return false;
 	}
     
-    /**
-	 * @return List of Items for Approval
-	 * @throws SQLException
-	 */
 	public List<ForApproval> getAllForApproval() throws SQLException {
 		return leaveRepository.getAllForApproval();
 	}

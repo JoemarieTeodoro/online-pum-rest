@@ -17,7 +17,11 @@ import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
 
 public class TeamEmployeeRepositoryImpl implements TeamEmployeeRepository {
-    private ConnectionPool connectionPool = ConnectionPool.getInstance();
+    public static final int INVALID_VALUE = -1;
+
+	public static final String GET_TEAM_USING_EMPID = "SELECT TEAM_ID FROM EMPLOYEE_TEAM WHERE EMPLOYEE_ID = ?";
+
+	private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     private Logger logger = Logger.getLogger( TeamRepositoryImpl.class );
 
@@ -84,12 +88,6 @@ public class TeamEmployeeRepositoryImpl implements TeamEmployeeRepository {
         return false;
     }
 
-    /**
-     * @param serialNumber
-     * @return
-     * @throws SQLException
-     * @see com.ph.ibm.repository.EmployeeRepository#updateEmployeeStatus(java.lang.String)
-     */
     @Override
     public boolean updateEmployeeTeamMapping( String serialNumber ) throws SQLException {
         Connection connection = connectionPool.getConnection();
@@ -113,12 +111,6 @@ public class TeamEmployeeRepositoryImpl implements TeamEmployeeRepository {
         return false;
     }
 
-    /**
-     * @param serialNumber
-     * @return
-     * @throws SQLException
-     * @see com.ph.ibm.repository.EmployeeRepository#updateEmployeeStatus(java.lang.String)
-     */
     @Override
     public String retrieveActiveTeamAssignment( String serialNumber ) throws SQLException {
         Connection connection = connectionPool.getConnection();
@@ -144,4 +136,25 @@ public class TeamEmployeeRepositoryImpl implements TeamEmployeeRepository {
         }
         return teamName;
     }
+
+	@Override
+	public int getTeamID(String empId) {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		try {
+			String query = GET_TEAM_USING_EMPID;
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, empId);
+			resultSet = preparedStatement.executeQuery();
+			if (resultSet.next()) {
+				return resultSet.getInt(1);
+			}
+		} catch (SQLException e) {
+			logger.error(e.getStackTrace());
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
+		}
+		return INVALID_VALUE;
+	}
 }

@@ -21,5 +21,7 @@ public interface TeamRepository {
     public boolean getTeam( Team team ) throws SQLException;
     
     public boolean addTeam( List<Team> team, Role role ) throws SQLException, BatchUpdateException;
+    
+    public String getRecoverableFlag(String teamId);
 }
 

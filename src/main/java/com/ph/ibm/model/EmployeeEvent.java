@@ -16,6 +16,7 @@ public class EmployeeEvent implements Serializable {
 	private boolean isDraft;
 	private String empID;
 	private String fyID;
+	private boolean recoverable;
 	
 	public String getStart() {
 		return currFYStartDate;
@@ -65,5 +66,10 @@ public class EmployeeEvent implements Serializable {
 	public void setFyID(String fyID) {
 		this.fyID = fyID;
 	}
-	
+	public boolean isRecoverable() {
+		return recoverable;
+	}
+	public void setRecoverable(boolean recoverable) {
+		this.recoverable = recoverable;
+	}
 }
