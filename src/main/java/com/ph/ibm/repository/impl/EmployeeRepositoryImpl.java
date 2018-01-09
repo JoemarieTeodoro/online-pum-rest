@@ -697,7 +697,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<String> listOfAdmins = null;
+        List<String> listOfAdmins = new ArrayList<>();
         try{
             String query =
                 "SELECT emp.Email FROM employee_role_v emprole " +

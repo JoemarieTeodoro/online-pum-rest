@@ -16,6 +16,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.log4j.Logger;
 
+import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.ForApproval;
 import com.ph.ibm.model.ForRejectionEmail;
 import com.ph.ibm.repository.EmployeeRepository;
@@ -47,9 +48,7 @@ public class RejectLeaveBO {
 				forApprovalList = new ArrayList<>();
 				forApprovalList.add(forRejection);
 				forRejectionEmailMap.put(forRejection.getEmployee_Id(), forApprovalList);
-			} else if (forRejectionEmailMap.containsKey(forRejection.getEmployee_Id()) &&
-				mapKeyContainsExistingForApprovalObj(forRejectionEmailMap, forRejection)) {
-
+			} else if (forRejectionEmailMap.containsKey(forRejection.getEmployee_Id())) {
 				List<ForApproval> forRejectionListUpdated =
 						forRejectionEmailMap.get(forRejection.getEmployee_Id());
 				forRejectionListUpdated.add(forRejection);
@@ -60,50 +59,55 @@ public class RejectLeaveBO {
 		return forRejectionEmailMap;
 	}
 
-	public boolean mapKeyContainsExistingForApprovalObj(Map<String, List<ForApproval>> forRejectionEmailMap,
-			ForApproval forRejection) {
-		boolean isMapKeyContainsExistingForApprovalObj = false;
-		List<ForApproval> forApprovalList = forRejectionEmailMap.get(forRejection.getEmployee_Id());
-		if (forApprovalList != null && forApprovalList.contains(forRejection)) {
-			isMapKeyContainsExistingForApprovalObj = true;
-		}
-		return isMapKeyContainsExistingForApprovalObj;
-	}
-
 	private ForRejectionEmail setupRejectEmailToUser(String employeedId, List<ForApproval> forRejectList) throws SQLException {
 		ForRejectionEmail forRejectionEmail = new ForRejectionEmail();
-		forRejectionEmail.setRecipientAddress("rabangm@ph.ibm.com");
-		forRejectionEmail.setSenderAddress( "onlinepumsender@gmail.com" );
+		forRejectionEmail.setRecipientAddress(this.returnEmailAddressOfRecepient(forRejectList));
+		forRejectionEmail.setSenderAddress( OpumConstants.EMAIL_SENDER );
 		forRejectionEmail.setRecipientType( RecipientType.TO.toString() );
 		forRejectionEmail.setSubject( OpumConstants.REJECT_EMAIL_SUBJECT );
-		forRejectionEmail.setText( OpumConstants.EMAIL_GREETING + "\n\n" +
-				OpumConstants.REJECT_EMAIL_BODY + forRejectList.get(0) + "\n\n" +
+		forRejectionEmail.setText( OpumConstants.EMAIL_GREETING + "<br><br>" +
+				OpumConstants.REJECT_EMAIL_BODY + (forRejectList != null ?
+						forRejectList.get(0).getUsernameForEmail() : OpumConstants.EMAIL_SIGNATURE) + "<br><br>" +
 				createEmailLeavesTableReport(forRejectList));
 		return forRejectionEmail;
 	}
 
 	private String createEmailLeavesTableReport(List<ForApproval> forRejectList) {
-		StringBuilder datesRejectedsb = new StringBuilder();
+		StringBuilder datesRejectedsb = new StringBuilder("<table border=1>");
+		datesRejectedsb.append("<tr>");
+		datesRejectedsb.append("<th>Date</th>");
+		datesRejectedsb.append("</tr>");
 		for (ForApproval forApproval : forRejectList) {
-			datesRejectedsb.append(forApproval.getLeave_Date());
-			datesRejectedsb.append("\n");
+			datesRejectedsb.append("<tr>");
+			datesRejectedsb.append("<th>" + forApproval.getLeave_Date() +"</th>");
+			datesRejectedsb.append("</tr>");
 		}
+		datesRejectedsb.append("</table>");
 		return datesRejectedsb.toString();
 	}
 
     private void sendRejectEmailToUsers(ForRejectionEmail emailToBeSentToUsers, Session session) {
     	try {
-			Message message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(emailToBeSentToUsers.getSenderAddress()));
-			message.setSubject(emailToBeSentToUsers.getSubject());
-			message.setRecipient(Message.RecipientType.TO,
-					new InternetAddress(emailToBeSentToUsers.getRecipientAddress()));
-			message.setText(emailToBeSentToUsers.getText() + "\n\n"
-					+ OpumConstants.EMAIL_CLOSING + "\n" + OpumConstants.EMAIL_SIGNATURE);
-			Transport.send(message);
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(emailToBeSentToUsers.getSenderAddress()));
+        message.setSubject(emailToBeSentToUsers.getSubject());
+        message.setRecipient(Message.RecipientType.TO,
+            new InternetAddress(emailToBeSentToUsers.getRecipientAddress()));
+        message.setContent(emailToBeSentToUsers.getText() + "<br><br>"
+            + OpumConstants.EMAIL_CLOSING + "<br>" + OpumConstants.EMAIL_SIGNATURE,"text/html");
+        Transport.send(message);
 
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
-		}
+      } catch (MessagingException e) {
+    	  LOGGER.error("Error in sending email"+ e.getMessage());
+      }
+    }
+
+    private String returnEmailAddressOfRecepient(List<ForApproval> forRejectList) throws SQLException {
+    	String employeeId = "";
+    	if (forRejectList != null) {
+    		employeeId = forRejectList.get(0).getEmployee_Id();
+    	}
+    	EmployeeUpdate rejectedLeaveEmployee = this.employeeRepository.searchEmployee(employeeId);
+    	return rejectedLeaveEmployee != null ? rejectedLeaveEmployee.getEmail() : "";
     }
 }

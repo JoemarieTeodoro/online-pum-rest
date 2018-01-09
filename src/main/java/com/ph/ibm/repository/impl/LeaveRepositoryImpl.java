@@ -1,7 +1,6 @@
 package com.ph.ibm.repository.impl;
 
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,12 +10,13 @@ import java.util.List;
 import com.ph.ibm.model.ForApproval;
 import com.ph.ibm.repository.LeaveRepository;
 import com.ph.ibm.resources.ConnectionPool;
+import com.ph.ibm.util.LeaveUtils;
 
 public class LeaveRepositoryImpl implements LeaveRepository {
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
-	
-	@Override
+
+  @Override
 	public List<ForApproval> getAllForApproval() throws SQLException {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
@@ -28,15 +28,15 @@ public class LeaveRepositoryImpl implements LeaveRepository {
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
 				int employee_Leave_Id = resultSet.getInt(1);
-				String employee_Id = resultSet.getString(2);
-				String fullName = resultSet.getString(3);
-				String year_Id = resultSet.getString(4);
-				String status = resultSet.getString(5);
-				String leave_Date = resultSet.getString(6);
-				String leave_Type = resultSet.getString(7);
-				String create_Date = resultSet.getString(8);
-				String update_Date = resultSet.getString(9);
-				String team_Lead_Employee_Id = resultSet.getString(10);		
+				String employee_Id = LeaveUtils.removeLineBreaks(resultSet.getString(2));
+				String fullName = LeaveUtils.removeLineBreaks(resultSet.getString(3));
+				String year_Id = LeaveUtils.removeLineBreaks(resultSet.getString(4));
+				String status = LeaveUtils.removeLineBreaks(resultSet.getString(5));
+				String leave_Date = LeaveUtils.removeLineBreaks(resultSet.getString(6));
+				String leave_Type = LeaveUtils.removeLineBreaks(resultSet.getString(7));
+				String create_Date = LeaveUtils.removeLineBreaks(resultSet.getString(8));
+				String update_Date = LeaveUtils.removeLineBreaks(resultSet.getString(9));
+				String team_Lead_Employee_Id = LeaveUtils.removeLineBreaks(resultSet.getString(10));
 				ForApproval forApproval = new ForApproval(employee_Leave_Id, employee_Id, fullName, year_Id, status, leave_Date, leave_Type, create_Date,update_Date,team_Lead_Employee_Id);
 				forApprovals.add(forApproval);
 			}

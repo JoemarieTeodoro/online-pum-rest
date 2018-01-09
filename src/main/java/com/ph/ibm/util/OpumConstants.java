@@ -72,6 +72,7 @@ public class OpumConstants {
     public static final String ADMIN = "ADMIN";
 
 	/** EMAIL MESSAGES */
+    public static final String EMAIL_SENDER = "onlinepumsender@gmail.com";
 	public static final String EMAIL_SUBJECT = "ACTION REQUIRED: RESET PASSWORD";
 	public static final String EMAIL_GREETING = "DEAR IBMer,";
 	public static final String EMAIL_BODY = "You can reset your password by clicking the link below:";
