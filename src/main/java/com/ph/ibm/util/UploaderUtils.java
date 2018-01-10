@@ -52,6 +52,5 @@ public class UploaderUtils {
 
         ResetPasswordBO resetPasswordBO = new ResetPasswordBO();
         resetPasswordBO.emailResetPasswordLinkToSingleEmployee( email );
-
     }
 }

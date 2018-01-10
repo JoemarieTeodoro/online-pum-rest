@@ -371,6 +371,38 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         }
     }
 
+    public Employee getEmployee( String email ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Employee employee = null;
+        try{
+            String query =
+                "SELECT EMPLOYEE_ID, FULLNAME, PASSWORD, EMAIL, ROLL_IN_DATE, ROLL_OFF_DATE FROM EMPLOYEE WHERE EMAIL = ? AND EMP_STATUS='A'";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, email );
+            resultSet = preparedStatement.executeQuery();
+
+            if( resultSet.next() ){
+                employee = new Employee();
+                employee.setEmployeeSerial( resultSet.getString( 1 ) );
+                employee.setFullName( resultSet.getString( 2 ) );
+                employee.setPassword( resultSet.getString( 3 ) );
+                employee.setIntranetId( resultSet.getString( 4 ) );
+                employee.setRollInDate( resultSet.getString( 5 ) );
+                employee.setRollOffDate( resultSet.getString( 6 ) );
+            }
+            return employee;
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+            return null;
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+    }
+
     @Override
     public boolean updateEmployee( EmployeeUpdate employeeUpdate ) throws SQLException, BatchUpdateException {
         Connection connection = connectionPool.getConnection();

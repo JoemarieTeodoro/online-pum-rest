@@ -204,4 +204,5 @@ public interface EmployeeRepository {
 
 	public boolean addUpdatedEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException;
 
+    public Employee getEmployee( String email ) throws SQLException;
 }

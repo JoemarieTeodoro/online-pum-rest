@@ -1,5 +1,7 @@
 package com.ph.ibm;
 
+import java.io.IOException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -127,4 +129,38 @@ public class ResetPasswordResource {
 		return response;
 	}
 	
+    /**
+     * @param email provided email by the user
+     * @throws OpumException This service is invoked to validate the email provided. <br>
+     *         <br>
+     *         Exposed at "resetPassword/validateEmail" path
+     * @return <b>Response</b> - object that contains the HTTP Response
+     * @throws IOException
+     */
+    @Path( "/validateEmail" )
+    @POST
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( MediaType.TEXT_PLAIN )
+    public Response validateEmail( String email ) throws OpumException, IOException {
+        logger.info( "START validateEmail" );
+        boolean isValidEmail = false;
+        Response response = null;
+        try{
+            resetPasswordBO = new ResetPasswordBO();
+            isValidEmail = resetPasswordBO.validateEmail( email );
+        }
+        catch( Exception e ){
+            logger.error( e );
+            throw new OpumException( e.getMessage(), e );
+        }
+        
+        response = isValidEmail
+                        ? Response.status( Status.OK ).header( "Location", "" + "employee/" ).entity(
+                            "email is valid" ).build()
+                        : Response.status( Status.BAD_REQUEST ).header( "Location", "" + "employee/" ).entity(
+                            "email does not exists" ).build();
+        logger.info( "END validateEmail: " + response.toString() );
+        return response;
+    }
+
 }

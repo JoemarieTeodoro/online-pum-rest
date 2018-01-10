@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Email;
+import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.ResetPasswordToken;
 import com.ph.ibm.opum.exception.OpumException;
@@ -28,6 +29,7 @@ import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConfig;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.UploaderUtils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -104,6 +106,22 @@ public class ResetPasswordBO {
 	    return tokenValidated;
 	}
 	
+    public boolean validateEmail( String email ) throws SQLException, OpumException, IOException {
+        boolean isValidEmail = employeeRepository.doesEmailExist( email );
+
+        if( isValidEmail ){
+            sendForgotPasswordEmail( email );
+            logger.info( "Email Forgot Password Sent!" );
+        }
+        
+        return isValidEmail;
+    }
+
+    private void sendForgotPasswordEmail( String email ) throws SQLException, IOException {
+        Employee employee = employeeRepository.getEmployee( email );
+        UploaderUtils.sendEmailToRecipients( employee );
+    }
+
     public String generateToken(Email email) throws SQLException, OpumException {
         String salt = email.getTempPassword();
 		
