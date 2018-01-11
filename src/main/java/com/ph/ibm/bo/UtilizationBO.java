@@ -20,13 +20,18 @@ import org.apache.log4j.Logger;
 import com.ph.ibm.model.Utilization;
 import com.ph.ibm.repository.UtilizationRepository;
 import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
+import com.ph.ibm.util.OpumConstants;
 
 public class UtilizationBO {
 
     private static final int FIFTH_COLUMN = 4;
+
     private static final int FOURTH_COLUMN = 3;
+
     private static final int THIRD_COLUMN = 2;
+
     private static final int SECOND_COLUMN = 1;
+
     private static final int FIRST_COLUMN = 0;
 
     UtilizationRepository utilizationRepository = new UtilizationRepositoryImpl();
@@ -34,22 +39,22 @@ public class UtilizationBO {
     private Logger logger = Logger.getLogger( UtilizationBO.class );
 
     public Utilization getEmployeeUtilization( String serial, String year ) {
-        List<Double> lstQuarterlyUtilization = new ArrayList<Double>();
         List<String> lstForecastedUtilization = new ArrayList<String>();
-        Utilization forecastedUtilization = new Utilization();
+        List<String> lstActualUtilization = new ArrayList<String>();
+        Utilization utilization = new Utilization();
         try{
-            lstQuarterlyUtilization = utilizationRepository.getQuarterlyUtilizationHours( serial, year );
-            lstForecastedUtilization = computeForecastedUtilization( lstQuarterlyUtilization );
-            forecastedUtilization = setUtilization( lstForecastedUtilization );
+            lstForecastedUtilization = computeEmployeeUtilization(utilizationRepository.getEmployeeUtilization( serial, year, OpumConstants.FORECAST_UTILIZATION ) );
+            lstActualUtilization = computeEmployeeUtilization( utilizationRepository.getEmployeeUtilization( serial, year, OpumConstants.ACTUAL_UTILIZATION ) );
+            utilization = setUtilization( lstForecastedUtilization, lstActualUtilization );
         }
         catch( Exception e ){
             e.printStackTrace();
             logger.error( e );
         }
-        return forecastedUtilization;
+        return utilization;
 
     }
-    
+
     /**
      * Method add and compute utilization to a list of string
      * 
@@ -65,6 +70,30 @@ public class UtilizationBO {
         }
         lstForecastedUtilization.add( calculateYtdUtilizationInPercentage( totalHours ) );
         return lstForecastedUtilization;
+    }
+
+    /**
+     * Method add and compute utilization to a list of string
+     * 
+     * @param lstWeeklyUtilizationHours
+     * @return String
+     */
+    public List<String> computeEmployeeUtilization( List<Double> lstWeeklyUtilizationHours ) {
+        List<String> lstActualUtilization = new ArrayList<String>();
+        double quarterlyHours = 0;
+        double totalHours = 0;
+        int idxWeekCounter = 1;
+        for( Double weeklyHours : lstWeeklyUtilizationHours ){
+            quarterlyHours += weeklyHours;
+            if( idxWeekCounter % OpumConstants.COUNT_OF_WEEKS_PER_QUARTER == 0 ){
+                lstActualUtilization.add( calculateQuarterlyUtilizationInPercentage( quarterlyHours ) );
+                totalHours += quarterlyHours;
+                quarterlyHours = 0;
+            }
+            idxWeekCounter++;
+        }
+        lstActualUtilization.add( calculateYtdUtilizationInPercentage( totalHours ) );
+        return lstActualUtilization;
     }
 
     /**
@@ -90,19 +119,26 @@ public class UtilizationBO {
     /**
      * Method to set the utilization from list to Utilization object
      * 
-     * @param employeeUtilization
+     * @param employeeForecastedUtilization
      * @return utilization
      */
 
-    public Utilization setUtilization( List<String> employeeUtilization ) {
+    public Utilization setUtilization( List<String> employeeForecastedUtilization, List<String> employeeActualUtilization ) {
 
         Utilization utilization = new Utilization();
+        //set forecasted utilization to object
+        utilization.setForecastedQuarter1( employeeForecastedUtilization.get( FIRST_COLUMN ) );
+        utilization.setForecastedQuarter2( employeeForecastedUtilization.get( SECOND_COLUMN ) );
+        utilization.setForecastedQuarter3( employeeForecastedUtilization.get( THIRD_COLUMN ) );
+        utilization.setForecastedQuarter4( employeeForecastedUtilization.get( FOURTH_COLUMN ) );
+        utilization.setForecastedYtd( employeeForecastedUtilization.get( FIFTH_COLUMN ) );
+        //set actual utilization to object
+        utilization.setActualQuarter1( employeeActualUtilization.get( FIRST_COLUMN ) );
+        utilization.setActualQuarter2( employeeActualUtilization.get( SECOND_COLUMN ) );
+        utilization.setActualQuarter3( employeeActualUtilization.get( THIRD_COLUMN ) );
+        utilization.setActualQuarter4( employeeActualUtilization.get( FOURTH_COLUMN ) );
+        utilization.setActualYtd( employeeActualUtilization.get( FIFTH_COLUMN ) );
 
-        utilization.setQuarter1( employeeUtilization.get( FIRST_COLUMN ) );
-        utilization.setQuarter2( employeeUtilization.get( SECOND_COLUMN ) );
-        utilization.setQuarter3( employeeUtilization.get( THIRD_COLUMN ) );
-        utilization.setQuarter4( employeeUtilization.get( FOURTH_COLUMN ) );
-        utilization.setYtd( employeeUtilization.get( FIFTH_COLUMN ) );
         return utilization;
 
     }

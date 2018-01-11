@@ -227,8 +227,9 @@ public class EmployeeBO {
  			
 		    String serial = empLeave.get( 0 ).getEmployeeID();
 		    String yearID = empLeave.get( 0 ).getYearID();
-            employeeRepository.saveEmployeeLeave( empLeave , isDraft, empID, fyID);
-            utilizationRepository.updateUtilizationHours( serial, yearID, utilizationRepository.getEmployeeWeeklyHours( serial, yearID ) );
+            employeeRepository.saveEmployeeLeave( empLeave, isDraft, empID, fyID );
+            utilizationRepository.updateUtilizationHours( serial, yearID,
+                utilizationRepository.getEmployeeWeeklyHours( serial, yearID ), OpumConstants.FORECAST_UTILIZATION );
             return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage());

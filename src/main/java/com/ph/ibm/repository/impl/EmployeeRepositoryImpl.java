@@ -984,6 +984,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
 			return true;
 		} catch (Exception e) {
+            e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 		return false;

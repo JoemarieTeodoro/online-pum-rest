@@ -1,5 +1,6 @@
 package com.ph.ibm;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,9 @@ import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConstants;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 /**
  * Root resource (exposed at "opum" path) This class is an end point called by the client. The methods are exposed as a
@@ -293,6 +297,40 @@ public class OnlinePUMResource {
         return response;
     }
 
+    /*
+     * This service is invoked when an admin uploads the ILC excel file for Actual Utilization calculation<br>
+     * <br>
+     * Exposed at "opum/ilcDataLoading" path
+     * 
+     * @param fileInputStream - InputStream for the .xlsx file
+     * @param fileFormDataContentDisposition - form-data content disposition header for the .xlsx file - contains metadata
+     * @param uriInfo - used to obtain information about URI in Response
+     * @return <b>Response</b> - object that contains the HTTP Response
+     * @throws OpumException, SQLException
+     * */
+    @Path( "/ilcDataLoading" )
+    @POST
+    @Consumes( MediaType.MULTIPART_FORM_DATA )
+    @Produces( MediaType.TEXT_PLAIN )
+    public Response uploadILCFile(
+    		@FormDataParam("file") InputStream fileInputStream, 
+    		@FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition,
+    		@Context UriInfo uriInfo) 
+    	throws SQLException, OpumException{
+    	logger.info("START uploadILCFile");
+    	Response response = null;
+    	try {
+    		projectBO = new ProjectBO();
+    		response = projectBO.uploadILCFile(fileInputStream, fileFormDataContentDisposition, uriInfo);
+    	}
+    	catch(Exception e ) {
+    		logger.error(e);
+    		throw new OpumException(e.getMessage(), e);
+    	}
+    	logger.info("END uploadILCFile");
+    	return response;
+    }
+    
     /**
      * This service is invoked when user log-in <br>
      * <br>
@@ -322,7 +360,7 @@ public class OnlinePUMResource {
             throw new OpumException( e.getMessage(), e );
         }
     }
-
+    
     /**
      * This service is invoked when user view a utilization <br>
      * Exposed at "opum/utilization/{employeeId}/{year}" path

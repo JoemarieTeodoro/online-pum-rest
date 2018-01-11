@@ -96,6 +96,8 @@ public class OpumConstants {
     public static final String TEAM_LEAD = "team lead";
 
     public static final String SUCCESS_UPLOAD = "CSV Uploaded Successfully!";
+    
+    public static final String ILC_SUCCESS_UPLOAD = "ILC Extract Uploaded Successfully!";
 
 	/** PUM Year **/
 	public static final String ZERO = "0";

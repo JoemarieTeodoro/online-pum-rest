@@ -2,6 +2,7 @@ package com.ph.ibm.bo;
 
 import static com.ph.ibm.util.ValidationUtils.isValueEmpty;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUtil;
@@ -50,9 +52,11 @@ import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
 import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationEngagementRepositoryImpl;
 import com.ph.ibm.upload.CsvUploaderBase;
+import com.ph.ibm.upload.ExcelUploaderBase;
 import com.ph.ibm.upload.upload.impl.AdminListUploader;
 import com.ph.ibm.upload.upload.impl.EmployeeListUploader;
 import com.ph.ibm.upload.upload.impl.EmployeeRoleUploader;
+import com.ph.ibm.upload.upload.impl.ILCExtractUploader;
 import com.ph.ibm.upload.upload.impl.PEMListUploader;
 import com.ph.ibm.upload.upload.impl.TeamEmployeeUploader;
 import com.ph.ibm.upload.upload.impl.TeamListUploader;
@@ -105,6 +109,9 @@ public class ProjectBO {
 
     /** Base class used for uploading project information in Csv format */
     private CsvUploaderBase uploader;
+    
+    /* Base class used for uploading excel files */
+    private ExcelUploaderBase excelUploader;
 
     private HolidayEngagementRepository holidayEngagementRepository = new HolidayRepositoryImpl();
 
@@ -270,6 +277,11 @@ public class ProjectBO {
     public Response uploadEmployeeRoleList( String rawData, UriInfo uriInfo ) throws Exception {
         uploader = new EmployeeRoleUploader();
         return uploader.upload( rawData, uriInfo );
+    }
+    
+    public Response uploadILCFile(InputStream fileInputStream, FormDataContentDisposition fileFormDataContentDisposition, UriInfo uriInfo) throws Exception{
+    	excelUploader = new ILCExtractUploader();
+    	return excelUploader.upload(fileInputStream, fileFormDataContentDisposition, uriInfo);
     }
 
     /**
