@@ -95,8 +95,10 @@ public class ValidationUtils
             Date updatedTeamRollOffDate =
                 new SimpleDateFormat( MONTH_DAY_YEAR_FORMAT ).parse( teamEmployee.getRollOffDate() );
 
-            return (updatedTeamRollInDate.after( actualEmployeeRollInDate ) &&
-                updatedTeamRollOffDate.before( actualEmployeeRollOffDate ) );
+            return ( actualEmployeeRollInDate.equals( updatedTeamRollInDate ) ||
+                updatedTeamRollInDate.after( actualEmployeeRollInDate ) ) &&
+                    ( actualEmployeeRollOffDate.equals( updatedTeamRollOffDate ) ||
+                        updatedTeamRollOffDate.before( actualEmployeeRollOffDate ) );
             
         }
         catch( ParseException e ){
