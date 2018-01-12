@@ -13,7 +13,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -22,6 +21,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.ph.ibm.bo.EmployeeBO;
 import com.ph.ibm.bo.HolidayBO;
@@ -31,7 +32,6 @@ import com.ph.ibm.bo.UtilizationBO;
 import com.ph.ibm.bo.YearBO;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeEvent;
-import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.EmployeeUtil;
 import com.ph.ibm.model.ForApprovalList;
@@ -50,9 +50,6 @@ import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
 import com.ph.ibm.util.Authenticate;
 import com.ph.ibm.util.OpumConstants;
-
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 
 /**
  * Root resource (exposed at "opum" path) This class is an end point called by the client. The methods are exposed as a
@@ -164,7 +161,7 @@ public class OnlinePUMResource {
      * <br>
      * Exposed at "opum/dataLoadingTeamEmpList" path ======= <br>
      * <br>
-     * 
+     *
      * @throws OpumException
      */
     @Path( "/dataLoadingTeamEmpList" )
@@ -217,7 +214,7 @@ public class OnlinePUMResource {
      * <br>
      * Exposed at "opum/dataLoading" path ======= <br>
      * <br>
-     * 
+     *
      * @throws OpumException
      */
     @Path( "/pem" )
@@ -743,23 +740,21 @@ public class OnlinePUMResource {
     @GET
     @Path( "/downloadUtilization" )
     @Produces( "application/vnd.ms-excel" )
-    public Response downloadUtilization( @QueryParam( "year" ) String year, @Context HttpHeaders header )
+    public Response downloadUtilization( @Context UriInfo info,
+			@Context HttpHeaders header )
         throws Exception {
-        /*
-         * MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
-         * String email = headerParams.getFirst("username"); String password =
-         * headerParams.getFirst("password"); if (!(authenticateUser(email, password)))
-         * { logger.error(OpumConstants.UNAUTHORIZED); return
-         * Response.status(Status.UNAUTHORIZED).build(); }
-         */
-        Response response;
+    	String filePath = "opum.xls";
+    	String periodKey = info.getQueryParameters().getFirst("periodKey");
+		String periodValue = info.getQueryParameters().getFirst("periodValue");
+		int periodValueInt = Integer.parseInt(periodValue);
+        Response response = null;
         try{
-            utilityBO = new UtilityBO();
-            response = utilityBO.downloadUtilization( year );
+			utilityBO = new UtilityBO();
+			response = utilityBO.downloadUtilizationReport(periodKey, periodValueInt, filePath);
         }
         catch( Exception e ){
-            logger.error( e );
-            throw new OpumException( e.getMessage(), e );
+        	logger.error( e.getMessage() );
+            response = Response.status( Status.INTERNAL_SERVER_ERROR ).entity( e.getMessage() ).build();
         }
         return response;
     }
@@ -1095,7 +1090,7 @@ public class OnlinePUMResource {
     /**
      * This is invoked when user wants to see his calendar. Populates calendar with pre-plotted working hours including
      * their leaves.
-     * 
+     *
      * @param employeeID
      * @return Response containing EmployeeEvent Entity
      */

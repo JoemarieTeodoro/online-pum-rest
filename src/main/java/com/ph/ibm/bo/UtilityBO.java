@@ -47,9 +47,9 @@ public class UtilityBO {
 	 */
 	private UtilizationEngagementRepository utilizationEngagementRepository = new UtilizationEngagementRepositoryImpl();
 
+	
 	/**
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
 	 */
 	public Response downloadUtilization(String year) throws IOException {
 		UtilizationEngagementRepositoryImpl util = new UtilizationEngagementRepositoryImpl();
@@ -64,21 +64,21 @@ public class UtilityBO {
 		try {
 			Utilization utilization = null;
 			List<ProjectEngagement> projectEngagementList = projectEngagementImplementation.getAllProjectEngagement();
-			List<Project> projectList	= projectImplementation.retrieveData();
-			
+			List<Project> projectList = projectImplementation.retrieveData();
+
 			HSSFSheet sheet = workbook.createSheet("PUM 2017");
 			sheet.addMergedRegion(new CellRangeAddress(0, 3, 0, 4));
 
 			HSSFCellStyle dateStyle = createStylingForRollinRolloffDate(workbook);
-			
+
 			HSSFCellStyle hStyle = createHeaderStyling(workbook);
-			
+
 			HSSFCellStyle compStyle = createYTDStyle(workbook);
-						
+
 			HSSFCellStyle monthStyle = createMonthHeaderStyling(workbook);
-			
+
 			HSSFCellStyle dataStyle = createDataStyling(workbook);
-	
+
 			int rowNum = 5;
 			HSSFRow daysHeader = sheet.createRow(3);
 			HSSFRow monthHeader = sheet.createRow(0);
@@ -93,34 +93,35 @@ public class UtilityBO {
 			header1.setCellValue("Project");
 			header1.setCellStyle(hStyle);
 			sheet.autoSizeColumn(0);
-		    header2.setCellValue("Employee Serial No.");
-		    header2.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(1);
-		    
-		    header3.setCellValue("Year");
-		    header3.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(2);
-		    header4.setCellValue("Roll In Date");
-		    header4.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(3);
-		    header5.setCellValue("Roll Off Date");
-		    header5.setCellStyle(hStyle);
-		    sheet.autoSizeColumn(4);
-		    
-		  
-			for (int i=0; i<projectEngagementList.size(); i++) {
-				
+			header2.setCellValue("Employee Serial No.");
+			header2.setCellStyle(hStyle);
+			sheet.autoSizeColumn(1);
+
+			header3.setCellValue("Year");
+			header3.setCellStyle(hStyle);
+			sheet.autoSizeColumn(2);
+			header4.setCellValue("Roll In Date");
+			header4.setCellStyle(hStyle);
+			sheet.autoSizeColumn(3);
+			header5.setCellValue("Roll Off Date");
+			header5.setCellStyle(hStyle);
+			sheet.autoSizeColumn(4);
+
+			for (int i = 0; i < projectEngagementList.size(); i++) {
+
 				Utilization excelRow = util.downloadUtilization("2017", projectEngagementList.get(i).getEmployeeId());
 				HSSFRow row = sheet.createRow(rowNum);
-				//Year yearComputation = projectBO.getComputation(projectEngagementList.get(i).getEmployeeId(), Integer.parseInt(excelRow.getYear()));
-				Year yearComputation = utilityBO.getYTDComputation(projectEngagementList.get(i).getEmployeeId(), Integer.parseInt(excelRow.getYear()));
+				// Year yearComputation =
+				// projectBO.getComputation(projectEngagementList.get(i).getEmployeeId(),
+				// Integer.parseInt(excelRow.getYear()));
+				Year yearComputation = utilityBO.getYTDComputation(projectEngagementList.get(i).getEmployeeId(),
+						Integer.parseInt(excelRow.getYear()));
 				HSSFCell cell1 = row.createCell(0);
 				HSSFCell cell2 = row.createCell(1);
 				HSSFCell cell3 = row.createCell(2);
 				HSSFCell cell4 = row.createCell(3);
 				HSSFCell cell5 = row.createCell(4);
 
-				
 				cell1.setCellValue("USAA");
 				cell1.setCellStyle(dataStyle);
 				cell2.setCellValue(excelRow.getEmployeeSerial());
@@ -134,9 +135,9 @@ public class UtilityBO {
 				cell5.setCellValue(projectEngagementList.get(i).getEndDate());
 				cell5.setCellStyle(dateStyle);
 				sheet.autoSizeColumn(4);
-				
+
 				UtilizationYear utilizationYear = jsontojava.jsonToJava(excelRow.getUtilizationJson());
-				
+
 				int utilColumn = 5;
 				int colHeader = 5;
 				int monthHeaderCtr = 5;
@@ -144,146 +145,145 @@ public class UtilityBO {
 				int ctr = 1;
 				int monthStartCtr = 5;
 				int monthEndCtr = 5;
-				for(UtilizationJson utilJson: utilizationYear.getUtilizationJSON())
-				{       
+				for (UtilizationJson utilJson : utilizationYear.getUtilizationJSON()) {
 					HSSFCell cellHours = row.createCell(utilColumn++);
 					cellHours.setCellValue(utilJson.getUtilizationHours());
 					cellHours.setCellStyle(dataStyle);
-					
+
 					HSSFCell dayOfMonth = daysHeader.createCell(daysUtil++);
 					dayOfMonth.setCellValue(utilJson.getDayOfMonth());
 					dayOfMonth.setCellStyle(hStyle);
-					
+
 					HSSFCell dayHeader = header.createCell(colHeader++);
-					if(utilJson.getDay() == 1){
-						dayHeader.setCellValue("S"); //Change to Sunday 
+					if (utilJson.getDay() == 1) {
+						dayHeader.setCellValue("S"); // Change to Sunday
 						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 2){
+					} else if (utilJson.getDay() == 2) {
 						dayHeader.setCellValue("M");
 						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 3){
+					} else if (utilJson.getDay() == 3) {
 						dayHeader.setCellValue("T");
 						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 4){
+					} else if (utilJson.getDay() == 4) {
 						dayHeader.setCellValue("W");
 						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 5){
-						dayHeader.setCellValue("T");//Change to Thursday
+					} else if (utilJson.getDay() == 5) {
+						dayHeader.setCellValue("T");// Change to Thursday
 						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 6){
+					} else if (utilJson.getDay() == 6) {
 						dayHeader.setCellValue("F");
 						dayHeader.setCellStyle(hStyle);
-					}else if(utilJson.getDay() == 7){
-						dayHeader.setCellValue("S"); //Change to Saturday
+					} else if (utilJson.getDay() == 7) {
+						dayHeader.setCellValue("S"); // Change to Saturday
 						dayHeader.setCellStyle(hStyle);
-					}else{
-					dayHeader.setCellValue(utilJson.getDay());
+					} else {
+						dayHeader.setCellValue(utilJson.getDay());
 					}
-					
+
 					HSSFCell month = monthHeader.createCell(monthHeaderCtr++);
-					if(utilJson.getMonth()==1){
+					if (utilJson.getMonth() == 1) {
 						month.setCellValue("JAN");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==2){
+					} else if (utilJson.getMonth() == 2) {
 						month.setCellValue("FEB");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==3){
+					} else if (utilJson.getMonth() == 3) {
 						month.setCellValue("MAR");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==4){
+					} else if (utilJson.getMonth() == 4) {
 						month.setCellValue("APR");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==5){
+					} else if (utilJson.getMonth() == 5) {
 						month.setCellValue("MAY");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==6){
+					} else if (utilJson.getMonth() == 6) {
 						month.setCellValue("JUN");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==7){
+					} else if (utilJson.getMonth() == 7) {
 						month.setCellValue("JUL");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==8){
+					} else if (utilJson.getMonth() == 8) {
 						month.setCellValue("AUG");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==9){
+					} else if (utilJson.getMonth() == 9) {
 						month.setCellValue("SEP");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==10){
+					} else if (utilJson.getMonth() == 10) {
 						month.setCellValue("OCT");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==11){
+					} else if (utilJson.getMonth() == 11) {
 						month.setCellValue("NOV");
 						month.setCellStyle(monthStyle);
-					}else if(utilJson.getMonth()==12){
+					} else if (utilJson.getMonth() == 12) {
 						month.setCellValue("DEC");
 						month.setCellStyle(monthStyle);
-					}else{
-					month.setCellValue(utilJson.getMonth());
+					} else {
+						month.setCellValue(utilJson.getMonth());
 					}
-					
-					if(ctr < utilizationYear.getUtilizationJSON().size() && i==0){
-					if(utilJson.getMonth() != utilizationYear.getUtilizationJSON().get(ctr).getMonth()){
-						
-						sheet.addMergedRegion(new CellRangeAddress(0,0,monthStartCtr,monthEndCtr));
-						monthStartCtr = monthEndCtr + 1;
+
+					if (ctr < utilizationYear.getUtilizationJSON().size() && i == 0) {
+						if (utilJson.getMonth() != utilizationYear.getUtilizationJSON().get(ctr).getMonth()) {
+
+							sheet.addMergedRegion(new CellRangeAddress(0, 0, monthStartCtr, monthEndCtr));
+							monthStartCtr = monthEndCtr + 1;
 						}
-					}else if(ctr == utilizationYear.getUtilizationJSON().size() && i==0){
-						sheet.addMergedRegion(new CellRangeAddress(0,0,monthStartCtr,monthEndCtr));
+					} else if (ctr == utilizationYear.getUtilizationJSON().size() && i == 0) {
+						sheet.addMergedRegion(new CellRangeAddress(0, 0, monthStartCtr, monthEndCtr));
 					}
 					monthEndCtr++;
 					ctr++;
-					}
-				
+				}
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfAvailHrsHdr = header.createCell(colHeader++);
 				cellNumOfAvailHrsHdr.setCellValue("Available Hours");
 				cellNumOfAvailHrsHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfCDOHdr = header.createCell(colHeader++);
 				cellNumOfCDOHdr.setCellValue(TimeAwayTokens.CDO.getS());
 				cellNumOfCDOHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfELHdr = header.createCell(colHeader++);
 				cellNumOfELHdr.setCellValue("EL");
 				cellNumOfELHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfHOHdr = header.createCell(colHeader++);
 				cellNumOfHOHdr.setCellValue("HO");
 				cellNumOfHOHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfOLHdr = header.createCell(colHeader++);
 				cellNumOfOLHdr.setCellValue("OL");
 				cellNumOfOLHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfSLHdr = header.createCell(colHeader++);
 				cellNumOfSLHdr.setCellValue("SL");
 				cellNumOfSLHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfTRHdr = header.createCell(colHeader++);
 				cellNumOfTRHdr.setCellValue("TR");
 				cellNumOfTRHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellNumOfVLHdr = header.createCell(colHeader++);
 				cellNumOfVLHdr.setCellValue("VL");
 				cellNumOfVLHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellTotalHrsHdr = header.createCell(colHeader++);
 				cellTotalHrsHdr.setCellValue("Total Hours");
 				cellTotalHrsHdr.setCellStyle(compStyle);
-				
+
 				sheet.autoSizeColumn(colHeader);
 				HSSFCell cellYrToDateUtilHdr = header.createCell(colHeader++);
 				cellYrToDateUtilHdr.setCellValue("YTD%");
 				cellYrToDateUtilHdr.setCellStyle(compStyle);
-				
+
 				HSSFCell cellNumOfAvailHrs = row.createCell(daysUtil++);
 				HSSFCell cellNumOfCDO = row.createCell(daysUtil++);
 				HSSFCell cellNumOfEL = row.createCell(daysUtil++);
@@ -294,42 +294,46 @@ public class UtilityBO {
 				HSSFCell cellNumOfVL = row.createCell(daysUtil++);
 				HSSFCell cellTotalHrs = row.createCell(daysUtil++);
 				HSSFCell cellYrToDateUtil = row.createCell(daysUtil++);
-				
+
 				cellNumOfAvailHrs.setCellValue(yearComputation.getNumberOfAvailableHours());
 				cellNumOfAvailHrs.setCellStyle(dataStyle);
-				
+
 				cellNumOfCDO.setCellValue(yearComputation.getNumberOfCDO());
 				cellNumOfCDO.setCellStyle(dataStyle);
-				
+
 				cellNumOfEL.setCellValue(yearComputation.getNumberOfEL());
 				cellNumOfEL.setCellStyle(dataStyle);
-				
+
 				cellNumOfHO.setCellValue(yearComputation.getNumberOfHO());
 				cellNumOfHO.setCellStyle(dataStyle);
-				
+
 				cellNumOfOL.setCellValue(yearComputation.getNumberOfOL());
 				cellNumOfOL.setCellStyle(dataStyle);
-				
+
 				cellNumOfSL.setCellValue(yearComputation.getNumberOfSL());
 				cellNumOfSL.setCellStyle(dataStyle);
-				
+
 				cellNumOfTR.setCellValue(yearComputation.getNumberOfTR());
 				cellNumOfTR.setCellStyle(dataStyle);
-				
+
 				cellNumOfVL.setCellValue(yearComputation.getNumberOfVL());
 				cellNumOfVL.setCellStyle(dataStyle);
-				
+
 				cellTotalHrs.setCellValue(yearComputation.getTotalHours());
 				cellTotalHrs.setCellStyle(dataStyle);
-				
+
 				cellYrToDateUtil.setCellValue(yearComputation.getYearToDateUtilization());
 				cellYrToDateUtil.setCellStyle(dataStyle);
-				
+
 				rowNum++;
 			}
 			try {
 				File file = new File(
-						"C:\\Users\\IBM_ADMIN\\Desktop\\USAA_PUM_as_of" + now.now().toLocalDate() + ".xls");//CHANGE PATH TO DYNAMIC BASED ON ENVIRONEMTN
+						"C:\\Users\\IBM_ADMIN\\Desktop\\USAA_PUM_as_of" + now.now().toLocalDate() + ".xls");// CHANGE
+																											// PATH TO
+																											// DYNAMIC
+																											// BASED ON
+																											// ENVIRONEMTN
 				workbook.write(file);
 				workbook.close();
 				ResponseBuilder response = Response.ok(file);
@@ -340,7 +344,7 @@ public class UtilityBO {
 				io.printStackTrace();
 				return Response.status(Status.BAD_REQUEST).entity(workbook).type(MediaType.APPLICATION_OCTET_STREAM)
 						.build();
-			}finally{
+			} finally {
 				workbook.close();
 			}
 		} catch (Exception e) { // Change to specific exception
@@ -349,11 +353,19 @@ public class UtilityBO {
 					.build();
 		}
 	}
+	
 
+	public Response downloadUtilizationReport(String periodKey, int periodValue, String filePath) throws Exception {
+		
+		UtilizationEngagementRepositoryImpl util = new UtilizationEngagementRepositoryImpl();
+		return util.downloadUtilizationReport(periodKey, periodValue, filePath);
+
+	}
+	
 	private HSSFCellStyle createDataStyling(HSSFWorkbook workbook) {
 		HSSFCellStyle dataStyle = workbook.createCellStyle();
 		Font dataFont = workbook.createFont();
-		dataFont.setFontHeightInPoints((short)(9));
+		dataFont.setFontHeightInPoints((short) (9));
 		dataFont.setFontName("Calibri");
 		dataFont.setColor(IndexedColors.BLACK.getIndex());
 		dataFont.setBold(false);
@@ -368,9 +380,9 @@ public class UtilityBO {
 	}
 
 	private HSSFCellStyle createMonthHeaderStyling(HSSFWorkbook workbook) {
-		HSSFCellStyle monthStyle = workbook.createCellStyle();			
+		HSSFCellStyle monthStyle = workbook.createCellStyle();
 		Font monthFont = workbook.createFont();
-		monthFont.setFontHeightInPoints((short)(12));
+		monthFont.setFontHeightInPoints((short) (12));
 		monthFont.setFontName("Trebuchet MS");
 		monthFont.setColor(IndexedColors.WHITE.getIndex());
 		monthFont.setBold(true);
@@ -389,7 +401,7 @@ public class UtilityBO {
 	private HSSFCellStyle createYTDStyle(HSSFWorkbook workbook) {
 		HSSFCellStyle compStyle = workbook.createCellStyle();
 		Font comFont = workbook.createFont();
-		comFont.setFontHeightInPoints((short)(9));
+		comFont.setFontHeightInPoints((short) (9));
 		comFont.setFontName("Verdana");
 		comFont.setColor(IndexedColors.DARK_TEAL.getIndex());
 		comFont.setBold(true);
@@ -408,7 +420,7 @@ public class UtilityBO {
 	private HSSFCellStyle createHeaderStyling(HSSFWorkbook workbook) {
 		HSSFCellStyle hStyle = workbook.createCellStyle();
 		Font font = workbook.createFont();
-		font.setFontHeightInPoints((short)(9));
+		font.setFontHeightInPoints((short) (9));
 		font.setFontName("Verdana");
 		font.setColor(IndexedColors.DARK_TEAL.getIndex());
 		font.setBold(true);
@@ -429,7 +441,7 @@ public class UtilityBO {
 		HSSFCellStyle dateStyle = workbook.createCellStyle();
 		dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("MM-dd-yyyy"));
 		Font dateFont = workbook.createFont();
-		dateFont.setFontHeightInPoints((short)(9));
+		dateFont.setFontHeightInPoints((short) (9));
 		dateFont.setFontName("Calibri");
 		dateFont.setColor(IndexedColors.BLACK.getIndex());
 		dateFont.setBold(false);
@@ -442,7 +454,7 @@ public class UtilityBO {
 		dateStyle.setFont(dateFont);
 		return dateStyle;
 	}
-	
+
 	/**
 	 * This method is used to save utilization
 	 * 
@@ -453,7 +465,7 @@ public class UtilityBO {
 	public boolean saveUtilization(Utilization utilization) throws SQLException {
 		return utilizationEngagementRepository.saveUtilization(utilization);
 	}
-	
+
 	/**
 	 * This method is used to get utilization from utilization table
 	 * 
@@ -465,9 +477,10 @@ public class UtilityBO {
 	public String fetchUtilizations(String employeeIdNumber, String year) throws SQLException {
 		List<Utilization> utilizations = new ArrayList<Utilization>();
 		utilizations = utilizationEngagementRepository.retrieveUtilizations(employeeIdNumber, year);
-		if(utilizations.size() > 0){
-			UtilizationYear utilizationYear = ObjectMapperAdapter.unmarshal(utilizations.get(0).getUtilizationJson(), UtilizationYear.class);
-	
+		if (utilizations.size() > 0) {
+			UtilizationYear utilizationYear = ObjectMapperAdapter.unmarshal(utilizations.get(0).getUtilizationJson(),
+					UtilizationYear.class);
+
 			LocalDateTime now = LocalDateTime.now();
 			int currentYear = now.getYear();
 			int currentMonth = now.getMonthValue();
@@ -478,7 +491,7 @@ public class UtilityBO {
 					json.setEditable("D");
 					counter++;
 				} else if (utilizationYear.getYear() == currentYear) {
-					//Reduce indentation
+					// Reduce indentation
 					if (json.getMonth() < currentMonth) {
 						json.setEditable("D");
 						counter++;
@@ -502,8 +515,7 @@ public class UtilityBO {
 			String finalJson = ObjectMapperAdapter.marshal(utilizationYear);
 			System.out.println(finalJson);
 			return finalJson;
-		}
-		else{
+		} else {
 			return null;
 		}
 	}
@@ -511,7 +523,7 @@ public class UtilityBO {
 	/**
 	 * 
 	 * 
-	 * @param 
+	 * @param
 	 * @param year
 	 * @return Response
 	 * @throws SQLException
@@ -522,7 +534,7 @@ public class UtilityBO {
 		UtilizationYear utilization_Year = ObjectMapperAdapter.unmarshal(utilization.getUtilizationJson(),
 				UtilizationYear.class);
 		Year ytdComputation = new Year();
-		double hours = 0; //TODO: change to big decimal
+		double hours = 0; // TODO: change to big decimal
 		double totalActualHours = 0;
 		double availableHours = 0;
 		double VLcount = 0;
@@ -535,10 +547,10 @@ public class UtilityBO {
 		double availableHoursCounter = 0;
 		double YTD = 0;
 		DecimalFormat formatter = new DecimalFormat("#0.00");
-		//String ytdResult = formatter.format(YTD);
-		
-		//ytdBD.
-		
+		// String ytdResult = formatter.format(YTD);
+
+		// ytdBD.
+
 		for (UtilizationJson json : utilization_Year.getUtilizationJSON()) {
 			if (json.getUtilizationHours().equalsIgnoreCase("VL") || json.getUtilizationHours().equals("SL")
 					|| json.getUtilizationHours().equals("OL") || json.getUtilizationHours().equals("EL")
@@ -582,7 +594,7 @@ public class UtilityBO {
 			YTD = (totalActualHours / availableHours) * 100;
 
 		}
-		
+
 		ytdComputation.setTotalHours(totalActualHours);
 		ytdComputation.setNumberOfVL(VLcount);
 		ytdComputation.setNumberOfSL(SLcount);
@@ -596,5 +608,5 @@ public class UtilityBO {
 
 		return ytdComputation;
 	}
-	
+
 }
