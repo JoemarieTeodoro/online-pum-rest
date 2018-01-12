@@ -97,8 +97,8 @@ public class ValidationUtils
 
             return ( actualEmployeeRollInDate.equals( updatedTeamRollInDate ) ||
                 updatedTeamRollInDate.after( actualEmployeeRollInDate ) ) &&
-                    ( actualEmployeeRollOffDate.equals( updatedTeamRollOffDate ) ||
-                        updatedTeamRollOffDate.before( actualEmployeeRollOffDate ) );
+                ( actualEmployeeRollOffDate.equals( updatedTeamRollOffDate ) ||
+                    updatedTeamRollOffDate.before( actualEmployeeRollOffDate ) );
             
         }
         catch( ParseException e ){
