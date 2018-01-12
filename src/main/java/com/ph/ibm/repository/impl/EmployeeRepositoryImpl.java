@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mysql.jdbc.Statement;
@@ -31,7 +32,6 @@ import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
-import com.ph.ibm.util.ValidationUtils;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
 
@@ -598,6 +598,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             while(resultSet.next()) {
             	EmployeeLeave empLeave = new EmployeeLeave();
                 empLeave.setEmployeeID(resultSet.getString("employeeid"));
+                empLeave.setStatus(resultSet.getString("status"));
                 empLeave.setDate(resultSet.getDate("date").toString());
                 empLeave.setYearID(String.valueOf(resultSet.getInt("year_id")));
                 empLeave.setEmployeeLeaveID(String.valueOf(resultSet.getInt("employee_leave_id")));
@@ -609,9 +610,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 	/**
                 	 *  set status to pending since this leave is not yet approved
                 	 */
-                	if (hours.equalsIgnoreCase("8")) {
-                		empLeave.setStatus("pending");
-                	}
+                	
                 } else {
                 	empLeave.setLeaveName(resultSet.getString("hours"));
                 }
@@ -800,6 +799,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		Connection connection = connectionPool.getConnection();
 		PreparedStatement preparedStatement = null;
 		connection.setAutoCommit(false);
+
+		String leaveType_HO = "HO";
+		String leaveType_VL = "VL";
+		String leaveType_RC = "8";
 		String leaveID_Zero = "0";
 		
 		try {
@@ -809,9 +812,13 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
 			if (employeeLeaveList.size() > 0) {
 				for (EmployeeLeave emp : employeeLeaveList) {
+					
 					int empLeaveID = 0;
-					if (ValidationUtils.isValueEmpty(emp.getEmployeeLeaveID())
+					if (emp.getEmployeeLeaveID()==null
 							|| emp.getEmployeeLeaveID().equals(leaveID_Zero)) {
+
+						boolean isHoliday = isValidHoliday(emp.getLeaveName(),
+								emp.getDate());
 
 						preparedStatement.setString(1, emp.getEmployeeID());
 						preparedStatement.setInt(2, Integer.valueOf(emp.getYearID()));
@@ -826,13 +833,17 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 						preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 						preparedStatement.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
 						preparedStatement.setInt(8, emp.getValue());
-						preparedStatement.addBatch();
-						preparedStatement.executeUpdate();
-						connection.commit();
-						
-						ResultSet rs = preparedStatement.getGeneratedKeys();
-						if (rs.next()) {
-							empLeaveID = rs.getInt(1);
+
+						if ((emp.getLeaveName().equalsIgnoreCase(leaveType_HO) && isHoliday)
+								|| emp.getLeaveName().equalsIgnoreCase(leaveType_VL) || StringUtils.isNumeric(emp.getLeaveName())) {
+							
+							preparedStatement.addBatch();
+							preparedStatement.executeUpdate();
+							connection.commit();
+							ResultSet rs = preparedStatement.getGeneratedKeys();
+							if (rs.next()) {
+								empLeaveID = rs.getInt(1);
+							}
 						}
 
 					} else {
@@ -873,7 +884,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		String leaveTypeHO = "HO";
 		String leaveTypeRC = "RC";
 		String leaveStatusDraft = "draft";
-		String leaveStatusPending = "Pending";
+		String leaveStatusApproved = "Approved";
 
 		try {
 			String query = "UPDATE EMPLOYEE_LEAVE SET LEAVE_DATE=?, LEAVE_TYPE=?, STATUS=?, HOURS=? "
@@ -882,9 +893,13 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			preparedStatement.setDate(1, Date.valueOf(emp.getDate()));
 			preparedStatement.setString(2, emp.getLeaveName());
 
-			if (!isDraft && emp.getStatus().equalsIgnoreCase(leaveStatusDraft)) {
-				preparedStatement.setString(3, leaveStatusPending);
-				emp.setStatus(leaveStatusPending);
+			/*if (!isDraft && emp.getStatus().equalsIgnoreCase(leaveStatusDraft)) {
+				preparedStatement.setString(3, leaveStatusApproved);
+				emp.setStatus(leaveStatusApproved);
+			}*/
+			if(isDraft) {
+				preparedStatement.setString(3, leaveStatusDraft);
+				emp.setStatus(leaveStatusDraft);
 			}
 			preparedStatement.setString(3, emp.getStatus());
 			
@@ -945,7 +960,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		try {
 			String query = "UPDATE EMPLOYEE_LEAVE SET STATUS=? WHERE EMPLOYEE_ID=? and YEAR_ID=?";
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, "pending");
+			preparedStatement.setString(1, "Approved");
 			preparedStatement.setString(2, empID);
 			preparedStatement.setInt(3, 1);
 			preparedStatement.executeUpdate();

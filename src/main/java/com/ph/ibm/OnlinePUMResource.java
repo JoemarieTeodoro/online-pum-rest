@@ -1117,7 +1117,6 @@ public class OnlinePUMResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String saveEmployeeLeave( EmployeeEvent empLeaves) throws Exception {
-		logger.info("START save employee leave" + empLeaves.isDraft());
 		boolean result;
 
 		try {
