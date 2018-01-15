@@ -6,6 +6,8 @@ import static com.ph.ibm.report.UtilizationXLSConstants.SHEET_NAME;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +27,8 @@ import com.ph.ibm.model.UtilizationRowData;
 import com.ph.ibm.model.UtilizationXLSData;
 
 public abstract class UtilizationXLSReport {
+
+	private static final int DECIMAL_PLACES = 2;
 
 	public List<UtilizationRowData> dataRows;
 
@@ -78,7 +82,7 @@ public abstract class UtilizationXLSReport {
 	
 	protected abstract void generateDataRows(Sheet sheet) ;
 
-	protected abstract void generateGrandTotal(Sheet sheet, int rowNumber, Map<String, Integer> grandTotal);
+	protected abstract void generateGrandTotal(Sheet sheet, int rowNumber, Map<String, Number> grandTotal);
 
 	protected abstract void adjustColumnSize(HSSFSheet sheet);
 	
@@ -98,28 +102,36 @@ public abstract class UtilizationXLSReport {
 	    cell.setCellValue(cellValue);
 	    cell.setCellStyle(style);
 	}
+	
+	protected void setCell(Row row, int columnNumber, double cellValue, CellStyle style) {
+		Cell cell = row.createCell(columnNumber);
+	    cell.setCellValue(cellValue);
+	    cell.setCellStyle(style);
+	}
 
-	protected CellStyle getYTDCellStyle(int YTD) {
-		if( YTD >= 100 )
+	protected CellStyle getYTDCellStyle(Number YTD) {
+		int converted = YTD.intValue();
+		if( converted >= 100 )
 			return cellStyles.get( CellStyleUtils.GREEN_FONT_CENTERED );
-		else if( YTD > 95 )
+		else if( converted > 95 )
 			return cellStyles.get( CellStyleUtils.VIOLET_FONTCENTERED );
 		else
 			return cellStyles.get( CellStyleUtils.RED_FONT_CENTERED );
 	}
 
-	protected CellStyle getYTDTotalCellStyle(int YTD) {
-		if( YTD >= 100 )
+	protected CellStyle getYTDTotalCellStyle(Number YTD) {
+		int converted = YTD.intValue();
+		if( converted >= 100 )
 			return cellStyles.get( CellStyleUtils.DARK_BACK_GREEN_CENTERED_BOLD_FONT );
-		else if( YTD > 95 )
+		else if( converted > 95 )
 			return cellStyles.get( CellStyleUtils.DARK_BACK_VIOLET_CENTERED_BOLD_FONT );
 		else
 			return cellStyles.get( CellStyleUtils.DARK_BACK_RED_CENTERED_BOLD_FONT );
 	}
 
-	protected void addToMap(Map<String, Integer> map, String key, int value) {
+	protected void addToMap(Map<String, Number> map, String key, Number value) {
 		if(map.containsKey(key)) {
-			map.put(key, map.get(key) + value);
+			map.put(key, map.get(key).doubleValue() + value.doubleValue());
 		}
 		else {
 			map.put(key, value);
@@ -127,6 +139,14 @@ public abstract class UtilizationXLSReport {
 	}
 
 	protected String getPercentage(Number value){
-		return value.intValue() + PERCENT_SYMBOL;
+		return round(value, DECIMAL_PLACES)+ PERCENT_SYMBOL;
+	}
+	
+	public double round(Number value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    BigDecimal bd = new BigDecimal(value.doubleValue());
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
 	}
 }

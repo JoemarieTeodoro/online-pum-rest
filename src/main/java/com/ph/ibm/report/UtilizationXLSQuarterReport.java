@@ -67,7 +67,7 @@ public class UtilizationXLSQuarterReport extends UtilizationXLSReport{
 
 	@Override
 	protected void generateDataRows(Sheet sheet) {
-		Map<String, Integer> grandTotal = new HashMap<String, Integer>();
+		Map<String, Number> grandTotal = new HashMap<String, Number>();
 	    addToMap( grandTotal, NUMBER_OF_DATA_ROWS , dataRows.size() );
 		int rowNumber = DATA_ROW_NUMBER;
 		for( UtilizationRowData data : dataRows ) {
@@ -76,7 +76,7 @@ public class UtilizationXLSQuarterReport extends UtilizationXLSReport{
 		    setCell(row, EMPLOYEE_SERIAL_COLUMN_NUMBER, data.getEmpSerial());
 		    setCell(row, EMPLOYEE_NAME_COLUMN_NUMBER, data.getEmpName());
 		    
-		    int rowGrandTotal = 0;
+		    double rowGrandTotal = 0;
 		    int columnNumber = QUARTER_START_COLUMN_NUMBER;
 		    for( int quarterNumber = 1 ; quarterNumber < numberOfQuarters + 1 ; columnNumber++ , quarterNumber++) {
 			    setCell(row, columnNumber, data.getQuarterHour(quarterNumber), cellStyles.get(CellStyleUtils.CENTERED));
@@ -87,7 +87,7 @@ public class UtilizationXLSQuarterReport extends UtilizationXLSReport{
 		    setCell(row, columnNumber, rowGrandTotal, cellStyles.get(CellStyleUtils.CENTERED));
 		    addToMap( grandTotal, GRAND_TOTAL_HEADER , rowGrandTotal );
 
-			int YTD =  (int)( ( ( double ) rowGrandTotal/ ( 520 * numberOfQuarters ) ) * 100);
+		    double YTD =  ( ( ( double ) rowGrandTotal/ ( 520 * numberOfQuarters ) ) * 100);
 		    setCell(row, ++columnNumber, getPercentage( YTD ), getYTDCellStyle(YTD));
 		    addToMap( grandTotal, YTD_HEADER , YTD );
 		    rowNumber++;
@@ -97,9 +97,9 @@ public class UtilizationXLSQuarterReport extends UtilizationXLSReport{
 	}
 
 	@Override
-	protected void generateGrandTotal(Sheet sheet, int rowNumber, Map<String, Integer> grandTotal) {
+	protected void generateGrandTotal(Sheet sheet, int rowNumber, Map<String, Number> grandTotal) {
 		Row row = sheet.createRow(rowNumber);
-		int YTD = grandTotal.get(YTD_HEADER)/grandTotal.get(NUMBER_OF_DATA_ROWS);
+		double YTD = grandTotal.get(YTD_HEADER).doubleValue()/grandTotal.get(NUMBER_OF_DATA_ROWS).doubleValue();
 
 	    setCell(row, EMPLOYEE_SERIAL_COLUMN_NUMBER, GRAND_TOTAL_HEADER, cellStyles.get(CellStyleUtils.GREEN_BOLD_TOTAL));
 	    setCell(row, EMPLOYEE_NAME_COLUMN_NUMBER, EMPTY_STRING, cellStyles.get(CellStyleUtils.GREEN_BOLD_TOTAL));
@@ -107,10 +107,10 @@ public class UtilizationXLSQuarterReport extends UtilizationXLSReport{
 	    
 	    int columnNumber = QUARTER_START_COLUMN_NUMBER;
 	    for( int quarterNumber = 1 ; quarterNumber < numberOfQuarters + 1 ; columnNumber++ , quarterNumber++) {
-		    setCell(row, columnNumber,grandTotal.get( String.valueOf( quarterNumber ) ), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
+		    setCell(row, columnNumber,grandTotal.get( String.valueOf( quarterNumber ) ).doubleValue(), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
 	    }
 
-	    setCell(row, columnNumber, grandTotal.get(GRAND_TOTAL_HEADER), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
+	    setCell(row, columnNumber, grandTotal.get(GRAND_TOTAL_HEADER).doubleValue(), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
 	    setCell(row, ++columnNumber, getPercentage( YTD ), getYTDTotalCellStyle(YTD) );
 	}
 

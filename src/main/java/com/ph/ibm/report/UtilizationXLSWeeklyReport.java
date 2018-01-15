@@ -64,13 +64,13 @@ public class UtilizationXLSWeeklyReport extends UtilizationXLSReport {
 	}
 
 	protected void generateDataRows(Sheet sheet) {
-		Map<String, Integer> grandTotal = new HashMap<String, Integer>();
+		Map<String, Number> grandTotal = new HashMap<String, Number>();
 	    addToMap( grandTotal, NUMBER_OF_DATA_ROWS , dataRows.size() );
 		int rowNumber = DATA_ROW_NUMBER;
 
 		for( UtilizationRowData data : dataRows ) {
 			Row row = sheet.createRow(rowNumber);
-		    int rowGrandTotal = 0;
+		    double rowGrandTotal = 0;
 		    int columnNumber = WEEK_START_COLUMN_NUMBER;
 
 		    setCell(row, EMPLOYEE_SERIAL_COLUMN_NUMBER, data.getEmpSerial());
@@ -85,7 +85,7 @@ public class UtilizationXLSWeeklyReport extends UtilizationXLSReport {
 		    setCell(row, columnNumber, rowGrandTotal, cellStyles.get(CellStyleUtils.CENTERED));
 		    addToMap( grandTotal, GRAND_TOTAL_HEADER , rowGrandTotal );
 
-			int YTD =  (int)( ( ( double ) rowGrandTotal/( numberOfWeeks * NUMBER_OF_HOURS_PER_WEEK ) ) * 100);
+			double YTD =  ( ( ( double ) rowGrandTotal/( numberOfWeeks * NUMBER_OF_HOURS_PER_WEEK ) ) * 100);
 		    setCell(row, ++columnNumber, getPercentage( YTD ), getYTDCellStyle(YTD));
 		    addToMap( grandTotal, YTD_HEADER , YTD );
 		    rowNumber++;
@@ -94,19 +94,19 @@ public class UtilizationXLSWeeklyReport extends UtilizationXLSReport {
 		generateGrandTotal( sheet , rowNumber ,grandTotal );
 	}
 
-	protected void generateGrandTotal(Sheet sheet, int rowNumber, Map<String, Integer> grandTotal) {
+	protected void generateGrandTotal(Sheet sheet, int rowNumber, Map<String, Number> grandTotal) {
 		Row row = sheet.createRow(rowNumber);
-		int YTD = grandTotal.get(YTD_HEADER)/grandTotal.get(NUMBER_OF_DATA_ROWS);
+		double YTD = grandTotal.get(YTD_HEADER).doubleValue()/grandTotal.get(NUMBER_OF_DATA_ROWS).doubleValue();
 
 	    setCell(row, EMPLOYEE_SERIAL_COLUMN_NUMBER, GRAND_TOTAL_HEADER, cellStyles.get(CellStyleUtils.GREEN_BOLD_TOTAL));
 	    setCell(row, EMPLOYEE_NAME_COLUMN_NUMBER, EMPTY_STRING, cellStyles.get(CellStyleUtils.GREEN_BOLD_TOTAL));
 
 	    int columnNumber = WEEK_START_COLUMN_NUMBER;
 	    for( int weekNumber = WEEK_START_INDEX ; columnNumber < numberOfWeeks + WEEK_START_COLUMN_NUMBER ; columnNumber++ , weekNumber++) {
-	    	setCell(row, columnNumber,grandTotal.get( String.valueOf( weekNumber ) ), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
+	    	setCell(row, columnNumber,grandTotal.get( String.valueOf( weekNumber ) ).doubleValue(), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
 	    }
 
-	    setCell(row, columnNumber, grandTotal.get(GRAND_TOTAL_HEADER), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
+	    setCell(row, columnNumber, grandTotal.get(GRAND_TOTAL_HEADER).doubleValue(), cellStyles.get(CellStyleUtils.GREEN_BOLD_CENTERED_TOTAL));
 	    setCell(row, ++columnNumber, getPercentage( YTD ), getYTDTotalCellStyle(YTD) );
 	}
 	
