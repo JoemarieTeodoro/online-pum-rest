@@ -43,6 +43,16 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
     PUMYearRepository pumYearRepository = new PUMYearRepositoryImpl();
 
+    public static final String LEAVE_DEFAULT_VALUE = "8";
+    public static final String LEAVE_STATUS_REMOVED = "Removed";
+    public static final String LEAVE_HO = "HO";
+    public static final String LEAVE_VL = "VL";
+    public static final String LEAVE_OL = "OL";
+    public static final String LEAVE_RC = "RC";
+    public static final String LEAVEID_Zero = "0";
+    public static final String LEAVE_STATUS_DRAFT = "draft";
+    public static final String LEAVE_STATUS_APPROVED = "Approved";
+	
     @Override
     public boolean addData( Employee employee ) throws SQLException, BatchUpdateException {
         boolean isAdmin = true;
@@ -761,7 +771,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         try{
             connection.setAutoCommit( false );
             String query = "INSERT INTO EMPLOYEE (" +
-                "Employee_ID,Email,Manager_ID, Project_Engagement_ID,FirstName,LastName,MiddleName,FullName,Password,isActive,Roll_In_Date, Roll_Off_Date, UpdateDate,UpdatedBy, Emp_Status) " +
+                "Employee_ID,Email,Manager_ID, Project_Engagement_ID,FirstName,LastName,MiddleName,FullName,Password,Emp_Status,isActive,Roll_In_Date, Roll_Off_Date,UpdateDate,UpdatedBy) " +
                 "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
             preparedStatement = connection.prepareStatement( query );
             preparedStatement.setString( 1, employeeUpdate.getEmployeeIdNumber() );
@@ -773,13 +783,13 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString( 7, employeeUpdate.getMiddleName() );
             preparedStatement.setString( 8, employeeUpdate.getFullName() );
             preparedStatement.setString( 9, empPassword );
-            preparedStatement.setBoolean( 10, isActive );
-            preparedStatement.setString( 11, employeeUpdate.getStartDate() );
-            preparedStatement.setString( 12, employeeUpdate.getEndDate() );
-            preparedStatement.setString( 13, new Timestamp(System.currentTimeMillis()).toString());
-            preparedStatement.setString( 14, Role.ADMIN.getRoleValue() );
-            preparedStatement.setString( 15, empStatus );
-            preparedStatement.execute();
+            preparedStatement.setString( 10, empStatus );
+            preparedStatement.setBoolean( 11, isActive );
+            preparedStatement.setString( 12, employeeUpdate.getStartDate() );
+            preparedStatement.setString( 13, employeeUpdate.getEndDate() );
+            preparedStatement.setString( 14, new Timestamp(System.currentTimeMillis()).toString());
+            preparedStatement.setString( 15, Role.ADMIN.getRoleValue() );
+            preparedStatement.executeUpdate();
             connection.commit();
             logger.info( OpumConstants.SUCCESSFULLY_SAVED_UPDATED_DATA );
             preparedStatement.close();
@@ -800,10 +810,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		connection.setAutoCommit(false);
 
-		String leaveType_HO = "HO";
-		String leaveType_VL = "VL";
-		String leaveType_RC = "8";
-		String leaveID_Zero = "0";
+		
 		
 		try {
 			String query_Core = "INSERT INTO EMPLOYEE_LEAVE (Employee_ID,Year_ID,Status,"
@@ -815,7 +822,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 					
 					int empLeaveID = 0;
 					if (emp.getEmployeeLeaveID()==null
-							|| emp.getEmployeeLeaveID().equals(leaveID_Zero)) {
+							|| emp.getEmployeeLeaveID().equals(LEAVEID_Zero)) {
 
 						boolean isHoliday = isValidHoliday(emp.getLeaveName(),
 								emp.getDate());
@@ -834,8 +841,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 						preparedStatement.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
 						preparedStatement.setInt(8, emp.getValue());
 
-						if ((emp.getLeaveName().equalsIgnoreCase(leaveType_HO) && isHoliday)
-								|| emp.getLeaveName().equalsIgnoreCase(leaveType_VL) || StringUtils.isNumeric(emp.getLeaveName())) {
+						if ((emp.getLeaveName().equalsIgnoreCase(LEAVE_HO) && isHoliday)
+								|| emp.getLeaveName().equalsIgnoreCase(LEAVE_VL) || StringUtils.isNumeric(emp.getLeaveName())) {
 							
 							preparedStatement.addBatch();
 							preparedStatement.executeUpdate();
@@ -878,14 +885,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		connection.setAutoCommit(false);
 		
-		String leaveDefaultValue = "8";
-		String leaveStatusRemoved = "Removed";
-		String leaveTypeVL = "VL";
-		String leaveTypeHO = "HO";
-		String leaveTypeRC = "RC";
-		String leaveStatusDraft = "draft";
-		String leaveStatusApproved = "Approved";
-
 		try {
 			String query = "UPDATE EMPLOYEE_LEAVE SET LEAVE_DATE=?, LEAVE_TYPE=?, STATUS=?, HOURS=? "
 					+ "WHERE EMPLOYEE_LEAVE_ID=?";
@@ -898,29 +897,29 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 				emp.setStatus(leaveStatusApproved);
 			}*/
 			if(isDraft) {
-				preparedStatement.setString(3, leaveStatusDraft);
-				emp.setStatus(leaveStatusDraft);
+				preparedStatement.setString(3, LEAVE_STATUS_DRAFT);
+				emp.setStatus(LEAVE_STATUS_DRAFT);
 			}
 			preparedStatement.setString(3, emp.getStatus());
 			
 			
-			if (emp.getLeaveName().equalsIgnoreCase(leaveDefaultValue)) {
-				preparedStatement.setString(3, leaveStatusRemoved);
+			if (emp.getLeaveName().equalsIgnoreCase(LEAVE_DEFAULT_VALUE)) {
+				preparedStatement.setString(3, LEAVE_STATUS_REMOVED);
 				
-				preparedStatement.setString(2, leaveTypeVL);
+				preparedStatement.setString(2, LEAVE_VL);
 
-				emp.setStatus(leaveStatusRemoved);
-				emp.setLeaveName(leaveTypeVL);
+				emp.setStatus(LEAVE_STATUS_REMOVED);
+				emp.setLeaveName(LEAVE_VL);
 			}
 			
-			if (emp.getLeaveName().equalsIgnoreCase(leaveTypeHO)) {
+			if (emp.getLeaveName().equalsIgnoreCase(LEAVE_HO)) {
 				if (isValidHoliday(emp.getLeaveName(), emp.getDate()))
-					preparedStatement.setString(3, leaveStatusRemoved);
+					preparedStatement.setString(3, LEAVE_STATUS_REMOVED);
 				
-				preparedStatement.setString(2, leaveTypeRC);
+				preparedStatement.setString(2, LEAVE_RC);
 
-				emp.setStatus(leaveStatusRemoved);
-				emp.setLeaveName(leaveTypeRC);
+				emp.setStatus(LEAVE_STATUS_REMOVED);
+				emp.setLeaveName(LEAVE_RC);
 			}
 			preparedStatement.setInt(4, emp.getValue());
 			preparedStatement.setInt(5, Integer.valueOf(emp.getEmployeeLeaveID()));
