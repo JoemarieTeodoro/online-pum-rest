@@ -842,8 +842,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 						preparedStatement.setInt(8, emp.getValue());
 
 						if ((emp.getLeaveName().equalsIgnoreCase(LEAVE_HO) && isHoliday)
-								|| emp.getLeaveName().equalsIgnoreCase(LEAVE_VL) || StringUtils.isNumeric(emp.getLeaveName())) {
-							
+								|| emp.getLeaveName().equalsIgnoreCase(LEAVE_VL)
+								|| emp.getLeaveName().equalsIgnoreCase(LEAVE_OL)
+								|| StringUtils.isNumeric(emp.getLeaveName())) {
+
 							preparedStatement.addBatch();
 							preparedStatement.executeUpdate();
 							connection.commit();
