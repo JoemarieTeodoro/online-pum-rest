@@ -162,8 +162,26 @@ public interface EmployeeRepository {
      * @return boolean
      * @throws SQLException
      */
-    public boolean updateEmployeeStatus( String serialNumber ) throws SQLException;
+    public boolean updateEmployeeStatusToInactive( String serialNumber ) throws SQLException;
 
+    /**
+     * This method is used to update employee status 'N' in employee table
+     *
+     * @param serialNumber
+     * @return boolean
+     * @throws SQLException
+     */
+    public boolean updateEmployeeStatusToActive( String serialNumber ) throws SQLException;
+    
+    /**
+     * This method is used to update employee status 'N' in employee table
+     *
+     * @param serialNumber
+     * @return boolean
+     * @throws SQLException
+     */
+    public String getManagerIdFromDB( String serialNumber ) throws SQLException;
+    
     /**
      * This method is used to retrieve employee details count
      *

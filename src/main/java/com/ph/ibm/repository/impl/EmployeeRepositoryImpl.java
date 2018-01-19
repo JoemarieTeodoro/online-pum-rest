@@ -418,8 +418,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         try{        	
-        	updateEmployeeStatus(employeeUpdate.getEmployeeIdNumber());        	
             addUpdatedEmployee(employeeUpdate);
+            updateEmployeeStatusToInactive(employeeUpdate.getEmployeeIdNumber());        	
+            updateEmployeeStatusToActive(employeeUpdate.getEmployeeIdNumber());        	
+
             return true;
         }
         catch( SQLException e ){
@@ -471,7 +473,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString( 17, employee.getUpdatedBy() );
             preparedStatement.addBatch();
             saveEmployeeRole( employee.getEmployeeSerial(), role );
-            updateEmployeeStatus( employee.getEmployeeSerial() );
+            updateEmployeeStatusToInactive( employee.getEmployeeSerial() );
         }
 
         preparedStatement.executeBatch();
@@ -644,7 +646,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
      * @see com.ph.ibm.repository.EmployeeRepository#updateEmployeeStatus(java.lang.String)
      */
     @Override
-    public boolean updateEmployeeStatus( String serialNumber ) throws SQLException {
+    public boolean updateEmployeeStatusToInactive( String serialNumber ) throws SQLException {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         try{
@@ -765,7 +767,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 	public boolean addUpdatedEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException {
         String empPassword = retrieveRecentPassword(employeeUpdate.getEmployeeIdNumber());
         boolean isActive = true;
-        String empStatus = "A";
+        final String newUpdatedEmpStatus = "N";
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         try{
@@ -776,14 +778,14 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement = connection.prepareStatement( query );
             preparedStatement.setString( 1, employeeUpdate.getEmployeeIdNumber() );
             preparedStatement.setString( 2, employeeUpdate.getEmail() );
-            preparedStatement.setString( 3, employeeUpdate.getManagerSerial());
+            preparedStatement.setString( 3, getManagerIdFromDB(employeeUpdate.getEmployeeIdNumber()));
             preparedStatement.setString( 4, null );
             preparedStatement.setString( 5, employeeUpdate.getFirstName());
             preparedStatement.setString( 6, employeeUpdate.getLastName() );
             preparedStatement.setString( 7, employeeUpdate.getMiddleName() );
             preparedStatement.setString( 8, employeeUpdate.getFullName() );
             preparedStatement.setString( 9, empPassword );
-            preparedStatement.setString( 10, empStatus );
+            preparedStatement.setString( 10, newUpdatedEmpStatus );
             preparedStatement.setBoolean( 11, isActive );
             preparedStatement.setString( 12, employeeUpdate.getStartDate() );
             preparedStatement.setString( 13, employeeUpdate.getEndDate() );
@@ -1004,6 +1006,55 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 			logger.error(e.getMessage());
 		}
 		return false;
+
+	}
+
+	@Override
+	public boolean updateEmployeeStatusToActive(String serialNumber) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        try{
+            connection.setAutoCommit( false );
+            String query = "UPDATE EMPLOYEE SET EMP_STATUS = 'A' WHERE EMPLOYEE_ID = ? AND EMP_STATUS = 'N';";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, serialNumber );
+            preparedStatement.executeUpdate();
+            connection.commit();
+            logger.info( OpumConstants.UPDATED_SUCCESS );
+            return true;
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement );
+        }
+        return false;
+	}
+
+	@Override
+	public String getManagerIdFromDB(String serialNumber) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String managerId = null;
+        try{
+            String query = "SELECT Manager_ID FROM employee where Employee_ID=?";
+            preparedStatement = connection.prepareStatement( query );
+            preparedStatement.setString( 1, serialNumber );
+            resultSet = preparedStatement.executeQuery();
+            if( resultSet.next() ){
+            	managerId = resultSet.getString( 1 );
+
+            }
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+        return managerId;
 
 	}
 
