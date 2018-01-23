@@ -6,6 +6,8 @@ import static com.ph.ibm.util.OpumConstants.COUNT_OF_WEEKS_PER_QUARTER;
 import static com.ph.ibm.util.OpumConstants.TOTAL_NUMBER_OF_WEEKS;
 import static com.ph.ibm.util.OpumConstants.TOTAL_WEEKLY_HOURS;
 
+import java.sql.SQLException;
+
 /**
  * 
  * @author <a HREF="mailto:dacanam@ph.ibm.com">Marjay Dacanay</a>
@@ -43,12 +45,14 @@ public class UtilizationBO {
 
     private Logger logger = Logger.getLogger( UtilizationBO.class );
 
-    public Utilization getEmployeeUtilization( String serial, String year ) {
+    public Utilization getEmployeeUtilization( String serial, String year ) throws SQLException {
+        String yearId = utilizationRepository.retrieveYearID( year );
         List<String> lstForecastedUtilization = new ArrayList<String>();
         List<String> lstActualUtilization = new ArrayList<String>();
         List<String> lstCombinedUtilization = new ArrayList<String>();
         Utilization utilization = new Utilization();
         try{
+            utilizationRepository.updateUtilizationHours( serial, yearId, utilizationRepository.getEmployeeWeeklyHours( serial, yearId ), OpumConstants.FORECAST_UTILIZATION );
             lstForecastedUtilization = computeEmployeeUtilization(utilizationRepository.getEmployeeUtilization( serial, year, OpumConstants.FORECAST_UTILIZATION ) );
             lstActualUtilization = computeEmployeeUtilization( utilizationRepository.getEmployeeUtilization( serial, year, OpumConstants.ACTUAL_UTILIZATION ) );
             lstCombinedUtilization = computeEmployeeUtilization( utilizationRepository.getCombinedUtilization( serial, year) );
