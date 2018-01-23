@@ -807,21 +807,16 @@ public class OnlinePUMResource {
      */
     @POST
     @Path( "/updateHoliday" )
-    @Consumes( MediaType.APPLICATION_JSON )
-    public String updateHoliday( Holiday holiday, @Context HttpHeaders header ) throws Exception {
-        /*
-         * MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
-         * String email = headerParams.getFirst("username"); String password =
-         * headerParams.getFirst("password"); if (!(authenticateUser(email, password)))
-         * { logger.error(OpumConstants.UNAUTHORIZED); return
-         * Response.Status.UNAUTHORIZED.toString(); }
-         */
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response updateHoliday(Holiday holiday) throws Exception {
         logger.info( "START updateHoliday" );
         try{
             holidayBO = new HolidayBO();
             logger.info( "END updateEmployeeDetails" );
-            return holidayBO.updateHoliday( holiday ) ? Response.Status.OK.toString()
-                            : Response.Status.INTERNAL_SERVER_ERROR.toString();
+			return holidayBO.updateHoliday(holiday)
+					? Response.status(Status.OK).entity(OpumConstants.MSG_UPDATED_HOLIDAY).build()
+					: Response.status(Status.NOT_ACCEPTABLE).entity(OpumConstants.MSG_ERROR_UPDATING_HOLIDAY).build();
         }
         catch( Exception e ){
             logger.error( e );
@@ -843,20 +838,14 @@ public class OnlinePUMResource {
     @Path( "/deleteHoliday" )
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.TEXT_PLAIN )
-    public String deleteHoliday( Holiday holiday, @Context HttpHeaders header ) throws Exception {
-        /*
-         * MultivaluedMap<String, String> headerParams = header.getRequestHeaders();
-         * String email = headerParams.getFirst("username"); String password =
-         * headerParams.getFirst("password"); if (!(authenticateUser(email, password)))
-         * { logger.error(OpumConstants.UNAUTHORIZED); return
-         * Response.Status.UNAUTHORIZED.toString(); }
-         */
+	public Response deleteHoliday(Holiday holiday) throws Exception {
         logger.info( "START deleteHoliday" );
         try{
             holidayBO = new HolidayBO();
             logger.info( "END deleteHoliday" );
-            return holidayBO.deleteHoliday( holiday ) ? Response.Status.OK.toString()
-                            : Response.Status.INTERNAL_SERVER_ERROR.toString();
+			return holidayBO.deleteHoliday(holiday)
+					? Response.status(Status.OK).entity(OpumConstants.MSG_DELETED_HOLIDAY).build()
+					: Response.status(Status.NOT_ACCEPTABLE).entity(OpumConstants.MSG_ERROR_DELETING_HOLIDAY).build();
         }
         catch( Exception e ){
             logger.error( e );

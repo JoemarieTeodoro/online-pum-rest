@@ -66,7 +66,12 @@ public class HolidayBO {
 	 * @throws SQLException 
 	 */
 	public boolean updateHoliday(Holiday holiday) throws SQLException {
-		return holidayEngagementRepository.updateHolidayEngagement(holiday);
+		if (holidayEngagementRepository.updateHolidayEngagement(holiday)) {
+			holidayEngagementRepository.updateHolidayInFiscalYearTemplate(holiday, pumYearRepository.retrieveCurrentFY());
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -74,8 +79,13 @@ public class HolidayBO {
 	 * @return boolean
 	 * @throws SQLException
 	 */
-	public boolean deleteHoliday(Holiday holiday) throws SQLException {
-		return holidayEngagementRepository.deleteHoliday(holiday);
+	public boolean deleteHoliday(Holiday holiday) throws SQLException{
+		if (holidayEngagementRepository.deleteHoliday(holiday)) {
+			holidayEngagementRepository.deleteHolidayInFiscalYearTemplate((holiday), pumYearRepository.retrieveCurrentFY());
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**

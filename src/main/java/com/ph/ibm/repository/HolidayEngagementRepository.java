@@ -49,4 +49,7 @@ public interface HolidayEngagementRepository {
 	 */
 	public boolean deleteHoliday(Holiday holiday) throws SQLException;
 
+	public void deleteHolidayInFiscalYearTemplate(Holiday holiday, PUMYear retrieveCurrentFY);
+
+	public void updateHolidayInFiscalYearTemplate(Holiday holiday, PUMYear retrieveCurrentFY);
 }

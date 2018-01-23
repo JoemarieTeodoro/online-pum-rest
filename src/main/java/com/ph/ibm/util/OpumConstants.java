@@ -118,5 +118,11 @@ public class OpumConstants {
     public static final int PERCENTAGE = 100;
     public static final String ACTUAL_UTILIZATION = "ACTUAL";
     public static final String FORECAST_UTILIZATION = "FORECAST";
+    
+    /** Holiday messages **/
+	public static final String MSG_UPDATED_HOLIDAY = "Holiday updated!";
+	public static final String MSG_ERROR_UPDATING_HOLIDAY = "Error updating holiday!";
+	public static final String MSG_DELETED_HOLIDAY = "Holiday deleted!";
+	public static final String MSG_ERROR_DELETING_HOLIDAY = "Error deleting holiday!";
 
 }
