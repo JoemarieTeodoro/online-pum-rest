@@ -491,15 +491,16 @@ BEGIN
 SELECT 
         `fy`.`Date` AS `date`,
         employeeId,
-        `el`.`Employee_Leave_ID` AS `Employee_Leave_ID`,
-        `fy`.`Year_ID` AS `Year_ID`,
+        `fy`.`Year_ID`,
+        `el`.`employee_leave_id`,
+        `el`.`Status`,
         (CASE
-            WHEN (`el`.`Leave_Type` = 'RC') THEN `el`.`Hours`
-            WHEN (`el`.`Status` = 'Approved') THEN 0
+            WHEN (`el`.`Status` = 'Approved' && `el`.`Leave_Type` != 'RC') THEN 0
+            WHEN (`el`.`Status` = 'Approved' && `el`.`Leave_Type` = 'RC') THEN `el`.`Hours`
             ELSE `fy`.`Value`
         END) AS `Hours`,
         (CASE
-            WHEN (`el`.`Status` = 'Approved' || `el`.`Status` = 'Pending') THEN `el`.`Leave_Type`
+            WHEN (`el`.`Status` = 'Approved' ||  `el`.`Status`='pending' || `el`.`Status`='draft') THEN `el`.`Leave_Type`
             ELSE `fy`.`Event_Name`
         END) AS `Event_Name`,
         `fy`.`Is_Holiday` AS `Is_Holiday`
@@ -523,6 +524,16 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+
+/*!50003 DROP PROCEDURE IF EXISTS `getCombinedUtilization` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCombinedUtilization`(IN employeeId varchar(40), IN currFY INT)
 BEGIN
