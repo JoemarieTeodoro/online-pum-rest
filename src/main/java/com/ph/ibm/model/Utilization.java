@@ -17,6 +17,17 @@ public class Utilization extends BaseAuditBean{
 	private String actualQuarter4;
 	private String actualYtd;
 
+    //combined actual + forecast util
+    private String combinedQuarter1;
+
+    private String combinedQuarter2;
+
+    private String combinedQuarter3;
+
+    private String combinedQuarter4;
+
+    private String combinedYtd;
+
 	public Utilization() {
 		super();
 	}
@@ -208,6 +219,46 @@ public class Utilization extends BaseAuditBean{
 	public void setUtilizationJson(String utilizationJson) {
 		this.utilizationJson = utilizationJson;
 	}
+
+    public String getCombinedQuarter1() {
+        return combinedQuarter1;
+    }
+
+    public void setCombinedQuarter1( String combinedQuarter1 ) {
+        this.combinedQuarter1 = combinedQuarter1;
+    }
+
+    public String getCombinedQuarter2() {
+        return combinedQuarter2;
+    }
+
+    public void setCombinedQuarter2( String combinedQuarter2 ) {
+        this.combinedQuarter2 = combinedQuarter2;
+    }
+
+    public String getCombinedQuarter3() {
+        return combinedQuarter3;
+    }
+
+    public void setCombinedQuarter3( String combinedQuarter3 ) {
+        this.combinedQuarter3 = combinedQuarter3;
+    }
+
+    public String getCombinedQuarter4() {
+        return combinedQuarter4;
+    }
+
+    public void setCombinedQuarter4( String combinedQuarter4 ) {
+        this.combinedQuarter4 = combinedQuarter4;
+    }
+
+    public String getCombinedYtd() {
+        return combinedYtd;
+    }
+
+    public void setCombinedYtd( String combinedYtd ) {
+        this.combinedYtd = combinedYtd;
+    }
 
 }
  

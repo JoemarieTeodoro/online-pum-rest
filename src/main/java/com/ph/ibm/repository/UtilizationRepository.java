@@ -54,4 +54,12 @@ public interface UtilizationRepository {
 	
 	public boolean isEmployeeInUtilization(String serial, int yearId, String utilizationType) throws SQLException;
 
+    /**
+     * @param serial
+     * @param year
+     * @return
+     * @throws SQLException
+     */
+    public List<Double> getCombinedUtilization( String serial, String year ) throws SQLException;
+
 }

@@ -1,6 +1,9 @@
 
 package com.ph.ibm.repository.impl;
 
+import static com.ph.ibm.util.OpumConstants.TOTAL_NUMBER_OF_WEEKS;
+
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -264,13 +267,13 @@ public class UtilizationRepositoryImpl implements UtilizationRepository {
             preparedStatement.setString( SQL_GET_EMPLOYEE_UTILIZATION_TYPE, utilizationType );
             resultSet = preparedStatement.executeQuery();
             if( resultSet.next() ){
-                    for( idxWeekCol = 1; idxWeekCol <= OpumConstants.TOTAL_NUMBER_OF_WEEKS; idxWeekCol++ ){
-                        utilizationHours.add( resultSet.getDouble( "week" + idxWeekCol ) );
-                    }
+                for( idxWeekCol = 1; idxWeekCol <= TOTAL_NUMBER_OF_WEEKS; idxWeekCol++ ){
+                    utilizationHours.add( resultSet.getDouble( "week" + idxWeekCol ) );
+                }
             }
             else{
-                    for( idxWeekCol = 1; idxWeekCol <= OpumConstants.TOTAL_NUMBER_OF_WEEKS; idxWeekCol++ ){
-                        utilizationHours.add( ZERO_HOURS );
+                for( idxWeekCol = 1; idxWeekCol <= TOTAL_NUMBER_OF_WEEKS; idxWeekCol++ ){
+                    utilizationHours.add( ZERO_HOURS );
                 }
             }
         }
@@ -360,5 +363,44 @@ public class UtilizationRepositoryImpl implements UtilizationRepository {
         }
 
         return empWeekHoursMap;
+    }
+
+    /**
+     * This method is used to retrieve the combined actual and forecasted hours using a stored procedure
+     * 
+     * @param serial
+     * @param year
+     * @return
+     * @throws SQLException
+     */
+    @Override
+    public List<Double> getCombinedUtilization( String serial, String year ) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String year_id = retrieveYearID( year );
+        List<Double> lstCombinedUtilizationHours = new ArrayList<Double>();
+        int idxWeekCol = 1;
+        try{
+            CallableStatement cStmt = connection.prepareCall( SqlQueries.SQL_GET_EMPLOYEE_COMBINED_UTILIZATION );
+            cStmt.setString( 1, serial );
+            cStmt.setInt( 2, Integer.valueOf( year_id ) );
+            resultSet = cStmt.executeQuery();
+            if( resultSet.next() ){
+                for( idxWeekCol = 1; idxWeekCol <= TOTAL_NUMBER_OF_WEEKS; idxWeekCol++ ){
+                    lstCombinedUtilizationHours.add( resultSet.getDouble( "week" + idxWeekCol ) );
+                }
+            }
+            else{
+                lstCombinedUtilizationHours = getEmployeeUtilization( serial, year, OpumConstants.FORECAST_UTILIZATION );
+            }
+        }
+        catch( SQLException e ){
+            e.printStackTrace();
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+        return lstCombinedUtilizationHours;
     }
 }

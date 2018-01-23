@@ -605,7 +605,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             CallableStatement cStmt = connection.prepareCall( "{call getEmpUtil(?,?)}" );
             cStmt.setString( 1, empId );
             cStmt.setInt( 2, Integer.valueOf( currFY ) );
-
             resultSet = cStmt.executeQuery();
             while(resultSet.next()) {
             	EmployeeLeave empLeave = new EmployeeLeave();
@@ -631,6 +630,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             }
         }
         catch( SQLException e ){
+            logger.error( e.getStackTrace() );
             logger.error( e.getMessage() );
         }
         finally{

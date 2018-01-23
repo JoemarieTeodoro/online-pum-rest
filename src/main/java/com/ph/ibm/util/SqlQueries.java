@@ -109,6 +109,8 @@ public class SqlQueries {
 
 	  public static final String SQL_GET_EMPLOYEE_UTILIZATION = " SELECT * FROM opum.utilization WHERE employee_serial = ? AND year_id = ? AND type = ? ";
 
+    public static final String SQL_GET_EMPLOYEE_COMBINED_UTILIZATION = "CALL getCombinedUtilization(?,?)";
+
     public static final String SQL_SAVE_UTILIZATION = "INSERT INTO UTILIZATION (" + "EMPLOYEE_ID, YEAR, " +
     		"UTILIZATION_JSON, CREATEDBY, UPDATEDBY) VALUES (?,?,?,?,?);";
 

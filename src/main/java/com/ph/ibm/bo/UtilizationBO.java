@@ -22,6 +22,11 @@ import com.ph.ibm.repository.UtilizationRepository;
 import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
 import com.ph.ibm.util.OpumConstants;
 
+/**
+ * @author <a HREF="mailto:dacanam@ph.ibm.com">Marjay Dacanay</a>
+ * @author <a HREF="mailto:balocaj@ph.ibm.com">Jerven Balocating</a>
+ */
+
 public class UtilizationBO {
 
     private static final int FIFTH_COLUMN = 4;
@@ -41,11 +46,13 @@ public class UtilizationBO {
     public Utilization getEmployeeUtilization( String serial, String year ) {
         List<String> lstForecastedUtilization = new ArrayList<String>();
         List<String> lstActualUtilization = new ArrayList<String>();
+        List<String> lstCombinedUtilization = new ArrayList<String>();
         Utilization utilization = new Utilization();
         try{
             lstForecastedUtilization = computeEmployeeUtilization(utilizationRepository.getEmployeeUtilization( serial, year, OpumConstants.FORECAST_UTILIZATION ) );
             lstActualUtilization = computeEmployeeUtilization( utilizationRepository.getEmployeeUtilization( serial, year, OpumConstants.ACTUAL_UTILIZATION ) );
-            utilization = setUtilization( lstForecastedUtilization, lstActualUtilization );
+            lstCombinedUtilization = computeEmployeeUtilization( utilizationRepository.getCombinedUtilization( serial, year) );
+            utilization = setUtilization( lstForecastedUtilization, lstActualUtilization, lstCombinedUtilization );
         }
         catch( Exception e ){
             e.printStackTrace();
@@ -119,25 +126,31 @@ public class UtilizationBO {
     /**
      * Method to set the utilization from list to Utilization object
      * 
-     * @param employeeForecastedUtilization
+     * @param lstEmployeeForecastedUtilization
      * @return utilization
      */
 
-    public Utilization setUtilization( List<String> employeeForecastedUtilization, List<String> employeeActualUtilization ) {
+    public Utilization setUtilization( List<String> lstEmployeeForecastedUtilization, List<String> lstEmployeeActualUtilization, List<String> lstemployeeCombinedUtilization ) {
 
         Utilization utilization = new Utilization();
         //set forecasted utilization to object
-        utilization.setForecastedQuarter1( employeeForecastedUtilization.get( FIRST_COLUMN ) );
-        utilization.setForecastedQuarter2( employeeForecastedUtilization.get( SECOND_COLUMN ) );
-        utilization.setForecastedQuarter3( employeeForecastedUtilization.get( THIRD_COLUMN ) );
-        utilization.setForecastedQuarter4( employeeForecastedUtilization.get( FOURTH_COLUMN ) );
-        utilization.setForecastedYtd( employeeForecastedUtilization.get( FIFTH_COLUMN ) );
+        utilization.setForecastedQuarter1( lstEmployeeForecastedUtilization.get( FIRST_COLUMN ) );
+        utilization.setForecastedQuarter2( lstEmployeeForecastedUtilization.get( SECOND_COLUMN ) );
+        utilization.setForecastedQuarter3( lstEmployeeForecastedUtilization.get( THIRD_COLUMN ) );
+        utilization.setForecastedQuarter4( lstEmployeeForecastedUtilization.get( FOURTH_COLUMN ) );
+        utilization.setForecastedYtd( lstEmployeeForecastedUtilization.get( FIFTH_COLUMN ) );
         //set actual utilization to object
-        utilization.setActualQuarter1( employeeActualUtilization.get( FIRST_COLUMN ) );
-        utilization.setActualQuarter2( employeeActualUtilization.get( SECOND_COLUMN ) );
-        utilization.setActualQuarter3( employeeActualUtilization.get( THIRD_COLUMN ) );
-        utilization.setActualQuarter4( employeeActualUtilization.get( FOURTH_COLUMN ) );
-        utilization.setActualYtd( employeeActualUtilization.get( FIFTH_COLUMN ) );
+        utilization.setActualQuarter1( lstEmployeeActualUtilization.get( FIRST_COLUMN ) );
+        utilization.setActualQuarter2( lstEmployeeActualUtilization.get( SECOND_COLUMN ) );
+        utilization.setActualQuarter3( lstEmployeeActualUtilization.get( THIRD_COLUMN ) );
+        utilization.setActualQuarter4( lstEmployeeActualUtilization.get( FOURTH_COLUMN ) );
+        utilization.setActualYtd( lstEmployeeActualUtilization.get( FIFTH_COLUMN ) );
+        //set combined utilization to object
+        utilization.setCombinedQuarter1( lstemployeeCombinedUtilization.get( FIRST_COLUMN ) );
+        utilization.setCombinedQuarter2( lstemployeeCombinedUtilization.get( SECOND_COLUMN ) );
+        utilization.setCombinedQuarter3( lstemployeeCombinedUtilization.get( THIRD_COLUMN ) );
+        utilization.setCombinedQuarter4( lstemployeeCombinedUtilization.get( FOURTH_COLUMN ) );
+        utilization.setCombinedYtd( lstemployeeCombinedUtilization.get( FIFTH_COLUMN ) );
 
         return utilization;
 
