@@ -12,6 +12,7 @@ public class EmployeeLeave {
 	private String createDate;
 	private String updateDate;
 	private boolean isHoliday;
+	private boolean isLocked;
 	
 	@Override
 	public String toString()
@@ -102,5 +103,13 @@ public class EmployeeLeave {
 
 	public void setValue(int value) {
 		this.value = value;
+	}
+
+	public boolean isLocked() {
+		return isLocked;
+	}
+
+	public void setLocked(boolean isLocked) {
+		this.isLocked = isLocked;
 	}
 }

@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -600,31 +601,29 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         Connection connection = connectionPool.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-
+        
         try{
             CallableStatement cStmt = connection.prepareCall( "{call getEmpUtil(?,?)}" );
             cStmt.setString( 1, empId );
             cStmt.setInt( 2, Integer.valueOf( currFY ) );
             resultSet = cStmt.executeQuery();
+            
             while(resultSet.next()) {
+            	LocalDate currentDate = LocalDate.parse(resultSet.getDate("date").toString());
             	EmployeeLeave empLeave = new EmployeeLeave();
                 empLeave.setEmployeeID(resultSet.getString("employeeid"));
                 empLeave.setStatus(resultSet.getString("status"));
-                empLeave.setDate(resultSet.getDate("date").toString());
+                empLeave.setDate(currentDate.toString());
                 empLeave.setYearID(String.valueOf(resultSet.getInt("year_id")));
                 empLeave.setEmployeeLeaveID(String.valueOf(resultSet.getInt("employee_leave_id")));
                 empLeave.setHoliday(resultSet.getBoolean("is_holiday"));
-                String hours = resultSet.getString("hours");
+				empLeave.setLocked(currentDate.isBefore(LocalDate.now()));
 				if (resultSet.getString("event_name") != null && !resultSet.getString("event_name").isEmpty()
 						&& !resultSet.getString("event_name").equalsIgnoreCase("RC")) {
 					empLeave.setLeaveName(resultSet.getString("event_name"));
-                	/**
-                	 *  set status to pending since this leave is not yet approved
-                	 */
-                	
-                } else {
-                	empLeave.setLeaveName(resultSet.getString("hours"));
-                }
+				} else {
+					empLeave.setLeaveName(resultSet.getString("hours"));
+				}
                 empLeave.setHoliday( resultSet.getBoolean( "is_holiday" ) );
                 empLeaveList.add( empLeave );
             }
