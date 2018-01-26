@@ -49,8 +49,8 @@ public class OpumConstants {
     public static final String EMPTY_EMPLOYEE_ROLE = "EMPLOYEE ROLE SHOULD NOT BE EMPTY";
     public static final String EMPTY_EMPLOYEE_SERIAL = "EMPLOYEE SERIAL SHOULD NOT BE EMPTY";
     public static final String EMPLOYEE_HAS_NO_TEAM = "EMPLOYEE HAS NO CORRESPONDING TEAM YET";
-    
     public static final String EMPLOYEE_SERIAL_DOES_NOT_EXIST_IBM = "EMPLOYEE SERIAL DOES NOT EXIST IN IBM DIRECTORY";
+    public static final String INVALID_DESIGNATION = "INVALID EMPLOYEE DESIGNATION";
 
 	/** NOTIFICATION MESSAGE/s */
 	public static final String SUCCESSFULLY_SAVED = "SUCCESSFULLY SAVED";

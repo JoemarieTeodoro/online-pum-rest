@@ -36,6 +36,8 @@ public class ValidationUtils
 	
     public static final String VALID_RECOVERABLE_REGEX = "^(?:Y|N)$";
 
+    public static final String VALID_DESIGNATION_REGEX = "^((?i)ONSHORE(?-i)|(?i)OFFSHORE(?-i))$";
+
     public static final String VALID_TEAM_NAME_REGEX = "^([A-Za-z0-9]+[ ]{0,1})*([A-Za-z0-9]+[ ]{0,1})*$";
 
 	public static String CAUSE_OF_ERROR = "CAUSE OF ERROR: ";

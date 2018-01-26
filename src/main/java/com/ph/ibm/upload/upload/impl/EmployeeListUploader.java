@@ -40,6 +40,8 @@ public class EmployeeListUploader extends CsvUploaderBase {
 
     private static final String SERIAL_COLUMN_HEADER = "Serial";
 
+    private static final String DESIGNATION_COLUMN_HEADER = "Designation";
+
     /** Data Access Object to employee table */
     private EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
@@ -50,7 +52,7 @@ public class EmployeeListUploader extends CsvUploaderBase {
     private Logger logger = Logger.getLogger( EmployeeListUploader.class );
 
     /** Size of header column */
-    private static final int ROW_HEADER_COLUMN_SIZE = 5;
+    private static final int ROW_HEADER_COLUMN_SIZE = 6;
 
     /**
      * Used when Super Administrator uploads the list of Admin Users
@@ -118,6 +120,7 @@ public class EmployeeListUploader extends CsvUploaderBase {
         employee.setIntranetId( row.get( 2 ) );
         employee.setRollInDate( row.get( 3 ) );
         employee.setRollOffDate( row.get( 4 ) );
+        employee.setDesignation( row.get( 5 ) );
         employeeValidator.validate( employee );
         employee.setManagerSerial( BluePagesUtils.getManagerSerial( employee ) );
         return employee;
@@ -130,8 +133,8 @@ public class EmployeeListUploader extends CsvUploaderBase {
      * @throws InvalidCSVException when row value is not valid
      */
     private void checkRowIntegrity( List<String> rows ) throws InvalidCSVException {
-        if( rows == null || rows.isEmpty() || rows.size() != 5 || rows.get( 0 ).isEmpty() || rows.get( 1 ).isEmpty() ||
-            rows.get( 2 ).isEmpty() || rows.get( 3 ).isEmpty() || rows.get( 4 ).isEmpty() ){
+        if( rows == null || rows.isEmpty() || rows.size() != 6 || rows.get( 0 ).isEmpty() || rows.get( 1 ).isEmpty() ||
+            rows.get( 2 ).isEmpty() || rows.get( 3 ).isEmpty() || rows.get( 4 ).isEmpty() || rows.get( 5 ).isEmpty() ){
             throw new InvalidCSVException( null, OpumConstants.EMPTY_CSV_ERROR );
         }
     }
@@ -146,7 +149,9 @@ public class EmployeeListUploader extends CsvUploaderBase {
             row.get( 1 ).equalsIgnoreCase( EMPLOYEE_COLUMN_HEADER ) &&
             row.get( 2 ).equalsIgnoreCase( EMAIL_COLUMN_HEADER ) &&
             row.get( 3 ).equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
-            row.get( 4 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) && row.size() == ROW_HEADER_COLUMN_SIZE );
+            row.get( 4 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) &&
+            row.get( 5 ).equalsIgnoreCase( DESIGNATION_COLUMN_HEADER ) && 
+            row.size() == ROW_HEADER_COLUMN_SIZE );
     }
 
     /**
@@ -156,8 +161,9 @@ public class EmployeeListUploader extends CsvUploaderBase {
     @Override
     protected String getHeaders() {
         String header =
-            String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s | %s", SERIAL_COLUMN_HEADER,
-                EMPLOYEE_COLUMN_HEADER, EMAIL_COLUMN_HEADER, ROLL_IN_DATE_COLUMN_HEADER, ROLL_OFF_DATE_COLUMN_HEADER );
+            String.format( "INVALID HEADER FOUND!\nShould match:\n%s | %s | %s | %s | %s | %s", SERIAL_COLUMN_HEADER,
+                EMPLOYEE_COLUMN_HEADER, EMAIL_COLUMN_HEADER, ROLL_IN_DATE_COLUMN_HEADER, ROLL_OFF_DATE_COLUMN_HEADER,
+                DESIGNATION_COLUMN_HEADER );
         return header;
     }
 

@@ -442,8 +442,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         String empStatus = "A";
         connection.setAutoCommit( false );
         String query = "INSERT INTO EMPLOYEE (" +
-            "Employee_ID,Email,Manager_ID, Project_Engagement_ID,FirstName,LastName,MiddleName,FullName,Password,Emp_Status,isActive,Roll_In_Date, Roll_Off_Date, CreateDate,CreatedBy,UpdateDate,UpdatedBy) " +
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
+            "Employee_ID,Email,Manager_ID, Project_Engagement_ID,FirstName,LastName,MiddleName,FullName,Password,Emp_Status,isActive,Roll_In_Date, Roll_Off_Date, Designation, CreateDate,CreatedBy,UpdateDate,UpdatedBy) " +
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); ";
         preparedStatement = connection.prepareStatement( query );
 
         for( Employee employee : employees ){
@@ -468,10 +468,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setBoolean( 11, isActive );
             preparedStatement.setString( 12, dateFormat( employee.getRollInDate() ) );
             preparedStatement.setString( 13, dateFormat( employee.getRollOffDate() ) );
-            preparedStatement.setString( 14, employee.getCreateDate() );
-            preparedStatement.setString( 15, role.getRoleValue() );
-            preparedStatement.setString( 16, employee.getUpdateDate() );
-            preparedStatement.setString( 17, employee.getUpdatedBy() );
+            preparedStatement.setString( 14, employee.getDesignation().toUpperCase() );
+            preparedStatement.setString( 15, employee.getCreateDate() );
+            preparedStatement.setString( 16, role.getRoleValue() );
+            preparedStatement.setString( 17, employee.getUpdateDate() );
+            preparedStatement.setString( 18, employee.getUpdatedBy() );
             preparedStatement.addBatch();
             saveEmployeeRole( employee.getEmployeeSerial(), role );
             updateEmployeeStatusToInactive( employee.getEmployeeSerial() );

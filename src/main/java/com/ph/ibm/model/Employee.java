@@ -40,13 +40,7 @@ public class Employee extends BaseAuditBean {
     
     private Boolean isTeamLead;
 
-    public Boolean getIsTeamLead() {
-		return isTeamLead;
-	}
-
-	public void setIsTeamLead(Boolean isTeamLead) {
-		this.isTeamLead = isTeamLead;
-	}
+    private String designation;
 
 	public Employee() {
         super();
@@ -202,6 +196,28 @@ public class Employee extends BaseAuditBean {
         this.rollOffDate = rollOffDate;
     }
     
+    /**
+     * @return the designation
+     */
+    public String getDesignation() {
+        return designation;
+    }
+
+    /**
+     * @param designation the designation to set
+     */
+    public void setDesignation( String designation ) {
+        this.designation = designation;
+    }
+
+    public Boolean getIsTeamLead() {
+        return isTeamLead;
+    }
+
+    public void setIsTeamLead( Boolean isTeamLead ) {
+        this.isTeamLead = isTeamLead;
+    }
+
     @Override
     public String toString(){
     	return String.format( "Employee!\n\nSerial No: %s \nFull Name: %s \nIntranet Id: %s \nRoll In Date: %s \nRoll Off date: %s",

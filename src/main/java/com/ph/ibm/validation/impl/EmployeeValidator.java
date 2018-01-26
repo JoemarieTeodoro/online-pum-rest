@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.opum.exception.InvalidCSVException;
 import com.ph.ibm.repository.EmployeeRepository;
-import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.BluePagesUtils;
+import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.ValidationUtils;
 import com.ph.ibm.validation.Validator;
 
@@ -32,6 +32,7 @@ public class EmployeeValidator implements Validator<Employee> {
     public boolean validate( Employee employee ) throws InvalidCSVException, SQLException {
 
         boolean isValid = !isEmployeeValueEmpty( employee ) && 
+                        isValidDesignation(employee) &&
                         isValidEmployeeSerial( employee ) &&
                         isEmployeeIdExisting( employee ) &&
                         isValidEmployeeName( employee ) &&
@@ -128,5 +129,16 @@ public class EmployeeValidator implements Validator<Employee> {
     protected boolean isValidEmployeeName( Employee employee ) throws InvalidCSVException {
         return ValidationUtils.regexValidator( employee, employee.getFullName(), ValidationUtils.VALID_NAME_REGEX,
             OpumConstants.INVALID_NAME );
+    }
+
+    /**
+     * This method validate the format of employee name
+     *
+     * @param employeeName
+     * @return true if name matches the regular expression pattern
+     * @throws InvalidCSVException
+     */
+    protected boolean isValidDesignation( Employee employee ) throws InvalidCSVException {
+        return  ValidationUtils.regexValidator( employee, employee.getDesignation(), ValidationUtils.VALID_DESIGNATION_REGEX, OpumConstants.INVALID_DESIGNATION );
     }
 }
