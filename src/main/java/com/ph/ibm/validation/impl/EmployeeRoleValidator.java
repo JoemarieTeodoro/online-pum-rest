@@ -20,7 +20,7 @@ public class EmployeeRoleValidator implements Validator<EmployeeRole> {
 		this.employeeRoleRepository = employeeRoleRepository;
 	}
 
-	private static Logger logger = Logger.getLogger( EmployeeValidator.class );
+	private static Logger logger = Logger.getLogger( AdminEmployeeValidator.class );
 
 	@Override
 	public boolean validate(EmployeeRole employeeRole) throws InvalidCSVException {

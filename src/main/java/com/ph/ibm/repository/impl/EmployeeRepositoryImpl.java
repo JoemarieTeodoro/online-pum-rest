@@ -468,7 +468,9 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setBoolean( 11, isActive );
             preparedStatement.setString( 12, dateFormat( employee.getRollInDate() ) );
             preparedStatement.setString( 13, dateFormat( employee.getRollOffDate() ) );
-            preparedStatement.setString( 14, employee.getDesignation().toUpperCase() );
+            String designation = role.getRoleValue().equals( Role.SYS_ADMIN.getRoleValue() ) ? OpumConstants.ADMIN
+                            : employee.getDesignation().toUpperCase();
+            preparedStatement.setString( 14, designation );
             preparedStatement.setString( 15, employee.getCreateDate() );
             preparedStatement.setString( 16, role.getRoleValue() );
             preparedStatement.setString( 17, employee.getUpdateDate() );

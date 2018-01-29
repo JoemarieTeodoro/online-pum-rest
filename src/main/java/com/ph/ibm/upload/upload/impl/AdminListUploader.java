@@ -21,7 +21,7 @@ import com.ph.ibm.util.BluePagesUtils;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.UploaderUtils;
 import com.ph.ibm.validation.Validator;
-import com.ph.ibm.validation.impl.EmployeeValidator;
+import com.ph.ibm.validation.impl.AdminEmployeeValidator;
 
 /**
  * Class implementation for uploading list of user administrator
@@ -50,7 +50,7 @@ public class AdminListUploader extends CsvUploaderBase {
     /**
      * Validation contain methods to validate field such as employee name, employee id, project name, email address
      */
-    private Validator<Employee> employeeValidator;
+    private Validator<Employee> adminEmployeeValidator;
 
     /**
      * Logger is used to document the execution of the system and logs the corresponding log level such as INFO, WARN,
@@ -64,7 +64,7 @@ public class AdminListUploader extends CsvUploaderBase {
     /** Constructor */
     public AdminListUploader() {
         employeeRepository = new EmployeeRepositoryImpl();
-        employeeValidator = new EmployeeValidator( employeeRepository );
+        adminEmployeeValidator = new AdminEmployeeValidator( employeeRepository );
         logger = Logger.getLogger( AdminListUploader.class );
     }
 
@@ -134,7 +134,7 @@ public class AdminListUploader extends CsvUploaderBase {
         employee.setIntranetId( row.get( 2 ) );
         employee.setRollInDate( row.get( 3 ) );
         employee.setRollOffDate( row.get( 4 ) );
-        employeeValidator.validate( employee );
+        adminEmployeeValidator.validate( employee );
         employee.setManagerSerial( BluePagesUtils.getManagerSerial( employee ) );
         return employee;
     }

@@ -38,7 +38,7 @@ import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.ValidationUtils;
 import com.ph.ibm.validation.Validator;
-import com.ph.ibm.validation.impl.EmployeeValidator;
+import com.ph.ibm.validation.impl.AdminEmployeeValidator;
 
 public class EmployeeBO {
 
@@ -76,7 +76,7 @@ public class EmployeeBO {
      * Validation contain methods to validate field such as employee name, employee
      * id, project name, email address
      */
-    private Validator<Employee> validator = new EmployeeValidator(employeeRepository);
+    private Validator<Employee> validator = new AdminEmployeeValidator(employeeRepository);
     private TeamEmployeeRepository teamEmpRepository = new TeamEmployeeRepositoryImpl();
 
     private static Logger logger = Logger.getLogger(EmployeeBO.class);

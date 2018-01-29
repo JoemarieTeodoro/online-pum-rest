@@ -20,7 +20,7 @@ import com.ph.ibm.repository.EmployeeRepository;
  */
 public class EmployeeValidatorTest {
 
-    public EmployeeValidator validator;
+    public AdminEmployeeValidator validator;
 
     Employee validEmployee;
 
@@ -31,7 +31,7 @@ public class EmployeeValidatorTest {
     @Before
     public void setup() {
         employeeRepository = Mockito.spy( EmployeeRepository.class );
-        validator = Mockito.spy( new EmployeeValidator( employeeRepository ) );
+        validator = Mockito.spy( new AdminEmployeeValidator( employeeRepository ) );
         validEmployee = createValidEmployee();
         invalidEmployee = createInvalidEmployee();
     }
