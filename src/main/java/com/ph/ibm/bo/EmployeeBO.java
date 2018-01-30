@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +32,7 @@ import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamEmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
+import com.ph.ibm.util.FormatUtils;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.ValidationUtils;
@@ -59,8 +59,6 @@ public class EmployeeBO {
     private TeamEmployeeRepository teamEmpRepository = new TeamEmployeeRepositoryImpl();
 
     private static Logger logger = Logger.getLogger(EmployeeBO.class);
-
-	private DateTimeFormatter df = DateTimeFormatter.ofPattern(PUMYearRepositoryImpl.DATE_FORMAT);
 
     /**
      * This method is used to login user
@@ -125,7 +123,7 @@ public class EmployeeBO {
 		if(pumYear != null) {
 			String currFYStartDate = "";
 			String currFYEndDate = "";
-			LocalDate toDate = LocalDate.parse(pumYear.getEnd(), df);
+			LocalDate toDate = FormatUtils.toDBDateFormat(pumYear.getEnd());
 			LocalDateTime toDateTime = LocalDateTime.of(toDate, LocalTime.from(LocalTime.MIN)).plusDays(1);
 			currFY = String.valueOf(pumYear.getYearId());
 			currFYStartDate = pumYear.getStart();
@@ -187,9 +185,9 @@ public class EmployeeBO {
 	}
 
 	private void checkDateWithFY(EmployeeLeave empLeave, PUMYear pumYear) throws SQLException {
-		LocalDate currFYStartDate = LocalDate.parse(pumYear.getStart(), df);
-		LocalDate currFYEndDate = LocalDate.parse(pumYear.getEnd(), df);
-		LocalDate leaveDate = LocalDate.parse(empLeave.getDate(), df);
+		LocalDate currFYStartDate = FormatUtils.toDBDateFormat(pumYear.getStart());
+		LocalDate currFYEndDate = FormatUtils.toDBDateFormat(pumYear.getEnd());
+		LocalDate leaveDate = FormatUtils.toDBDateFormat(empLeave.getDate());
 		if (currFYStartDate.isAfter(leaveDate) || currFYEndDate.isBefore(leaveDate)) {
 			throw new SQLException("Date is out of range for current Fiscal Year!");
 		}
