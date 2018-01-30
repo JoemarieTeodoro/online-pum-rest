@@ -23,6 +23,7 @@ import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.Holiday;
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
@@ -36,7 +37,12 @@ import com.ph.ibm.util.UploaderUtils;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
 
-    private Logger logger = Logger.getLogger( EmployeeRepositoryImpl.class );
+    private static final String INSERT_EMPLOYEE_LEAVE = "INSERT INTO EMPLOYEE_LEAVE (Employee_ID,Year_ID,Status,"
+			+ "Leave_Date,Leave_Type,CreateDate,UpdateDate,Hours) VALUES(?,?,?,?,?,?,?,?);";
+
+	private static final String CHECK_IF_EMPLOYEE_EXISTS = "SELECT * FROM employee where Employee_ID=?";
+
+	private Logger logger = Logger.getLogger( EmployeeRepositoryImpl.class );
 
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
@@ -814,22 +820,17 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		PreparedStatement preparedStatement = null;
 		connection.setAutoCommit(false);
 
-		
-		
 		try {
-			String query_Core = "INSERT INTO EMPLOYEE_LEAVE (Employee_ID,Year_ID,Status,"
-					+ "Leave_Date,Leave_Type,CreateDate,UpdateDate,Hours) VALUES(?,?,?,?,?,?,?,?);";
+			String query_Core = INSERT_EMPLOYEE_LEAVE;
 			preparedStatement = connection.prepareStatement(query_Core, Statement.RETURN_GENERATED_KEYS);
 
 			if (employeeLeaveList.size() > 0) {
 				for (EmployeeLeave emp : employeeLeaveList) {
-					
-					int empLeaveID = 0;
-					if (emp.getEmployeeLeaveID()==null
-							|| emp.getEmployeeLeaveID().equals(LEAVEID_Zero)) {
 
-						boolean isHoliday = isValidHoliday(emp.getLeaveName(),
-								emp.getDate());
+					int empLeaveID = 0;
+					if (emp.getEmployeeLeaveID() == null || emp.getEmployeeLeaveID().equals(LEAVEID_Zero)) {
+
+						boolean isHoliday = isValidHoliday(emp.getLeaveName(), emp.getDate());
 
 						preparedStatement.setString(1, emp.getEmployeeID());
 						preparedStatement.setInt(2, Integer.valueOf(emp.getYearID()));
@@ -858,14 +859,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 								empLeaveID = rs.getInt(1);
 							}
 						}
-
 					} else {
 						updateEmployeeLeave(emp, isDraft);
 					}
 
-					/**
-					 * Save employee leave to history table
-					 */
 					if (!isDraft) {
 						saveEmployeeLeaveHistory(emp, empLeaveID);
 					}
@@ -876,10 +873,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 					updateEmployeeLeaveStatus(empID, fyID);
 				}
 			}
-
 			return true;
-		} catch (Exception e) {
-			logger.error(e.getMessage());
+		} catch (ParseException | OpumException e) {
+			logger.error(e.getMessage() + e.getStackTrace());
+		} finally {
+			connectionPool.closeConnection( connection, preparedStatement );
 		}
 		return false;
 	}
@@ -1060,4 +1058,30 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
 	}
 
+	@Override
+	public void insertUserPastDate(EmployeeLeave empLeave, int yearID) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+			if (!isEmployeeExisting(empLeave, connection, preparedStatement, resultSet)) {
+				throw new SQLException("Employee not existing!");
+			}
+			List<EmployeeLeave> empLeaves = new ArrayList<EmployeeLeave>();
+			empLeaves.add(empLeave);
+			empLeave.setYearID(String.valueOf(yearID));
+			saveEmployeeLeave(empLeaves, false, empLeave.getEmployeeID(), String.valueOf(yearID));
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
+		}
+	}
+
+	private boolean isEmployeeExisting(EmployeeLeave empLeave, Connection connection,
+			PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
+		String query = CHECK_IF_EMPLOYEE_EXISTS;
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setString(1, empLeave.getEmployeeID());
+		resultSet = preparedStatement.executeQuery();
+		return resultSet.next();
+	}
 }

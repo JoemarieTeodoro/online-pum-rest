@@ -9,6 +9,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.log4j.Logger;
 
 import com.ph.ibm.model.Employee;
@@ -21,24 +24,18 @@ import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.EmployeeRepository;
 import com.ph.ibm.repository.LeaveRepository;
 import com.ph.ibm.repository.PUMYearRepository;
-import com.ph.ibm.repository.ProjectEngagementRepository;
-import com.ph.ibm.repository.ProjectRepository;
 import com.ph.ibm.repository.TeamEmployeeRepository;
 import com.ph.ibm.repository.TeamRepository;
 import com.ph.ibm.repository.UtilizationRepository;
 import com.ph.ibm.repository.impl.EmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.LeaveRepositoryImpl;
 import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
-import com.ph.ibm.repository.impl.ProjectEngagementRepositoryImpl;
-import com.ph.ibm.repository.impl.ProjectRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamEmployeeRepositoryImpl;
 import com.ph.ibm.repository.impl.TeamRepositoryImpl;
 import com.ph.ibm.repository.impl.UtilizationRepositoryImpl;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
 import com.ph.ibm.util.ValidationUtils;
-import com.ph.ibm.validation.Validator;
-import com.ph.ibm.validation.impl.AdminEmployeeValidator;
 
 public class EmployeeBO {
 
@@ -59,74 +56,11 @@ public class EmployeeBO {
     
     private UtilizationRepository utilizationRepository = new UtilizationRepositoryImpl();
 
-    /**
-     * ProjectRepository is a Data Access Object which contain method to retrieve
-     * fields stored in project table - opum database
-     */
-    private ProjectRepository projectRepository = new ProjectRepositoryImpl();
-
-    /**
-     * ProjectEngagementRepository is a Data Access Object which contain method to
-     * add, save, get, check field/s stored in project_engagement table - opum
-     * database
-     */
-    private ProjectEngagementRepository projectEngagementRepository = new ProjectEngagementRepositoryImpl();
-
-    /**
-     * Validation contain methods to validate field such as employee name, employee
-     * id, project name, email address
-     */
-    private Validator<Employee> validator = new AdminEmployeeValidator(employeeRepository);
     private TeamEmployeeRepository teamEmpRepository = new TeamEmployeeRepositoryImpl();
 
     private static Logger logger = Logger.getLogger(EmployeeBO.class);
 
-//    /**
-//     * This method is used to register user
-//     *
-//     * @param companyIDNumber
-//     * @param projectName
-//     * @param email
-//     * @param password
-//     * @return String
-//     * @throws Exception
-//     */
-//    public String registerEmployee(String employeeIdNumber, String projectName, String email, String password)
-//            throws Exception {
-//        Employee validateEmployee = new Employee(employeeIdNumber, email, projectName, password);
-//        validator.validate(validateEmployee);
-//
-//        String hashed = MD5HashEncrypter.computeMD5Digest(password);
-//        EmployeeProject employeeProject = new EmployeeProject(employeeIdNumber, email, hashed, projectName);
-//        List<Project> projects = new ArrayList<Project>();
-//        projects = projectRepository.retrieveData();
-//        ProjectEngagement projectEngagement = new ProjectEngagement();
-//
-//        // check if USAA Project exists
-//        for (Project project : projects) {
-//            if (!project.getProjectName().equals(employeeProject.getProjectName())) {
-//                continue;
-//            }
-//            projectEngagement.setProjectId(project.getProjectId());
-//        }
-//        Employee employee = new Employee();
-//        employee.setEmployeeSerial(employeeProject.getEmployeeIdNumber());
-//        employee.setIntranetId(employeeProject.getEmail());
-//        employee.setPassword(employeeProject.getPassword());
-//        // Employee employee = new Employee(employeeProject.getEmployeeIdNumber(),
-//        // employeeProject.getEmail(), employeeProject.getPassword());
-//        if (!employeeRepository.registerEmployee(employee)) {
-//            logger.info(format("Unsuccessful Registration for employee %s %s", employeeProject.getEmployeeIdNumber(),
-//                    employeeProject.getEmail()));
-//            throw new InvalidEmployeeException(OpumConstants.INVALID_COMPANY_ID);
-//        }
-//        projectEngagement.setEmployeeId(employeeRepository.viewEmployee(employeeProject.getEmployeeIdNumber()));
-//        projectEngagementRepository.addProjectEngagement(projectEngagement);
-//
-//        logger.info(OpumConstants.SUCCESSFULLY_REGISTERED);
-//        return "Employee " + employeeProject.getEmployeeIdNumber() + " - " + employeeProject.getEmail()
-//                + " was successfully registered";
-//    }
+	private DateTimeFormatter df = DateTimeFormatter.ofPattern(PUMYearRepositoryImpl.DATE_FORMAT);
 
     /**
      * This method is used to login user
@@ -191,7 +125,6 @@ public class EmployeeBO {
 		if(pumYear != null) {
 			String currFYStartDate = "";
 			String currFYEndDate = "";
-			DateTimeFormatter df = DateTimeFormatter.ofPattern(PUMYearRepositoryImpl.DATE_FORMAT);
 			LocalDate toDate = LocalDate.parse(pumYear.getEnd(), df);
 			LocalDateTime toDateTime = LocalDateTime.of(toDate, LocalTime.from(LocalTime.MIN)).plusDays(1);
 			currFY = String.valueOf(pumYear.getYearId());
@@ -241,4 +174,24 @@ public class EmployeeBO {
 		return leaveRepository.getAllForApproval();
 	}
 
+	public Response insertUserPastDate(EmployeeLeave empLeave) {
+		try {
+			PUMYear pumYear = pumYearRepository.retrieveCurrentFY();
+			checkDateWithFY(empLeave, pumYear);
+			employeeRepository.insertUserPastDate(empLeave, pumYear.getYearId());
+		} catch (SQLException e) {
+			logger.error(e.getMessage() + e.getStackTrace());
+			return Response.status(Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+		}
+		return Response.status(Status.OK).build();
+	}
+
+	private void checkDateWithFY(EmployeeLeave empLeave, PUMYear pumYear) throws SQLException {
+		LocalDate currFYStartDate = LocalDate.parse(pumYear.getStart(), df);
+		LocalDate currFYEndDate = LocalDate.parse(pumYear.getEnd(), df);
+		LocalDate leaveDate = LocalDate.parse(empLeave.getDate(), df);
+		if (currFYStartDate.isAfter(leaveDate) || currFYEndDate.isBefore(leaveDate)) {
+			throw new SQLException("Date is out of range for current Fiscal Year!");
+		}
+	}
 }

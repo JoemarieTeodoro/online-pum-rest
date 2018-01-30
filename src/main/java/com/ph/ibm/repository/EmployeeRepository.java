@@ -9,6 +9,7 @@ import java.util.List;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
+import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.model.ResetPassword;
 import com.ph.ibm.model.Role;
 import com.ph.ibm.opum.exception.OpumException;
@@ -223,4 +224,6 @@ public interface EmployeeRepository {
 	public boolean addUpdatedEmployee(EmployeeUpdate employeeUpdate) throws SQLException, BatchUpdateException;
 
     public Employee getEmployee( String email ) throws SQLException;
+
+	public void insertUserPastDate(EmployeeLeave empLeave, int yearID) throws SQLException;
 }

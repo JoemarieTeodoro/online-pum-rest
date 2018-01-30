@@ -32,6 +32,7 @@ import com.ph.ibm.bo.UtilizationBO;
 import com.ph.ibm.bo.YearBO;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeEvent;
+import com.ph.ibm.model.EmployeeLeave;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.EmployeeUtil;
 import com.ph.ibm.model.ForApprovalList;
@@ -1144,4 +1145,16 @@ public class OnlinePUMResource {
         return Response.status( Status.OK ).entity( result ).build();
     }
 
+    @POST
+	@Path("/insertUserPastDate")
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( MediaType.TEXT_PLAIN )
+	public Response insertUserPastDate( EmployeeLeave empLeaves) throws Exception {
+    	Response response = null;
+		employeeBO = new EmployeeBO();
+		logger.info("Start of inserting user past date");
+		response = employeeBO.insertUserPastDate(empLeaves);
+		logger.info("End of inserting user past date");
+		return response;
+	}
 }

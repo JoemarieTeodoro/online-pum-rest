@@ -351,7 +351,7 @@ CREATE TABLE `employee_leave` (
   `Employee_ID` varchar(45) NOT NULL,
   `Year_ID` int(11) NOT NULL,
   `Status` varchar(45) DEFAULT NULL,
-  `Leave_Date` date NOT NULL,
+  `Leave_Date` date NOT NULL UNIQUE,
   `Leave_Type` varchar(45) NOT NULL,
   `CreateDate` timestamp(6) NULL DEFAULT NULL,
   `UpdateDate` timestamp(6) NULL DEFAULT NULL,
