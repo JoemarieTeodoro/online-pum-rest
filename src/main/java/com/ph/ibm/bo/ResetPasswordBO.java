@@ -61,16 +61,16 @@ public class ResetPasswordBO {
     public Response emailResetPasswordLinkToSingleEmployee( Email email ) throws IOException {
 
         Properties props = new Properties();
-        props.put( "mail.smtp.host", "smtp.gmail.com" );
-        props.put( "mail.smtp.socketFactory.port", "465" );
+		props.put("mail.smtp.host", OpumConstants.EMAIL_SMTP_MAIL_HOST);
+		props.put("mail.smtp.socketFactory.port", OpumConstants.EMAIL_PORT);
         props.put( "mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory" );
         props.put( "mail.smtp.auth", "true" );
-        props.put( "mail.smtp.port", "465" );
+		props.put("mail.smtp.port", OpumConstants.EMAIL_PORT);
 
         Session session = Session.getDefaultInstance( props, new javax.mail.Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication( "onlinepumsender@gmail.com", "onlinepum" );
+				return new PasswordAuthentication(OpumConstants.EMAIL_SENDER, OpumConstants.EMAIL_PASSWORD);
             }
         } );
 

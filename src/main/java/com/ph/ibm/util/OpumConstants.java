@@ -4,7 +4,7 @@ package com.ph.ibm.util;
  * This class contain constants used for notification, validation error, mysql error message/s
  */
 public class OpumConstants {
-
+	
 	/** MYSQL ERROR MESSAGE/s */
 	public static final int MYSQL_DUPLICATE_PK_ERROR_CODE = 1062;
 
@@ -72,7 +72,10 @@ public class OpumConstants {
     public static final String ADMIN = "ADMIN";
 
 	/** EMAIL MESSAGES */
-    public static final String EMAIL_SENDER = "onlinepumsender@gmail.com";
+	public static final String EMAIL_SENDER = "onlinepumsupport@isc4sb.com";
+	public static final String EMAIL_PASSWORD = "onlinepum";
+	public static final String EMAIL_PORT = "25";
+	public static final String EMAIL_SMTP_MAIL_HOST = "ap.relay.ibm.com";
 	public static final String EMAIL_SUBJECT = "ACTION REQUIRED: RESET PASSWORD";
 	public static final String EMAIL_GREETING = "DEAR IBMer,";
 	public static final String EMAIL_BODY = "You can reset your password by clicking the link below:";

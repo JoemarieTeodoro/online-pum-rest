@@ -45,7 +45,7 @@ public class UploaderUtils {
         Email email = new Email();
         email.setRecipientAddress( employee.getIntranetId() );
         email.setTempPassword( employee.getPassword() );
-        email.setSenderAddress( "onlinepumsender@gmail.com" );
+		email.setSenderAddress(OpumConstants.EMAIL_SENDER);
         email.setRecipientType( RecipientType.TO.toString() );
         email.setSubject( OpumConstants.EMAIL_SUBJECT );
         email.setText( OpumConstants.EMAIL_GREETING + "\n\n" + OpumConstants.EMAIL_BODY + "\n\n%s" );
