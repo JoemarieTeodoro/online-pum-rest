@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ph.ibm.opum.exception.OpumException;
+import com.ph.ibm.report.pum.data.PUMWeeklyUtilizationData;
 
 /**
  * 
@@ -41,15 +42,16 @@ public interface UtilizationRepository {
      */
     public List<Double> getEmployeeWeeklyHours( String serial, String year ) throws SQLException;
 
-    /**
-     * @param serial
-     * @param yearId
-     * @param lstWeeklyHours
+	public boolean updateUtilizationHours(String serial, String yearId, List<Double> lstWeeklyHours, String utilizationType) throws SQLException;
+    
+	/**
+     * @param employeeID
+     * @param yearID
      * @return
      * @throws SQLException
      */
-	public boolean updateUtilizationHours(String serial, String yearId, List<Double> lstWeeklyHours, String utilizationType) throws SQLException;
-    
+	public List<PUMWeeklyUtilizationData> getEmployeeUtilizationHours( String employeeID, String yearID ) throws SQLException;
+	
 	public void populateActualUtilization(int yearId, Map<String, Map<String,Double>> employeeHoursMap) throws SQLException;
 	
 	public boolean isEmployeeInUtilization(String serial, int yearId, String utilizationType) throws SQLException;

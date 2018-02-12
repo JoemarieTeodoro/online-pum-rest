@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeLeave;
+import com.ph.ibm.model.EmployeeReportDetails;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.model.ResetPassword;
@@ -226,4 +227,13 @@ public interface EmployeeRepository {
     public Employee getEmployee( String email ) throws SQLException;
 
 	public void insertUserPastDate(EmployeeLeave empLeave, int yearID) throws SQLException;
+	  
+    /**
+     * This method is used to get the list of employee details used for the utilization excel report
+     *
+     * @return list
+     * @throws SQLException
+     */
+    public List<EmployeeReportDetails> getEmployeeListReportDetails() throws SQLException;
+	
 }

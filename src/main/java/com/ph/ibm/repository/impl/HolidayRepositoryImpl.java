@@ -138,7 +138,7 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		ResultSet resultSet = null;
 		List<Holiday> holidays = new ArrayList<Holiday>();
 		try {
-			String query = "SELECT HOLIDAY_ID, NAME, DATE, CREATEDATE, CREATEDBY, UPDATEDATE, UPDATEDBY FROM HOLIDAY WHERE YEAR_ID = ? ";
+			String query = SqlQueries.SQL_QUERY_GET_HOLIDAYS;
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setInt(1, pumYear.getYearId());
 			resultSet = preparedStatement.executeQuery();

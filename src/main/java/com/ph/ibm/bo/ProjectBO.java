@@ -27,7 +27,7 @@ import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeUtil;
 import com.ph.ibm.model.Holiday;
 import com.ph.ibm.model.Month;
-import com.ph.ibm.model.PUMMonth;
+import com.ph.ibm.model.PUMDownloadReportMonth;
 import com.ph.ibm.model.PUMQuarter;
 import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.model.Project;
@@ -109,7 +109,7 @@ public class ProjectBO {
 
     /** Base class used for uploading project information in Csv format */
     private CsvUploaderBase uploader;
-    
+
     /* Base class used for uploading excel files */
     private ExcelUploaderBase excelUploader;
 
@@ -200,10 +200,10 @@ public class ProjectBO {
         	pumYearRepository.addUpdateHolidayInFiscalYearTemplate(lstHoliday, selectedPUMYear);
         }
     }
-    
+
     /*
      * Uploads list of user administrator
-     * 
+     *
      * @param rawData data from the CSV file
      * @param uriInfo URI information
      * @return Status.OK if successful otherwise return invalid response
@@ -216,7 +216,7 @@ public class ProjectBO {
 
     /**
      * Uploads list of user
-     * 
+     *
      * @param rawData data from the CSV file
      * @param uriInfo URI information
      * @return Status.OK if successful otherwise return invalid response
@@ -229,7 +229,7 @@ public class ProjectBO {
 
     /**
      * Uploads list of teams in project
-     * 
+     *
      * @param rawData data from the CSV file
      * @param uriInfo URI information
      * @return Status.OK if successful otherwise return invalid response
@@ -242,7 +242,7 @@ public class ProjectBO {
 
     /**
      * Uploads list of user and respective team
-     * 
+     *
      * @param rawData data from the CSV file
      * @param uriInfo URI information
      * @return Status.OK if successful otherwise return invalid response
@@ -255,7 +255,7 @@ public class ProjectBO {
 
     /**
      * Uploads list of People Manager
-     * 
+     *
      * @param rawData data from the CSV file
      * @param uriInfo URI information
      * @return Status.OK if successful otherwise return invalid response
@@ -268,7 +268,7 @@ public class ProjectBO {
 
     /**
      * Uploads list of user/employee roles in project
-     * 
+     *
      * @param rawData data from the CSV file
      * @param uriInfo URI information
      * @return Status.OK if successful otherwise return invalid response
@@ -278,7 +278,7 @@ public class ProjectBO {
         uploader = new EmployeeRoleUploader();
         return uploader.upload( rawData, uriInfo );
     }
-    
+
     public Response uploadILCFile(InputStream fileInputStream, FormDataContentDisposition fileFormDataContentDisposition, UriInfo uriInfo) throws Exception{
     	excelUploader = new ILCExtractUploader();
     	return excelUploader.upload(fileInputStream, fileFormDataContentDisposition, uriInfo);
@@ -639,16 +639,11 @@ public class ProjectBO {
                         : OpumConstants.ERROR_WHEN_SAVING;
     }
 
-    public String saveMonth( PUMMonth pumMonth ) throws SQLException, ParseException {
-        if( isValueEmpty( pumMonth.getStart() ) ){
-            return OpumConstants.YEAR_START_NOT_FOUND;
-        }
-        if( isValueEmpty( pumMonth.getEnd() ) ){
-            return OpumConstants.ERROR_END_DATE;
-        }
-
-        logger.info( "saveMonth" );
-        return pumYearRepository.saveMonth( pumMonth ) ? OpumConstants.SUCCESSFULLY_SAVED
-                        : OpumConstants.ERROR_WHEN_SAVING;
+    public List<PUMDownloadReportMonth> getPumMonths( String yearId ) throws SQLException {
+        return projectRepository.retrievePumMonths(yearId);
     }
+
+    public void updateMonths( List<PUMDownloadReportMonth> pumMonths ) throws SQLException {
+    	projectRepository.updatePumMonths(pumMonths);
+   }
 }

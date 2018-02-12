@@ -26,6 +26,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.ph.ibm.bo.EmployeeBO;
 import com.ph.ibm.bo.HolidayBO;
+import com.ph.ibm.bo.PUMMonthBO;
 import com.ph.ibm.bo.ProjectBO;
 import com.ph.ibm.bo.UtilityBO;
 import com.ph.ibm.bo.UtilizationBO;
@@ -38,7 +39,7 @@ import com.ph.ibm.model.EmployeeUtil;
 import com.ph.ibm.model.ForApprovalList;
 import com.ph.ibm.model.Holiday;
 import com.ph.ibm.model.HolidayList;
-import com.ph.ibm.model.PUMMonth;
+import com.ph.ibm.model.PUMDownloadReportMonth;
 import com.ph.ibm.model.PUMQuarter;
 import com.ph.ibm.model.PUMYear;
 import com.ph.ibm.model.PUMYearList;
@@ -299,7 +300,7 @@ public class OnlinePUMResource {
      * This service is invoked when an admin uploads the ILC excel file for Actual Utilization calculation<br>
      * <br>
      * Exposed at "opum/ilcDataLoading" path
-     * 
+     *
      * @param fileInputStream - InputStream for the .xlsx file
      * @param fileFormDataContentDisposition - form-data content disposition header for the .xlsx file - contains metadata
      * @param uriInfo - used to obtain information about URI in Response
@@ -311,9 +312,9 @@ public class OnlinePUMResource {
     @Consumes( MediaType.MULTIPART_FORM_DATA )
     @Produces( MediaType.TEXT_PLAIN )
     public Response uploadILCFile(
-    		@FormDataParam("file") InputStream fileInputStream, 
+    		@FormDataParam("file") InputStream fileInputStream,
     		@FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition,
-    		@Context UriInfo uriInfo) 
+    		@Context UriInfo uriInfo)
     	throws SQLException, OpumException{
     	logger.info("START uploadILCFile");
     	Response response = null;
@@ -328,7 +329,7 @@ public class OnlinePUMResource {
     	logger.info("END uploadILCFile");
     	return response;
     }
-    
+
     /**
      * This service is invoked when user log-in <br>
      * <br>
@@ -358,7 +359,7 @@ public class OnlinePUMResource {
             throw new OpumException( e.getMessage(), e );
         }
     }
-    
+
     /**
      * This service is invoked when user view a utilization <br>
      * Exposed at "opum/utilization/{employeeId}/{year}" path
@@ -731,7 +732,7 @@ public class OnlinePUMResource {
 
     /**
      * This service is invoked when the user download excel file <br>
-     * Exposed at "opum/downloadUtilization/{year}" path >>>>>>> 4e17786... Squash commit for PUM-003 and PUM-004
+     * Exposed at "opum/downloadUtilization/{year}" path
      *
      * @param year
      * @param header
@@ -1059,22 +1060,37 @@ public class OnlinePUMResource {
     }
 
     @POST
-    @Path( "/savePUMMonth" )
-    @Consumes( MediaType.APPLICATION_JSON )
-    public String saveMonth( PUMMonth pumMonth, @Context HttpHeaders header ) throws Exception {
-        logger.info( "START saveMonth" );
-        String message = null;
+	@Path( "/savePUMMonthLink" )
+	@Consumes( MediaType.APPLICATION_JSON )
+	@Produces( MediaType.TEXT_PLAIN )
+	public void saveMonth( List<PUMDownloadReportMonth> pumMonth, @Context HttpHeaders header ) throws Exception {
+		logger.info( "START saveMonth" );
+		try{
+			PUMMonthBO pumMonthBO = new PUMMonthBO();
+			pumMonthBO.saveMonth( pumMonth );
+		}
+		catch( Exception e ){
+			logger.error( e );
+			throw new OpumException( e.getMessage(), e );
+		}
+		logger.info( "END saveMonth" );
+	}
 
-        try{
+    @PUT
+    @Path( "/savePUMMonthLink" )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( MediaType.TEXT_PLAIN )
+    public void updateMonth( List<PUMDownloadReportMonth> pumMonths, @Context HttpHeaders header ) throws Exception {
+        logger.info( "UPDATE saveMonth" );
+        try {
             projectBO = new ProjectBO();
-            message = projectBO.saveMonth( pumMonth );
+            projectBO.updateMonths( pumMonths );
         }
         catch( Exception e ){
             logger.error( e );
             throw new OpumException( e.getMessage(), e );
         }
-        logger.info( "END saveMonth" );
-        return message;
+        logger.info( "UPDATE saveMonth" );
     }
 
     /**
@@ -1101,7 +1117,7 @@ public class OnlinePUMResource {
         }
         return Response.status( Status.OK ).entity( employeeEvent ).build();
     }
-	
+
 	@POST
 	@Path("/employeeLeave")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -1156,5 +1172,22 @@ public class OnlinePUMResource {
 		response = employeeBO.insertUserPastDate(empLeaves);
 		logger.info("End of inserting user past date");
 		return response;
+	}
+	
+	@GET
+	@Path( "/getPUMMonth/{yearId}" )
+	@Produces( MediaType.APPLICATION_JSON )
+	public List<PUMDownloadReportMonth> getPumMonth( @PathParam( "yearId" ) String yearId ) {
+		logger.info( "START get PUM Month List" );
+		List<PUMDownloadReportMonth> pumMonthList = null;
+		try {
+			projectBO = new ProjectBO();
+			pumMonthList = projectBO.getPumMonths( yearId );
+		}
+		catch ( Exception e ) {
+			logger.error( e );
+		}
+		logger.info( "End get PUM Month List" );
+		return pumMonthList;
 	}
 }

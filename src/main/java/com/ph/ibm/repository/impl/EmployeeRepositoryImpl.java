@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import com.mysql.jdbc.Statement;
 import com.ph.ibm.model.Employee;
 import com.ph.ibm.model.EmployeeLeave;
+import com.ph.ibm.model.EmployeeReportDetails;
 import com.ph.ibm.model.EmployeeUpdate;
 import com.ph.ibm.model.Holiday;
 import com.ph.ibm.model.PUMYear;
@@ -33,6 +34,7 @@ import com.ph.ibm.repository.TeamEmployeeRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.MD5HashEncrypter;
 import com.ph.ibm.util.OpumConstants;
+import com.ph.ibm.util.SqlQueries;
 import com.ph.ibm.util.UploaderUtils;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
@@ -1007,6 +1009,35 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 		}
 		return false;
 
+	}
+	
+	@Override
+	public List<EmployeeReportDetails> getEmployeeListReportDetails() throws SQLException {
+		List<EmployeeReportDetails> employeeReportDetList = new ArrayList<EmployeeReportDetails>(); 
+		Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try{
+            String query = SqlQueries.SQL_QUERY_GET_EMPLOYEE_LIST_REPORT_DETAILS;
+            preparedStatement = connection.prepareStatement( query );
+            resultSet = preparedStatement.executeQuery();
+            while( resultSet.next() ){
+            	EmployeeReportDetails employeeReportDet = new EmployeeReportDetails();
+                employeeReportDet.setProjectName(resultSet.getString( 1 ));
+                employeeReportDet.setSerialNumber(resultSet.getString( 2 ));
+                employeeReportDet.setResourceName(resultSet.getString( 3 ));
+                employeeReportDet.setRollInDate(resultSet.getString( 4 ));
+                employeeReportDet.setRollOffDate(resultSet.getString( 5 ));
+                employeeReportDetList.add(employeeReportDet);
+            }
+        }
+        catch( SQLException e ){
+            logger.error( e.getStackTrace() );
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+		return employeeReportDetList;
 	}
 
 	@Override

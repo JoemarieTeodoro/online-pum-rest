@@ -13,169 +13,372 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 public class CellStyleUtils {
 	
-	public static final int YELLOW_BORDERED_HEADER = 1; 
+	public static final int HOLIDAY_FIRST_HEADER = 1;
 	
-	public static final int GREEN_BOLD_CENTERED_TOTAL = 2; 
+	public static final int HOLIDAY_SECOND_HEADER = 2;
 	
-	public static final int GREEN_BOLD_TOTAL = 3; 
+	public static final int HOLIDAY_DATA_STYLE = 3;
 	
-	public static final int CENTERED = 4;
+	public static final int PUM_HEADER_STYLE = 4;
 	
-	public static final int RED_FONT_CENTERED = 5;
+	public static final int PUM_NORMAL_DATA_STYLE = 5;
 	
-	public static final int GREEN_FONT_CENTERED = 6;
+	public static final int PUM_NORMAL_RIGHT_ALIGN_DATA_STYLE = 6;
 	
-	public static final int VIOLET_FONTCENTERED = 7;
+	public static final int PUM_NORMAL_CENTERED_DATA_STYLE = 7;
 	
-	public static final int DARK_BACK_WHITE_CENTERED_FONT = 8;
+	public static final int PUM_NORMAL_TOTAL_DATA_STYLE = 8;
 	
-	public static final int DARK_BACK_WHITE_CENTERED_BOLD_FONT = 9;
+	public static final int PUM_YTD_HEADER_STYLE = 9;
 	
-	public static final int DARK_BACK_RED_CENTERED_BOLD_FONT = 10;
+	public static final int PUM_BLUE_ROW_DATA_STYLE = 10;
 	
-	public static final int DARK_BACK_GREEN_CENTERED_BOLD_FONT = 11;
+	public static final int PUM_BLUE_HEADER_STYLE = 11;
 	
-	public static final int DARK_BACK_VIOLET_CENTERED_BOLD_FONT = 12;
+	public static final int PUM_QUARTER_DATA_STYLE = 12;
 	
+	public static final int PUM_MONTH_HEADER_STYLE = 13;
 	
-	public static Map<Integer,CellStyle> generateStyles(Workbook book){
+	public static final int PUM_DAY_NUMBER_HEADER_STYLE = 14;
+	
+	public static final int PUM_GREY_LEFT_DATA_STYLE = 15;
+	
+	public static final int PUM_HOLIDAY_DATA_STYLE = 16;
+	
+	public static final int PUM_BLUE_LEAVE_ROW_DATA_STYLE = 17;
+	
+	public static final int PUM_DECIMAL_TOTAL_DATA_STYLE = 18;
+	
+	public static final String TREBUCHET_MS = "Trebuchet MS";
+	
+	public static Map<Integer,CellStyle> generateStyles(Workbook wb){
 		Map<Integer,CellStyle> stylemap = new HashMap<Integer,CellStyle>();
-		stylemap.put(YELLOW_BORDERED_HEADER, getYellowBorderedHeaderStyle(book));
-		stylemap.put(GREEN_BOLD_TOTAL, getGreenStyle(book));
-		stylemap.put(GREEN_BOLD_CENTERED_TOTAL, getGreenCenteredStyle(book));
-		stylemap.put(CENTERED, getCenteredStyle(book));
-		stylemap.put(DARK_BACK_WHITE_CENTERED_FONT, getDarkBackWhiteCenteredFontStyle(book));
-		stylemap.put(DARK_BACK_WHITE_CENTERED_BOLD_FONT, getDarkBackWhiteCenteredBoldFontStyle(book));
-		stylemap.put(RED_FONT_CENTERED, getCenteredRedFontStyle(book));
-		stylemap.put(GREEN_FONT_CENTERED, getCenteredGreenFontStyle(book));
-		stylemap.put(VIOLET_FONTCENTERED, getCenteredVioletFontStyle(book));
-		stylemap.put(DARK_BACK_RED_CENTERED_BOLD_FONT, getDarkBackRedCenteredBoldFontStyle(book));
-		stylemap.put(DARK_BACK_VIOLET_CENTERED_BOLD_FONT, getDarkBackVioletCenteredBoldFontStyle(book));
-		stylemap.put(DARK_BACK_GREEN_CENTERED_BOLD_FONT, getDarkBackGreenCenteredBoldFontStyle(book));
-		
+		stylemap.put(HOLIDAY_FIRST_HEADER, getWhiteBoldFontSeaGreenBackgroundBorderedStyle(wb));
+		stylemap.put(HOLIDAY_SECOND_HEADER, getBlackBoldFontPaleBlueBackgroundBorderedStyle(wb));
+		stylemap.put(HOLIDAY_DATA_STYLE, getBlackFontWhiteBackgroundBorderedStyle(wb));
+		stylemap.put(PUM_HEADER_STYLE, getPUMHeader(wb));
+		stylemap.put(PUM_NORMAL_DATA_STYLE, getPUMNormalDataStyle(wb));
+		stylemap.put(PUM_NORMAL_RIGHT_ALIGN_DATA_STYLE, getPUMNormalDataRight(wb));
+		stylemap.put(PUM_NORMAL_CENTERED_DATA_STYLE, getPUMNormalCenteredDataStyle(wb));
+		stylemap.put(PUM_NORMAL_TOTAL_DATA_STYLE, getPUMNormalTotalDataStyle(wb));
+		stylemap.put(PUM_YTD_HEADER_STYLE, getPUMYRDHeaderStyle(wb));
+		stylemap.put(PUM_BLUE_ROW_DATA_STYLE, getPUMBlueRowDataStyle(wb));
+		stylemap.put(PUM_BLUE_HEADER_STYLE, getPUMBlueHeaderStyle(wb));
+		stylemap.put(PUM_QUARTER_DATA_STYLE, getQuarterHeaderStyle(wb));
+		stylemap.put(PUM_MONTH_HEADER_STYLE, getMonthHeaderStyle(wb));
+		stylemap.put(PUM_DAY_NUMBER_HEADER_STYLE, getDayNumberHeader(wb));
+		stylemap.put(PUM_GREY_LEFT_DATA_STYLE, getGreyLeftDataStyle(wb));
+		stylemap.put(PUM_HOLIDAY_DATA_STYLE, getHolidayStyle(wb));
+		stylemap.put(PUM_BLUE_LEAVE_ROW_DATA_STYLE, getPUMBlueLeaveRowDataStyle(wb));
+		stylemap.put(PUM_DECIMAL_TOTAL_DATA_STYLE, getPUMNormalTotalDataDecimalStyle(wb));
 		return stylemap;
 	}
 	
-	private static CellStyle getDarkBackGreenCenteredBoldFontStyle(Workbook wb) {
-	    Font redFont = wb.createFont();
-	    redFont.setColor(IndexedColors.GREEN.getIndex());
-	    redFont.setBold(true);
-	    
-	    return getDarkBackgroundCenterStyle(wb,redFont);
+	private static CellStyle getGreyLeftDataStyle(Workbook wb) {
+		CellStyle style = getPUMNormalDataStyle(wb);
+		style.setAlignment(HorizontalAlignment.LEFT);
+	    style.setFillForegroundColor( IndexedColors.GREY_25_PERCENT.getIndex());
+		return style;
+	}
+	
+	private static CellStyle getPUMNormalDataRight(Workbook wb) {
+		CellStyle style = getPUMNormalDataStyle(wb);
+		style.setAlignment(HorizontalAlignment.RIGHT);
+		return style;
+	}
+	
+	private static CellStyle getDayNumberHeader(Workbook wb) {
+		CellStyle style = getPUMHeader(wb);
+		style.setAlignment(HorizontalAlignment.RIGHT);
+		return style;
+	}
+	
+	private static CellStyle getPUMNormalTotalDataDecimalStyle(Workbook wb) {
+		CellStyle style = getPUMNormalTotalDataStyle(wb);
+	    style.setDataFormat(wb.createDataFormat().getFormat("0.0"));
+		return style;
 	}
 
-	private static CellStyle getDarkBackVioletCenteredBoldFontStyle(Workbook wb) {
-	    Font violetFont = wb.createFont();
-	    violetFont.setColor(IndexedColors.VIOLET.getIndex());
-	    violetFont.setBold(true);
-	    
-	    return getDarkBackgroundCenterStyle(wb,violetFont);
-	}
-
-	private static CellStyle getDarkBackRedCenteredBoldFontStyle(Workbook wb) {
-	    Font redFont = wb.createFont();
-	    redFont.setColor(IndexedColors.RED.getIndex());
-	    redFont.setBold(true);
-	    
-	    return getDarkBackgroundCenterStyle(wb,redFont);
-	}
-
-	private static CellStyle getDarkBackWhiteCenteredBoldFontStyle(Workbook wb) {
-	    Font whiteFont = wb.createFont();
-	    whiteFont.setColor(IndexedColors.WHITE.getIndex());
-	    whiteFont.setBold(true);
-	    
-	    return getDarkBackgroundCenterStyle(wb,whiteFont);
-	}
-
-	private static CellStyle getDarkBackWhiteCenteredFontStyle(Workbook wb){
-	    Font whiteFont = wb.createFont();
-	    whiteFont.setColor(IndexedColors.WHITE.getIndex());
-	    
-	    return getDarkBackgroundCenterStyle(wb,whiteFont);
-	}
-	
-	private static CellStyle getDarkBackgroundCenterStyle(Workbook wb, Font font) {
-	    CellStyle style = wb.createCellStyle();
-	    style.setFillForegroundColor( IndexedColors.BLACK.getIndex());
-	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	    style.setWrapText(false);
-	    style.setAlignment(HorizontalAlignment.CENTER);
-	    style.setFont(font);
-	    return style;
-	}
-	
-	private static CellStyle getCenteredStyle(Workbook wb){
-	    CellStyle style = wb.createCellStyle();
-	    style.setAlignment(HorizontalAlignment.CENTER);
-	    return style;
-	}
-	
-	private static CellStyle getCenteredStyle(Workbook wb , Font font){
-	    CellStyle style = wb.createCellStyle();
-	    style.setAlignment(HorizontalAlignment.CENTER);
-	    style.setFont(font);
-	    return style;
-	}
-	
-	private static CellStyle getCenteredRedFontStyle(Workbook wb){
-		Font red = wb.createFont();
-		red.setColor(IndexedColors.RED.getIndex());
-				
-	    return getCenteredStyle(wb , red);
-	}
-	
-	private static CellStyle getCenteredGreenFontStyle(Workbook wb){
-		Font red = wb.createFont();
-		red.setColor(IndexedColors.GREEN.getIndex());
-				
-	    return getCenteredStyle(wb , red);
-	}
-	
-	private static CellStyle getCenteredVioletFontStyle(Workbook wb){
-		Font red = wb.createFont();
-		red.setColor(IndexedColors.VIOLET.getIndex());
-				
-	    return getCenteredStyle(wb , red);
-	}
-	
-	private static CellStyle getGreenStyle(Workbook wb){
-	    Font boldFont = wb.createFont();
-	    boldFont.setBold(true);
+	private static CellStyle getPUMNormalTotalDataStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.WHITE.getIndex());
+	    font.setFontHeightInPoints((short) 9); 
+	    font.setBold(true);
+	    font.setFontName(TREBUCHET_MS);
 		
 	    CellStyle style = wb.createCellStyle();
-	    style.setFillForegroundColor( IndexedColors.LIGHT_GREEN.getIndex());
+	    style.setFillForegroundColor( IndexedColors.SEA_GREEN.getIndex());
 	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    style.setWrapText(false);
-	    style.setFont(boldFont);
+	    style.setAlignment(HorizontalAlignment.RIGHT);
+	    style.setFont(font);
+	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderLeft(BorderStyle.THIN);
+	    style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderTop(BorderStyle.THIN);
+	    style.setTopBorderColor(IndexedColors.BLACK.getIndex());
 	    return style;
 	}
 	
-	private static CellStyle getGreenCenteredStyle(Workbook wb){
-	    CellStyle style = getGreenStyle(wb);
-	    style.setAlignment(HorizontalAlignment.CENTER);
-	    return style;
-	}
-	
-	private static CellStyle getYellowBorderedHeaderStyle(Workbook wb){
+	private static CellStyle getPUMYRDHeaderStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.WHITE.getIndex());
+	    font.setFontHeightInPoints((short) 11); 
+	    font.setBold(true);
+	    font.setFontName("Trebuchet MS");
+		
 	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.DARK_BLUE.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
 	    style.setAlignment(HorizontalAlignment.CENTER);
+	    style.setFont(font);
+	    
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+	    return style;
+	}
+	
+	private static CellStyle getQuarterHeaderStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.WHITE.getIndex());
+	    font.setFontHeightInPoints((short) 11); 
+	    font.setBold(true);
+	    font.setFontName("Trebuchet MS");
+		
+	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.AQUA.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.CENTER);
+	    style.setFont(font);
+	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    return style;
+	}
+	
+	private static CellStyle getMonthHeaderStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.WHITE.getIndex());
+	    font.setFontHeightInPoints((short) 11); 
+	    font.setBold(true);
+	    font.setFontName("Trebuchet MS");
+		
+	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.SEA_GREEN.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.CENTER);
+	    style.setFont(font);
+	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    return style;
+	}
+	
+	private static CellStyle getPUMBlueLeaveRowDataStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.BLACK.getIndex());
+	    font.setFontHeightInPoints((short) 8); 
+	    font.setBold(false);
+	    font.setFontName("Trebuchet MS");
+		
+	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.PALE_BLUE.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.RIGHT);
+	    style.setFont(font);
+	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderLeft(BorderStyle.THIN);
+	    style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderTop(BorderStyle.THIN);
+	    style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+	    return style;
+	}
+	
+	private static CellStyle getPUMBlueRowDataStyle(Workbook wb) {
+		CellStyle style = getPUMBlueLeaveRowDataStyle(wb);
+	    style.setDataFormat(wb.createDataFormat().getFormat("0.0"));
+		
+		return style;
+	}
+	
+	private static CellStyle getPUMBlueHeaderStyle(Workbook wb) {
+		
+	    CellStyle style = getPUMBlueRowDataStyle(wb);
+	    style.setAlignment(HorizontalAlignment.CENTER);
+	    return style;
+	}
+
+
+	private static CellStyle getPUMNormalCenteredDataStyle(Workbook wb) {
+	    CellStyle style = getPUMNormalDataStyle(wb);
+	    style.setAlignment(HorizontalAlignment.CENTER);
+		return style;
+	}
+	
+	private static CellStyle getHolidayStyle(Workbook wb) {
+		CellStyle style = getPUMNormalDataStyle(wb);
+		style.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+		
+		return style;
+	}
+
+	private static CellStyle getPUMNormalDataStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.BLACK.getIndex());
+	    font.setFontHeightInPoints((short) 8); 
+	    font.setBold(false);
+	    font.setFontName("Trebuchet MS");
+		
+	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.WHITE.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.LEFT);
+	    style.setFont(font);
+	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderLeft(BorderStyle.THIN);
+	    style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderTop(BorderStyle.THIN);
+	    style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+	    return style;
+	}
+
+	private static CellStyle getPUMHeader(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.BLACK.getIndex());
+	    font.setFontHeightInPoints((short) 8); 
+	    font.setBold(false);
+	    font.setFontName("Trebuchet MS");
+		
+	    CellStyle style = wb.createCellStyle();
 	    style.setFillForegroundColor( IndexedColors.LIGHT_YELLOW.getIndex());
 	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.CENTER);
+	    style.setFont(font);
 	    
-	    style.setBorderBottom(BorderStyle.MEDIUM);
-	    style.setBottomBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
 	    
-	    style.setBorderLeft(BorderStyle.MEDIUM);
-	    style.setLeftBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
+	    style.setBorderLeft(BorderStyle.THIN);
+	    style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
 	    
-	    style.setBorderRight(BorderStyle.MEDIUM);
-	    style.setRightBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
 	    
-	    style.setBorderTop(BorderStyle.MEDIUM);
-	    style.setTopBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
+	    style.setBorderTop(BorderStyle.THIN);
+	    style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+	    return style;
+	}
+
+	private static CellStyle getWhiteBoldFontSeaGreenBackgroundBorderedStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.WHITE.getIndex());
+	    font.setFontHeightInPoints((short) 9); 
+	    font.setBold(true);
+	    font.setFontName("Helvetica");
+		
+	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.SEA_GREEN.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.CENTER);
+	    style.setFont(font);
 	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderLeft(BorderStyle.THIN);
+	    style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderTop(BorderStyle.THIN);
+	    style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+	    return style;
+	}
+	
+	private static CellStyle getBlackBoldFontPaleBlueBackgroundBorderedStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.BLACK.getIndex());
+	    font.setFontHeightInPoints((short) 9); 
+	    font.setBold(true);
+	    font.setFontName("Helvetica");
+		
+	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.PALE_BLUE.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.CENTER);
+	    style.setFont(font);
+	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderLeft(BorderStyle.THIN);
+	    style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderTop(BorderStyle.THIN);
+	    style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+	    return style;
+	}
+	
+	private static CellStyle getBlackFontWhiteBackgroundBorderedStyle(Workbook wb) {
+	    Font font = wb.createFont();
+	    font.setColor(IndexedColors.BLACK.getIndex());
+	    font.setFontHeightInPoints((short) 8); 
+	    font.setBold(false);
+	    font.setFontName("Helvetica");
+		
+	    CellStyle style = wb.createCellStyle();
+	    style.setFillForegroundColor( IndexedColors.WHITE.getIndex());
+	    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    style.setWrapText(false);
+	    style.setAlignment(HorizontalAlignment.LEFT);
+	    style.setFont(font);
+	    
+	    style.setBorderBottom(BorderStyle.THIN);
+	    style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderLeft(BorderStyle.THIN);
+	    style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderRight(BorderStyle.THIN);
+	    style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+	    
+	    style.setBorderTop(BorderStyle.THIN);
+	    style.setTopBorderColor(IndexedColors.BLACK.getIndex());
 	    return style;
 	}
 }

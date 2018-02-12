@@ -118,6 +118,10 @@ public class OpumConstants {
     public static final int TOTAL_WEEKLY_HOURS = 40;
     public static final int COUNT_OF_WEEKS_PER_QUARTER = 13;
     public static final int COUNT_OF_WEEKS_PER_MONTH = 4;
+    public static final int COUNT_OF_MONTHS_PER_QUARTER = 3;
+    public static final int COUNT_OF_BUSINESS_DAYS_PER_WEEK = 5;
+    public static final int COUNT_OF_DAYS_PER_WEEK = 7;
+    public static final int COUNT_OF_MONTHS_PER_YEAR = 12;
     public static final int PERCENTAGE = 100;
     public static final String ACTUAL_UTILIZATION = "ACTUAL";
     public static final String FORECAST_UTILIZATION = "FORECAST";

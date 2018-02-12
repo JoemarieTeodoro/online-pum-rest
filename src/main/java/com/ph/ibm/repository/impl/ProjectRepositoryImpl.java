@@ -7,14 +7,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.ph.ibm.model.PUMDownloadReportMonth;
 import com.ph.ibm.model.Project;
 import com.ph.ibm.repository.ProjectRepository;
 import com.ph.ibm.resources.ConnectionPool;
+import com.ph.ibm.util.SqlQueries;
 
 public class ProjectRepositoryImpl implements ProjectRepository {
 
 	private ConnectionPool connectionPool = ConnectionPool.getInstance();
-	
+	private Logger logger = Logger.getLogger( ProjectRepositoryImpl.class );
+
 	@Override
 	public List<Project> retrieveData() throws SQLException {
 		Connection connection = connectionPool.getConnection();
@@ -41,4 +46,56 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 		}
 		return projects;
 	}
+
+	@Override
+	public List<PUMDownloadReportMonth> retrievePumMonths(String yearId) throws SQLException {
+		Connection connection = connectionPool.getConnection();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		List<PUMDownloadReportMonth> pumMonths = new ArrayList<>();
+		try {
+			String query = SqlQueries.SQL_QUERY_GET_MONTHEND_DETAILS;
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, yearId);
+			resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				String monthName = resultSet.getString(2);
+				String weekend = resultSet.getString(3);
+				PUMDownloadReportMonth pumMonth = new PUMDownloadReportMonth(
+						monthName, weekend);
+				pumMonths.add(pumMonth);
+			}
+
+		} catch (SQLException e) {
+			logger.error("Error - retrievePumMonths => " + e.getMessage());
+		} finally {
+			connectionPool.closeConnection(connection, preparedStatement, resultSet);
+		}
+		return pumMonths;
+	}
+
+	@Override
+	public String updatePumMonths(List<PUMDownloadReportMonth> pumMonths) throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        String query = SqlQueries.SQL_QUERY_UPDATE_MONTH_END_DATE;
+        try {
+            connection.setAutoCommit( false );
+            preparedStatement = connection.prepareStatement( query );
+
+            for ( PUMDownloadReportMonth pumMonth : pumMonths ) {
+                preparedStatement.setString( 1, pumMonth.getWeekEnd() );
+                preparedStatement.setString( 2, pumMonth.getMonthName() );
+                preparedStatement.setInt( 3, pumMonth.getYearId());
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+            connection.commit();
+        } catch ( SQLException e ) {
+            logger.error( e.getStackTrace() );
+        } finally {
+            connectionPool.closeConnection( connection, preparedStatement );
+        }
+        return "Update successful";
+     }
 }

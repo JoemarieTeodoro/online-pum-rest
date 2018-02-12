@@ -9,10 +9,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.log4j.Logger;
+
+import com.ph.ibm.report.pum.data.PUMWeeklyUtilizationData;
 import com.ph.ibm.repository.UtilizationRepository;
 import com.ph.ibm.resources.ConnectionPool;
 import com.ph.ibm.util.OpumConstants;
@@ -69,6 +75,8 @@ public class UtilizationRepositoryImpl implements UtilizationRepository {
     private int idx_update_week = 1;
 
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
+    
+    private Logger logger = Logger.getLogger( UtilizationRepositoryImpl.class );
 
     /**
      * @param utilization
@@ -284,6 +292,61 @@ public class UtilizationRepositoryImpl implements UtilizationRepository {
             connectionPool.closeConnection( connection, preparedStatement, resultSet );
         }
         return utilizationHours;
+    }
+    
+    @Override
+    public List<PUMWeeklyUtilizationData> getEmployeeUtilizationHours( String employeeID, String yearID )
+        throws SQLException {
+        Connection connection = connectionPool.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        List<PUMWeeklyUtilizationData> pumWeeklyUtilDataList = new LinkedList<PUMWeeklyUtilizationData>();
+        try{
+            preparedStatement = connection.prepareStatement( SqlQueries.SQL_QUERY_GET_EMPLOYEE_UTILIZATION_HOURS );
+            preparedStatement.setString( 1, employeeID );
+            preparedStatement.setString( 2, yearID );
+            preparedStatement.setString( 3, yearID );
+            resultSet = preparedStatement.executeQuery();
+            
+            Map<String,String> dailyData = new HashMap<String,String>();
+            int dayCounter = 1;
+            while( resultSet.next() ){
+            	if(dayCounter >= OpumConstants.COUNT_OF_DAYS_PER_WEEK || "Friday".equals(resultSet.getString("WEEKDAY"))) {
+            		dailyData.put(resultSet.getString("WEEKDAY"), resultSet.getString("HOURS"));
+            		pumWeeklyUtilDataList.add(new PUMWeeklyUtilizationData(resultSet.getString("DATE"),dailyData, getTotal(dailyData)));
+            		dayCounter = 1;
+            		dailyData = new HashMap<String,String>();
+            		continue;
+            	}
+            	dailyData.put(resultSet.getString("WEEKDAY"), resultSet.getString("HOURS"));
+            	dayCounter++;
+            }
+
+        }
+        catch( SQLException e ){
+        	logger.error("Error - getEmployeeUtilizationHours => " + e.getMessage());
+        }
+        finally{
+            connectionPool.closeConnection( connection, preparedStatement, resultSet );
+        }
+        return pumWeeklyUtilDataList;
+    }
+    
+    private int getTotal( Map<String,String> dailyData ) {
+    	int total = 0;
+    	for( String value: dailyData.values() )
+    	{
+    		if(isNotLeave(value))
+    		{
+    			total += Integer.parseInt(value.replaceAll("(?<=^\\d+)\\.0*$", ""));
+    		}
+    	}
+    	return total;
+    }
+    
+    private boolean isNotLeave(String value) {
+    	return NumberUtils.isNumber(value) ;
     }
 
     private void updateEmployeeActualUtilizationHours( String serial, int yearId, List<Double> lstWeeklyHours ) {

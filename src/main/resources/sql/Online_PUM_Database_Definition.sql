@@ -381,9 +381,24 @@ INSERT INTO `fy_template` VALUES (4945,26,'2017-01-02','8',0,''),(4946,26,'2017-
 UNLOCK TABLES;
 
 --
+-- Table structure for table `month`
+--
+DROP TABLE IF EXISTS `month`;
+
+CREATE TABLE `month` (
+  `Month_ID` smallint(3) NOT NULL,
+  `Month_Name` char(15) NOT NULL,
+  `End_Date` date NOT NULL,
+  `Year_ID` smallint(6) NOT NULL,
+  UNIQUE KEY `month_UNIQUE` (`Month_ID`,`Year_ID`),
+  KEY `Month_ID_idx` (`Month_ID`),
+  KEY `Year_ID_idx` (`Year_ID`),
+  CONSTRAINT `FK_Year_ID` FOREIGN KEY (`Year_ID`) REFERENCES `year` (`Year_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;   
+
+--
 -- Table structure for table `employee_leave`
 --
-
 DROP TABLE IF EXISTS `employee_leave`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
