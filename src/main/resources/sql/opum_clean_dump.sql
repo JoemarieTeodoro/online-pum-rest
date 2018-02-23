@@ -183,8 +183,7 @@ CREATE TABLE `holiday` (
   `UpdatedBy` varchar(45) DEFAULT NULL,
   `Year_ID` int(11) NOT NULL,
   PRIMARY KEY (`Holiday_ID`),
-  UNIQUE KEY `Name_UNIQUE` (`Name`),
-  UNIQUE KEY `UNQ_Day` (`Date`)
+  UNIQUE KEY `Name_UNIQUE` (`Name`, `Date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
