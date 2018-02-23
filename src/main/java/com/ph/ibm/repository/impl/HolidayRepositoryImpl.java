@@ -169,9 +169,9 @@ public class HolidayRepositoryImpl implements HolidayEngagementRepository {
 		Holiday holiday = null;
 		try {
 			connection.setAutoCommit(false);
-			String query = "SELECT NAME , DATE, HOLIDAY_ID FROM HOLIDAY WHERE NAME = ?";
+			String query = "SELECT NAME , DATE, HOLIDAY_ID FROM HOLIDAY WHERE NAME LIKE ?";
 			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, name);
+			preparedStatement.setString(1, name + "%");
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
 				holiday = new Holiday();
