@@ -151,8 +151,8 @@ public class EmployeeRoleUploader extends CsvUploaderBase {
     @Override
     protected boolean doesContainsHeader( List<String> row ) throws InvalidCSVException {
     	 checkRowIntegrity(row);
-         return ( row.get( 0 ).equalsIgnoreCase( EMPLOYEE_SERIAL_COLUMN_HEADER ) &&
-            row.get( 1 ).equalsIgnoreCase( ROLE_COLUMN_HEADER ) ) && row.size() == ROW_HEADER_COLUMN_SIZE;
+        return ( row.get( 0 ).trim().equalsIgnoreCase( EMPLOYEE_SERIAL_COLUMN_HEADER ) &&
+            row.get( 1 ).trim().equalsIgnoreCase( ROLE_COLUMN_HEADER ) ) && row.size() == ROW_HEADER_COLUMN_SIZE;
     }
 
     /**

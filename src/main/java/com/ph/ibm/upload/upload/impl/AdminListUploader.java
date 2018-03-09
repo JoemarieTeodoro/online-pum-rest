@@ -159,11 +159,12 @@ public class AdminListUploader extends CsvUploaderBase {
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).equalsIgnoreCase( SERIAL_COLUMN_HEADER ) &&
-            row.get( 1 ).equalsIgnoreCase( EMPLOYEE_COLUMN_HEADER ) &&
-            row.get( 2 ).equalsIgnoreCase( EMAIL_COLUMN_HEADER ) &&
-            row.get( 3 ).equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
-            row.get( 4 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) && row.size() == ROW_HEADER_COLUMN_SIZE );
+        return ( row.get( 0 ).trim().equalsIgnoreCase( SERIAL_COLUMN_HEADER ) &&
+            row.get( 1 ).trim().equalsIgnoreCase( EMPLOYEE_COLUMN_HEADER ) &&
+            row.get( 2 ).trim().equalsIgnoreCase( EMAIL_COLUMN_HEADER ) &&
+            row.get( 3 ).trim().equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
+            row.get( 4 ).trim().equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) &&
+            row.size() == ROW_HEADER_COLUMN_SIZE );
     }
 
     /**

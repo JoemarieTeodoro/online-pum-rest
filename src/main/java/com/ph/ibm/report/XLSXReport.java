@@ -18,6 +18,15 @@ public abstract class XLSXReport {
 	
 	protected abstract String getFileName();
 	
+	public void generateReport2() throws FileNotFoundException, IOException {
+		XSSFWorkbook workbook = populateWorkbook();
+		//TODO: DO NOT INCLUDE IN MERGE TO DEVELOPMENT
+		File file = new File("C:\\Users\\IBM_ADMIN\\Desktop\\"+getFileName());
+	    try ( FileOutputStream outputStream = new FileOutputStream(file)) {
+	    	workbook.write(outputStream);
+	    }
+	}
+	
 	public Response generateReport() throws FileNotFoundException, IOException {
 		XSSFWorkbook workbook = populateWorkbook();
 		File file = new File(getFileName());

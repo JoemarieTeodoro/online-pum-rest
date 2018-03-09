@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import com.ph.ibm.bo.DownloadUtilizationBO;
 import com.ph.ibm.bo.EmployeeBO;
 import com.ph.ibm.bo.HolidayBO;
 import com.ph.ibm.bo.PUMMonthBO;
@@ -46,6 +47,7 @@ import com.ph.ibm.model.PUMYearList;
 import com.ph.ibm.model.Project;
 import com.ph.ibm.model.Utilization;
 import com.ph.ibm.model.Year;
+import com.ph.ibm.model.YtdUtilization;
 import com.ph.ibm.opum.exception.OpumException;
 import com.ph.ibm.repository.UtilizationRepository;
 import com.ph.ibm.repository.impl.PUMYearRepositoryImpl;
@@ -98,6 +100,11 @@ public class OnlinePUMResource {
      * UtilizationBO is a business object layer which handle validations and invoke method/s from the DAO
      */
     private UtilizationBO utilizationBO;
+
+    /**
+     * DownloadUtilizationBO is a business object layer which handle validations and invoke method/s from the DAO
+     */
+    private DownloadUtilizationBO downloadUtilizationBO;
 
     /**
      * Logger is used to document the execution of the system and logs the corresponding log level such as INFO, WARN,
@@ -311,23 +318,23 @@ public class OnlinePUMResource {
     @POST
     @Consumes( MediaType.MULTIPART_FORM_DATA )
     @Produces( MediaType.TEXT_PLAIN )
-    public Response uploadILCFile(
-    		@FormDataParam("file") InputStream fileInputStream,
-    		@FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition,
-    		@Context UriInfo uriInfo)
-    	throws SQLException, OpumException{
-    	logger.info("START uploadILCFile");
-    	Response response = null;
-    	try {
-    		projectBO = new ProjectBO();
-    		response = projectBO.uploadILCFile(fileInputStream, fileFormDataContentDisposition, uriInfo);
-    	}
-    	catch(Exception e ) {
-    		logger.error(e);
-    		throw new OpumException(e.getMessage(), e);
-    	}
-    	logger.info("END uploadILCFile");
-    	return response;
+
+    public Response uploadILCFile( @FormDataParam( "file" ) InputStream fileInputStream,
+                                   @FormDataParam( "file" ) FormDataContentDisposition fileFormDataContentDisposition,
+                                   @Context UriInfo uriInfo )
+        throws SQLException, OpumException {
+        logger.info( "START uploadILCFile" );
+        Response response = null;
+        try{
+            projectBO = new ProjectBO();
+            response = projectBO.uploadILCFile( fileInputStream, fileFormDataContentDisposition, uriInfo );
+        }
+        catch( Exception e ){
+            logger.error( e );
+            throw new OpumException( e.getMessage(), e );
+        }
+        logger.info( "END uploadILCFile" );
+        return response;
     }
 
     /**
@@ -745,17 +752,17 @@ public class OnlinePUMResource {
     public Response downloadUtilization( @Context UriInfo info,
 			@Context HttpHeaders header )
         throws Exception {
-    	String filePath = "opum.xls";
-    	String periodKey = info.getQueryParameters().getFirst("periodKey");
-		String periodValue = info.getQueryParameters().getFirst("periodValue");
-		int periodValueInt = Integer.parseInt(periodValue);
+        String filePath = "opum.xls";
+        String periodKey = info.getQueryParameters().getFirst( "periodKey" );
+        String periodValue = info.getQueryParameters().getFirst( "periodValue" );
+        int periodValueInt = Integer.parseInt( periodValue );
         Response response = null;
         try{
-			utilityBO = new UtilityBO();
-			response = utilityBO.downloadUtilizationReport(periodKey, periodValueInt, filePath);
+            utilityBO = new UtilityBO();
+            response = utilityBO.downloadUtilizationReport( periodKey, periodValueInt, filePath );
         }
         catch( Exception e ){
-        	logger.error( e.getMessage() );
+            logger.error( e.getMessage() );
             response = Response.status( Status.INTERNAL_SERVER_ERROR ).entity( e.getMessage() ).build();
         }
         return response;
@@ -809,15 +816,15 @@ public class OnlinePUMResource {
      */
     @POST
     @Path( "/updateHoliday" )
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response updateHoliday(Holiday holiday) throws Exception {
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( MediaType.TEXT_PLAIN )
+    public Response updateHoliday( Holiday holiday ) throws Exception {
         logger.info( "START updateHoliday" );
         try{
             holidayBO = new HolidayBO();
             logger.info( "END updateEmployeeDetails" );
-			return holidayBO.updateHoliday(holiday)
-					? Response.status(Status.OK).entity(OpumConstants.MSG_UPDATED_HOLIDAY).build()
+            return holidayBO.updateHoliday( holiday )
+                            ? Response.status( Status.OK ).entity( OpumConstants.MSG_UPDATED_HOLIDAY ).build()
 					: Response.status(Status.NOT_ACCEPTABLE).entity(OpumConstants.MSG_ERROR_UPDATING_HOLIDAY).build();
         }
         catch( Exception e ){
@@ -840,14 +847,15 @@ public class OnlinePUMResource {
     @Path( "/deleteHoliday" )
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.TEXT_PLAIN )
-	public Response deleteHoliday(Holiday holiday) throws Exception {
+    public Response deleteHoliday( Holiday holiday ) throws Exception {
         logger.info( "START deleteHoliday" );
         try{
             holidayBO = new HolidayBO();
             logger.info( "END deleteHoliday" );
-			return holidayBO.deleteHoliday(holiday)
-					? Response.status(Status.OK).entity(OpumConstants.MSG_DELETED_HOLIDAY).build()
-					: Response.status(Status.NOT_ACCEPTABLE).entity(OpumConstants.MSG_ERROR_DELETING_HOLIDAY).build();
+            return holidayBO.deleteHoliday( holiday )
+                            ? Response.status( Status.OK ).entity( OpumConstants.MSG_DELETED_HOLIDAY ).build()
+                            : Response.status( Status.NOT_ACCEPTABLE ).entity(
+                                OpumConstants.MSG_ERROR_DELETING_HOLIDAY ).build();
         }
         catch( Exception e ){
             logger.error( e );
@@ -1125,16 +1133,16 @@ public class OnlinePUMResource {
 	public String saveEmployeeLeave( EmployeeEvent empLeaves) throws Exception {
 		boolean result;
 
-		try {
-			employeeBO = new EmployeeBO();
+        try{
+            employeeBO = new EmployeeBO();
 			result = employeeBO.saveEmployeeLeave(empLeaves.getEmpLeaveList(), empLeaves.isDraft(), empLeaves.getEmpID(), empLeaves.getFyID());
 		} catch (Exception e) {
-			logger.error(e);
-			throw new OpumException(e.getMessage(), e);
-		}
-		logger.info("END employee leave update");
-		return String.valueOf(result);
-	}
+            logger.error( e );
+            throw new OpumException( e.getMessage(), e );
+        }
+        logger.info( "END employee leave update" );
+        return String.valueOf( result );
+    }
 
     @GET
     @Path( "/myUtilization/{serial}/{year}" )
@@ -1190,4 +1198,26 @@ public class OnlinePUMResource {
 		logger.info( "End get PUM Month List" );
 		return pumMonthList;
 	}
+    @GET
+    @Path( "/downloadOverallUtilization" )
+    @Produces( "application/vnd.ms-excel" )
+    public Response downloadOverallUtilization(  @Context UriInfo info, @Context HttpHeaders header ) throws Exception {
+        logger.info( "START download overall utilization" );
+        String startDate = info.getQueryParameters().getFirst( "startDate" );
+        String endDate = info.getQueryParameters().getFirst( "endDate" );
+        YtdUtilization ytdUtilization = new YtdUtilization(startDate, endDate);
+        downloadUtilizationBO = new DownloadUtilizationBO();
+        Response response = null;
+        try{
+            response = downloadUtilizationBO.downloadOverallUtilization( ytdUtilization );
+        }
+        catch( Exception e ){
+            e.printStackTrace();
+            logger.error( e );
+            return Response.status( 406 ).entity( "Invalid Start or End Date" ).build();
+        }
+        logger.info( "End download overall utilization" );
+        return response;
+    }
+
 }

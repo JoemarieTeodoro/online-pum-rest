@@ -150,10 +150,10 @@ public class TeamEmployeeUploader extends CsvUploaderBase {
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).equalsIgnoreCase( EMPLOYEE_SERIAL_COLUMN_HEADER ) &&
-            row.get( 1 ).equalsIgnoreCase( TEAM_COLUMN_HEADER ) &&
-            row.get( 2 ).equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
-            row.get( 3 ).equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) &&
+        return ( row.get( 0 ).trim().equalsIgnoreCase( EMPLOYEE_SERIAL_COLUMN_HEADER ) &&
+            row.get( 1 ).trim().equalsIgnoreCase( TEAM_COLUMN_HEADER ) &&
+            row.get( 2 ).trim().equalsIgnoreCase( ROLL_IN_DATE_COLUMN_HEADER ) &&
+            row.get( 3 ).trim().equalsIgnoreCase( ROLL_OFF_DATE_COLUMN_HEADER ) &&
             row.size() == ROW_HEADER_COLUMN_SIZE );
     }
 

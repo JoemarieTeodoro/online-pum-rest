@@ -132,4 +132,8 @@ public class OpumConstants {
 	public static final String MSG_DELETED_HOLIDAY = "Holiday deleted!";
 	public static final String MSG_ERROR_DELETING_HOLIDAY = "Error deleting holiday!";
 
+    /** Employee Designation **/
+    public static final String OFFSHORE = "OFFSHORE";
+    public static final String ONSHORE = "ONSHORE";
+
 }

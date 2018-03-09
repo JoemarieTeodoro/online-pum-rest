@@ -129,9 +129,9 @@ public class TeamListUploader extends CsvUploaderBase {
      */
     @Override
     protected boolean doesContainsHeader( List<String> row ) {
-        return ( row.get( 0 ).equalsIgnoreCase( TEAM_COLUMN_HEADER ) &&
-            row.get( 1 ).equalsIgnoreCase( RECOVERABLE_COLUMN_HEADER ) &&
-            row.get( 2 ).equalsIgnoreCase( LEAD_COLUMN_HEADER ) ) && row.size() == ROW_HEADER_COLUMN_SIZE;
+        return ( row.get( 0 ).trim().equalsIgnoreCase( TEAM_COLUMN_HEADER ) &&
+            row.get( 1 ).trim().equalsIgnoreCase( RECOVERABLE_COLUMN_HEADER ) &&
+            row.get( 2 ).trim().equalsIgnoreCase( LEAD_COLUMN_HEADER ) ) && row.size() == ROW_HEADER_COLUMN_SIZE;
     }
 
     /**

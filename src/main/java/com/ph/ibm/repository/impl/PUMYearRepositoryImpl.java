@@ -540,7 +540,7 @@ public class PUMYearRepositoryImpl implements PUMYearRepository {
     private LinkedHashMap<String, String[]> populateWeekMap( LinkedHashMap<String, String[]> weekMap, int quarterID,
                                                              int yearId, LocalDateTime startWeekDate,
                                                              LocalDateTime counterDateTime, int weekID ) {
-        weekMap.put( "Week " + weekID,
+        weekMap.put( "Week" + weekID,
             new String[]{ String.valueOf( quarterID ), String.valueOf( yearId ), startWeekDate.toLocalDate().toString(),
                           counterDateTime.toLocalDate().toString(), } );
         return weekMap;

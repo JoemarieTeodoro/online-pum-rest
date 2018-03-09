@@ -48,7 +48,8 @@ public class EmployeeValidator extends AdminEmployeeValidator {
      * @throws InvalidCSVException
      */
     private boolean isValidDesignation( Employee employee ) throws InvalidCSVException {
-        return  ValidationUtils.regexValidator( employee, employee.getDesignation(), ValidationUtils.VALID_DESIGNATION_REGEX, OpumConstants.INVALID_DESIGNATION );
+        return ValidationUtils.regexValidator( employee, employee.getDesignation().trim(),
+            ValidationUtils.VALID_DESIGNATION_REGEX, OpumConstants.INVALID_DESIGNATION );
     }
 
 }

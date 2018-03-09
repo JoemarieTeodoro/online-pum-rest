@@ -471,6 +471,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 preparedStatement.setString( 9, employee.getPassword() );
                 UploaderUtils.sendEmailToRecipients( employee );
                 pumYearRepository.populateUtilization( employee.getEmployeeSerial() );
+                saveEmployeeRole( employee.getEmployeeSerial(), role );
             }
             preparedStatement.setString( 10, empStatus );
             preparedStatement.setBoolean( 11, isActive );
@@ -484,7 +485,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString( 17, employee.getUpdateDate() );
             preparedStatement.setString( 18, employee.getUpdatedBy() );
             preparedStatement.addBatch();
-            saveEmployeeRole( employee.getEmployeeSerial(), role );
+
             updateEmployeeStatusToInactive( employee.getEmployeeSerial() );
         }
 
