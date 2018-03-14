@@ -92,5 +92,10 @@ public class UtePercentage {
     private Double computeUTEPercentage( Entry<String, Integer> available, Entry<String, Double> actualHours ) {
         return actualHours.getValue() / available.getValue();
     }
+    
+    public String calculateSumOfGrandTotalUtePercentage (Double totalActualHours, Double totalAvailableHours) {
+		return FormatUtils.toPercentage(totalActualHours / totalAvailableHours);
+    	
+    }
 
 }

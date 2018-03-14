@@ -233,6 +233,9 @@ public class OverallUtilizationReport {
             DownloadUtilizationUtils.populateTotalHoursList( totalBillableHours, totalAvailableHours );
         return totalHoursMap;
     }
-
+    
+    public String calculateSumOfGrandTotalUtePercentage( Double actualGrandTotalHours, Double availableGrandTotalHours ) {
+        return utePercentage.calculateSumOfGrandTotalUtePercentage( actualGrandTotalHours, availableGrandTotalHours );
+    }
 
 }

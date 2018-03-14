@@ -1147,7 +1147,8 @@ public class OnlinePUMResource {
     @GET
     @Path( "/myUtilization/{serial}/{year}" )
     @Produces( MediaType.APPLICATION_JSON )
-    public Response myUtilization( @PathParam( "serial" ) String serial, @PathParam( "year" ) String year ) throws Exception {
+    public Response myUtilization( @PathParam( "serial" ) String serial, @PathParam( "year" ) String year )
+        throws Exception {
         logger.info( "START get Utilization" );
         UtilizationRepository utilizationRepository = new UtilizationRepositoryImpl();
         Utilization result;
@@ -1198,26 +1199,27 @@ public class OnlinePUMResource {
 		logger.info( "End get PUM Month List" );
 		return pumMonthList;
 	}
-    @GET
-    @Path( "/downloadOverallUtilization" )
-    @Produces( "application/vnd.ms-excel" )
-    public Response downloadOverallUtilization(  @Context UriInfo info, @Context HttpHeaders header ) throws Exception {
-        logger.info( "START download overall utilization" );
-        String startDate = info.getQueryParameters().getFirst( "startDate" );
-        String endDate = info.getQueryParameters().getFirst( "endDate" );
-        YtdUtilization ytdUtilization = new YtdUtilization(startDate, endDate);
-        downloadUtilizationBO = new DownloadUtilizationBO();
-        Response response = null;
-        try{
-            response = downloadUtilizationBO.downloadOverallUtilization( ytdUtilization );
-        }
-        catch( Exception e ){
-            e.printStackTrace();
-            logger.error( e );
-            return Response.status( 406 ).entity( "Invalid Start or End Date" ).build();
-        }
-        logger.info( "End download overall utilization" );
-        return response;
-    }
+  
+  @GET
+  @Path( "/downloadOverallUtilization" )
+  @Produces( "application/vnd.ms-excel" )
+  public Response downloadOverallUtilization(  @Context UriInfo info, @Context HttpHeaders header ) throws Exception {
+      logger.info( "START download overall utilization" );
+      String startDate = info.getQueryParameters().getFirst( "startDate" );
+      String endDate = info.getQueryParameters().getFirst( "endDate" );
+      YtdUtilization ytdUtilization = new YtdUtilization(startDate, endDate);
+      downloadUtilizationBO = new DownloadUtilizationBO();
+      Response response = null;
+      try{
+          response = downloadUtilizationBO.downloadOverallUtilization( ytdUtilization );
+      }
+      catch( Exception e ){
+          e.printStackTrace();
+          logger.error( e );
+          return Response.status( 406 ).entity( "Invalid Start or End Date" ).build();
+      }
+      logger.info( "End download overall utilization" );
+      return response;
+  }
 
 }
